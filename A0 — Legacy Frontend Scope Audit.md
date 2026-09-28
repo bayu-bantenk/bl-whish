@@ -1,72 +1,85 @@
-## A0 RESULT
+I've written the A1 deliverable to gpos-b2b-cms/docs/migration/ROUTE_SCREEN_MAP.md. It has all 29 required sections, and its bulk tables were generated from start/routes.js, the controllers, the views, the Mappers and the validators. Only that file was added; nothing else changed in either repo, and it isn't committed.
 
-```text
+
+# A1 RESULT
+
 Status: GO
 
-Frontend Scope:
-The legacy frontend is a server-rendered multi-page app, not the frontend/ folder.
-It is made of the Edge views (resources/views, 191 files) and the static browser
-files in public/assets (jQuery, Bootstrap/Argon, DataTables, select2, pickers,
-Quill). There is no build step, no bundler, no TypeScript and no client-side
-router. gpos-b2b-cms/frontend/ contains 10 empty folders, 0 files, and is not
-tracked in git.
+Total Routes:
+247 route calls in routes.js (217 explicit + 30 Route.resource).
+427 entries once resources are expanded; 330 are frontend-relevant.
+The other 97 are resource routes with no controller action behind them.
 
-Primary Frontend Entry:
-Each page is its own server-rendered document:
-browser GET → Adonis Static/CORS → global middleware (Extender builds the menu)
-→ authSession → Controller → view.render → the page view on top of
-layouts.edge → page scripts → $.fn.buildtable (main.js) → POST */datatable on
-the same Adonis server → Mapper → ApiService → API Gateway.
-login.edge is a separate page with its own <head> that submits a normal form POST.
+Frontend Page Routes:
+107 routes render a page (106 GET, plus POST-rendered wizard summaries).
 
-Primary Frontend Locations:
-- resources/views/**: layouts.edge, login.edge, 22 components, the upload include
-- public/assets/js/{main,cms-toastify,pagination}.js
-- public/assets/{css,img,icon,fonts}: only the files actually referenced
+Screens:
+107. By status: 82 ACTIVE-CANDIDATE · 22 UNKNOWN · 3 MISSING-VIEW.
 
-Important Shared/Boundary Locations:
-- start/routes.js: route names used 419 times from views
-- start/hooks.js: view helpers, including env(), which lets any template print an env var
-- app/Middleware/Extender.js: 3 hardcoded menu sets chosen by user email
-- AuthSession.js + Authorization.js: session expiry gate
-- ExtendResponse.js: JSON response shape
-- Mappers and about 13 Controllers: build table-cell HTML server-side
-- DatatableBuilder.js; Validators: error messages shown in the UI
-- config/{shield,session,app}.js: CSRF, session cookie, method spoofing, static files
+Feature Areas:
+32, named with the legacy menu labels.
 
-Major Findings:
-HIGH:
-- F01: frontend/ is empty.
-- F02: UI markup is generated in backend Mappers.
-- F03: menu visibility is decided by hardcoded email addresses.
-- F04: login.edge renders a prefilled email and password in the HTML
-  (values not reproduced; this must not be carried into the new app).
-MEDIUM:
-- F05: 3 views are rendered by a controller but don't exist (product_gposb2b_homepages).
-- F06: 21 view files are never rendered or included.
-- F07: the layout links to route handlers that don't exist (UserController.*).
-- F08: env() exposes server env to the browser (only OSS_BUCKET_URL is used today).
-- F09: everything in public/ is served, including template leftovers and uploads.
-- F10: 134 images (~19 MB) in public/images have no reference in source.
+Forms:
+40 form groups inventoried. The views contain 145 POST <form> elements in 105 views,
+plus AJAX forms on Banner, Group Story, Notification, Gamification, Customer Group and Channel.
+
+DataTable Screens:
+32 views call $.fn.buildtable.
+9 more list screens use custom JSON with pagination.js, or server-rendered cards.
+
+Modal/Dialog Patterns:
+55 distinct modals plus 1 loading overlay, in 6 kinds:
+confirmation, form, detail, loading, alert, custom popup.
+
+Upload/File Capabilities:
+13. All go through OSS signed-URL upload, except the Principal image,
+which is saved to the server's local disk. Includes 4 CSV imports.
+
+Export/Import Capabilities:
+12. DataTables exports run in the browser and cover only the current page (not yet run to confirm).
+Also: server CSV generation (Gamification), template downloads (Loyalty, Folamil) and CSV imports.
+
+Orphan Views:
+21. All 21 are LIKELY UNUSED: stale copies or prototypes.
+Separately, 5 screens have routes but are only static mockups.
+
+Missing Views:
+3 (product_gposb2b_homepages/list, create, edit).
+The same capability works on the Produk Gpos B2b page, tab 2.
 
 Unknowns:
-- Whether all list pages use the buildtable pattern.
-- Whether the orphan views are really dead.
-- What happens at runtime for the missing views and the missing route() handlers.
-- The actual menu each account sees, and whether routes are protected by role
-  or only hidden from the menu.
-- Who uses public/images, downloads and uploads.
-- Which CDN versions are actually served (toastr is loaded from "latest").
-- Whether any of the 43 raw {{{ }}} outputs print authUser or config into the page.
+30 (U01–U30), each assigned to A2, A3.1 or A3.2.
 
-Migration Impact:
-For each screen, A1 must read four sources together: the Edge markup, the
-inline script, the main.js helpers, and the Mapper-built HTML. Menu, route
-names, CSRF/flash/old() and datatable request/response formats are backend
-contracts that go to A2. The browser only talks to Adonis on the same origin,
-never to the gateway directly.
-```
+Critical Findings:
+None is critical enough to block A2. The HIGH findings:
+- Failure messages are often never shown to the user. Some controllers use the key
+  `Warning` (capital W), which no view renders, and list pages only display `notification`.
+- Bulk-delete messages are swapped on Content and Order Review:
+  success shows nothing, failure shows "Berhasil".
+- Delete is broken on Order (single and bulk), Product and User Management.
+- Deleting a Principal sends the user to /custom-catalog.
+- Several screens work but can only be reached by typing the URL: their menu or hub
+  links are commented out (Inject Point, Mutasi/Redeem, Voucher Setting,
+  Gamification multi-period, and the standalone catalog-product and criteria screens).
+- The login page still ships with a filled-in email and password (the A0 finding).
 
-**GO.** The boundary is clear: there is one delivery model and no hidden SPA or bundle. None of the remaining unknowns changes the scope; they are per-screen or runtime questions for A1–A3.
+Migration-Relevant Findings:
+- A lot of screen behavior is built on the server: 34 functions write the table's
+  buttons, toggles and badges as HTML. None of them checks role or email;
+  the only visibility control is the menu.
+- Some JSON endpoints answer errors with a redirect, so the browser gets an HTML page instead of an error.
+- Some filters on the screen are ignored by the server:
+  - Mutasi: `mutation_type` and `no_invoice` are dropped.
+  - Loyalty search is ignored.
+  - Custom Catalog sorts by the wrong column.
+  - Mutasi branch filter overrides the chosen customers.
+- Validation messages are mostly not displayed; fields only get a red border.
+- The dashboard is placeholders only.
+- Some links point to controller actions that don't exist; the page probably renders the link as the text "null".
+GO for A2. Every route, screen and view has a status, and what's left is behavior that needs runtime checks or an owner decision. Stopping here; A2 not started.
 
-The report is at `gpos-b2b-cms/docs/migration/FRONTEND_SCOPE.md` and has all 16 required sections. I put it in the existing, empty `docs/migration/` folder instead of creating `docs/architecture/`. It is the only file written, and it is not committed; `frontend/` is untouched. Stopping here for review; A1 not started.
+A few scope questions need your call before A4:
+
+Hidden screens: should the URL-only screens be migrated?
+Mockups: should the five mockup screens (Poin Reguler, Payment, Folamil create) be dropped?
+Broken deletes: should Order, Product and User Management support delete at all in the new app?
