@@ -1,85 +1,55 @@
-I've written the A1 deliverable to gpos-b2b-cms/docs/migration/ROUTE_SCREEN_MAP.md. It has all 29 required sections, and its bulk tables were generated from start/routes.js, the controllers, the views, the Mappers and the validators. Only that file was added; nothing else changed in either repo, and it isn't committed.
+1. **File:** `gpos-b2b-cms/docs/migration/AUTH_API_PERMISSION_MAP.md`
 
+2. **Summary**
+   - **Topology:** Adonis is the only thing the browser talks to (a server-side proxy). The browser holds just the httpOnly session cookie and a CSRF token.
+     - Adonis calls the API Gateway itself, adding `Authorization: Bearer <access_token>` from the session.
+     - The browser never sees the gateway URL or the token. The legacy app uses no API key at all.
+   - **Login:** Adonis forwards the whole login form to `POST /api/v1/auth/login` and stores the gateway's `data` in the session as `auth` (file sessions, 7-day cookie). Expiry is only a check of `auth.expires_at` against the server clock.
+   - **Token refresh is not implemented.** A 401 from the gateway isn't handled anywhere.
+   - **Authorization in Adonis only checks that the session exists and hasn't expired.**
+     - The three hardcoded menus, chosen by user email, only control what's visible. Every logged-in user can open every route by URL.
+     - Action buttons have no permission checks. `config/access.js` is never used, and the legacy app has no session-validation or permission endpoint.
+     - Any real authorization happens behind the gateway, which this repo can't show.
+   - **Contracts, as seen from the legacy code:**
+     - Gateway responses look like `{code, message, data}`; lists come as `data: {rows, total_rows}`.
+     - Timeouts and network errors show up as `code 404`.
+     - DataTables endpoints return `{draw, recordsTotal, recordsFiltered, data: [[html cells]]}`.
+     - Uploads: Adonis gets a signed URL from the gateway, then the browser PUTs the file straight to storage. Principal images are the exception: they go to local disk.
+   - **Coverage:** 243 gateway calls (220 distinct endpoints) are mapped to routes. The error taxonomy, the validation flow, a permission matrix for all 32 features, and the environment exposure (compared with B0) are all documented.
+   - **Nothing modified:** no source files were changed and no secrets appear in the document.
 
-# A1 RESULT
+3. **A2 STATUS: GO**
 
-Status: GO
+4. **Critical / High findings**
+   - **CRITICAL A2-C01:** the bearer token and the full session are written to the server log on every request (`Extender.js`, `LoyaltyMemberRepository`).
+   - **CRITICAL A2-C02:** `ApiService.httpLog` logs the Authorization header and request bodies, so the login password ends up in the log.
+   - **HIGH A2-H01:** Adonis has no authorization. Roles are separated only by which menu is shown.
+   - **HIGH A2-H02:** the login page still ships with a filled-in email and password.
+   - **HIGH A2-H03:** no token refresh and no handling of a 401 from the gateway.
+   - **HIGH A2-H04:** timeouts are reported as 404.
+   - **HIGH A2-H05:** an AJAX request with an expired session gets a redirect to the HTML login page instead of an error.
+   - **HIGH A2-H06:** form bodies are forwarded to the gateway unfiltered, including `_csrf`.
 
-Total Routes:
-247 route calls in routes.js (217 explicit + 30 Route.resource).
-427 entries once resources are expanded; 330 are frontend-relevant.
-The other 97 are resource routes with no controller action behind them.
+5. **Remaining A2 unknowns** (A2-U01…U13)
+   - **Need a runtime check (A3.1):**
+     - The full login payload, including whether a refresh token comes back.
+     - The format and timezone of `expires_at`.
+     - Which field holds the user id sent as `X-UserId`.
+     - How DataTables behaves when it gets a redirect back.
+     - The axios error branch that can crash.
+     - Whether cookies get the `secure` flag behind TLS.
+   - **Depend on the backend:**
+     - Gateway behavior on an expired token.
+     - Per-role authorization at the gateway or backend.
+     - `Api-Key` and CORS requirements.
+     - Whether `validate-session` or entity/access permissions exist.
+     - Signed-URL lifetime and storage policy.
+   - **Need an owner decision:**
+     - Whether the legacy gateway and the target's `API_HOST` are the same service.
+     - Which accounts are the payment and marketing users.
+   - **A1 unknowns carried over:**
+     - U28 is resolved: `DateComparison` is never registered, so it isn't used.
+     - U14 is resolved on the legacy side: cancel and final both call `…/cancels`.
+     - U04, U05, U06, U12 and U26 are partly resolved or classified.
 
-Frontend Page Routes:
-107 routes render a page (106 GET, plus POST-rendered wizard summaries).
-
-Screens:
-107. By status: 82 ACTIVE-CANDIDATE · 22 UNKNOWN · 3 MISSING-VIEW.
-
-Feature Areas:
-32, named with the legacy menu labels.
-
-Forms:
-40 form groups inventoried. The views contain 145 POST <form> elements in 105 views,
-plus AJAX forms on Banner, Group Story, Notification, Gamification, Customer Group and Channel.
-
-DataTable Screens:
-32 views call $.fn.buildtable.
-9 more list screens use custom JSON with pagination.js, or server-rendered cards.
-
-Modal/Dialog Patterns:
-55 distinct modals plus 1 loading overlay, in 6 kinds:
-confirmation, form, detail, loading, alert, custom popup.
-
-Upload/File Capabilities:
-13. All go through OSS signed-URL upload, except the Principal image,
-which is saved to the server's local disk. Includes 4 CSV imports.
-
-Export/Import Capabilities:
-12. DataTables exports run in the browser and cover only the current page (not yet run to confirm).
-Also: server CSV generation (Gamification), template downloads (Loyalty, Folamil) and CSV imports.
-
-Orphan Views:
-21. All 21 are LIKELY UNUSED: stale copies or prototypes.
-Separately, 5 screens have routes but are only static mockups.
-
-Missing Views:
-3 (product_gposb2b_homepages/list, create, edit).
-The same capability works on the Produk Gpos B2b page, tab 2.
-
-Unknowns:
-30 (U01–U30), each assigned to A2, A3.1 or A3.2.
-
-Critical Findings:
-None is critical enough to block A2. The HIGH findings:
-- Failure messages are often never shown to the user. Some controllers use the key
-  `Warning` (capital W), which no view renders, and list pages only display `notification`.
-- Bulk-delete messages are swapped on Content and Order Review:
-  success shows nothing, failure shows "Berhasil".
-- Delete is broken on Order (single and bulk), Product and User Management.
-- Deleting a Principal sends the user to /custom-catalog.
-- Several screens work but can only be reached by typing the URL: their menu or hub
-  links are commented out (Inject Point, Mutasi/Redeem, Voucher Setting,
-  Gamification multi-period, and the standalone catalog-product and criteria screens).
-- The login page still ships with a filled-in email and password (the A0 finding).
-
-Migration-Relevant Findings:
-- A lot of screen behavior is built on the server: 34 functions write the table's
-  buttons, toggles and badges as HTML. None of them checks role or email;
-  the only visibility control is the menu.
-- Some JSON endpoints answer errors with a redirect, so the browser gets an HTML page instead of an error.
-- Some filters on the screen are ignored by the server:
-  - Mutasi: `mutation_type` and `no_invoice` are dropped.
-  - Loyalty search is ignored.
-  - Custom Catalog sorts by the wrong column.
-  - Mutasi branch filter overrides the chosen customers.
-- Validation messages are mostly not displayed; fields only get a red border.
-- The dashboard is placeholders only.
-- Some links point to controller actions that don't exist; the page probably renders the link as the text "null".
-GO for A2. Every route, screen and view has a status, and what's left is behavior that needs runtime checks or an owner decision. Stopping here; A2 not started.
-
-A few scope questions need your call before A4:
-
-Hidden screens: should the URL-only screens be migrated?
-Mockups: should the five mockup screens (Poin Reguler, Payment, Folamil create) be dropped?
-Broken deletes: should Order, Product and User Management support delete at all in the new app?
+6. **A3.1 readiness:** ready. A verification queue of 10 items is in §22, and the queue for A3.2 is in §23. Eight owner decisions (OD-1…OD-8) are listed for later. OD-8, removing tokens and passwords from the running system's logs, is urgent regardless of the migration.
