@@ -1,55 +1,60 @@
-1. **File:** `gpos-b2b-cms/docs/migration/AUTH_API_PERMISSION_MAP.md`
+1. **File:** `gpos-b2b-cms/docs/migration/RUNTIME_BEHAVIOR_AUDIT.md`
 
 2. **Summary**
-   - **Topology:** Adonis is the only thing the browser talks to (a server-side proxy). The browser holds just the httpOnly session cookie and a CSRF token.
-     - Adonis calls the API Gateway itself, adding `Authorization: Bearer <access_token>` from the session.
-     - The browser never sees the gateway URL or the token. The legacy app uses no API key at all.
-   - **Login:** Adonis forwards the whole login form to `POST /api/v1/auth/login` and stores the gateway's `data` in the session as `auth` (file sessions, 7-day cookie). Expiry is only a check of `auth.expires_at` against the server clock.
-   - **Token refresh is not implemented.** A 401 from the gateway isn't handled anywhere.
-   - **Authorization in Adonis only checks that the session exists and hasn't expired.**
-     - The three hardcoded menus, chosen by user email, only control what's visible. Every logged-in user can open every route by URL.
-     - Action buttons have no permission checks. `config/access.js` is never used, and the legacy app has no session-validation or permission endpoint.
-     - Any real authorization happens behind the gateway, which this repo can't show.
-   - **Contracts, as seen from the legacy code:**
-     - Gateway responses look like `{code, message, data}`; lists come as `data: {rows, total_rows}`.
-     - Timeouts and network errors show up as `code 404`.
-     - DataTables endpoints return `{draw, recordsTotal, recordsFiltered, data: [[html cells]]}`.
-     - Uploads: Adonis gets a signed URL from the gateway, then the browser PUTs the file straight to storage. Principal images are the exception: they go to local disk.
-   - **Coverage:** 243 gateway calls (220 distinct endpoints) are mapped to routes. The error taxonomy, the validation flow, a permission matrix for all 32 features, and the environment exposure (compared with B0) are all documented.
-   - **Nothing modified:** no source files were changed and no secrets appear in the document.
+   - **Setup:** I ran the unmodified legacy app (commit `00bc6ea`) on 127.0.0.1 against a local mock gateway. Configuration was overridden through the environment only; no real gateway or storage was contacted.
+   - **Why a mock:** no test gateway or test accounts were available. I did not use the credentials prefilled in the legacy HTML.
+   - **Coverage:** everything at the Adonis layer was verified at runtime. What the real gateway or backend does is marked `[NOT OBSERVABLE]`.
+   - **Clean-up:** the test session files were deleted, both processes were stopped, and `git status` shows only `docs/`. No secrets are recorded; every value used was synthetic.
+   - **Browser behavior not seen:** tests ran through `curl`, not a browser, so how pages react in the UI (e.g. DataTables dialogs) is queued for A3.2.
+   - **Node version:** the app ran on Node 24; the Dockerfile targets Node 16.
 
-3. **A2 STATUS: GO**
+3. **A3.1 STATUS: GO**
 
-4. **Critical / High findings**
-   - **CRITICAL A2-C01:** the bearer token and the full session are written to the server log on every request (`Extender.js`, `LoyaltyMemberRepository`).
-   - **CRITICAL A2-C02:** `ApiService.httpLog` logs the Authorization header and request bodies, so the login password ends up in the log.
-   - **HIGH A2-H01:** Adonis has no authorization. Roles are separated only by which menu is shown.
-   - **HIGH A2-H02:** the login page still ships with a filled-in email and password.
-   - **HIGH A2-H03:** no token refresh and no handling of a 401 from the gateway.
-   - **HIGH A2-H04:** timeouts are reported as 404.
-   - **HIGH A2-H05:** an AJAX request with an expired session gets a redirect to the HTML login page instead of an error.
-   - **HIGH A2-H06:** form bodies are forwarded to the gateway unfiltered, including `_csrf`.
+4. **Confirmed findings**
+   - **Topology:** the browser only talks to Adonis. The bearer token is added server-side, and no token, gateway URL or API key reaches the browser.
+   - **Session:** it stores the gateway's login `data` exactly as received.
+   - **Refresh:** none happens in any scenario.
+   - **Expired session:** every request, including AJAX and DataTables, gets `302 → /` and then the login page as `200 text/html`, never a 401.
+   - **Access control:** the menu differs by account email, but payment and marketing accounts get 200 on every superadmin page tested.
+   - **DataTables:**
+     - Responses are `{draw, recordsTotal, recordsFiltered, data}` with HTML cells, and `recordsTotal === recordsFiltered` always.
+     - Gateway errors 400/401/403/500, or a gateway outage, give a silent empty table (200).
+     - Mapper errors give a 302.
+     - Notification returns a different shape on error.
+   - **Other error paths:**
+     - Gateway 401/403/500 on AJAX actions come back as 400.
+     - A refused connection takes the "not found" (404) path.
+     - Invalid credentials, a gateway 400, or the gateway being down all show no login error.
+   - **CSRF:**
+     - POST, PUT and DELETE without a token are rejected (403).
+     - PATCH, **and a POST with `?_method=PATCH`**, go through without a token and run resource updates. The GET voucher-cancel route also runs without a token.
+   - **Upload:** signurl accepts any file type, and returns an empty 500 when the gateway fails. Adonis and the gateway never see file bytes.
+   - **Identity headers:** Loyalty sends `X-Userid` = email; UserVerification sends `X-UserId` = `user_id` first.
+   - **Logging:** the logs contain the full `auth` object, the token, the `Authorization` header and the login password (A2-C01 and A2-C02 confirmed).
+   - **Raw data in scripts:** `toJSON` output is inserted straight into inline scripts.
+   - **Messages:** the Content bulk-delete messages are swapped, and validation messages are hidden (Content and Global Config show nothing).
+   - **New HIGH findings:**
+     - **A3-S02:** the expiry check fails open. A `null` or unparseable `expires_at` never expires. A timestamp without a timezone is read as server time (WIB), and epoch seconds count as expired.
+     - **A3-S01:** I propose raising the CSRF finding from A2-M01 (medium) to HIGH, because the `?_method=PATCH` bypass works from a plain HTML form. This needs your approval.
 
-5. **Remaining A2 unknowns** (A2-U01…U13)
-   - **Need a runtime check (A3.1):**
-     - The full login payload, including whether a refresh token comes back.
-     - The format and timezone of `expires_at`.
-     - Which field holds the user id sent as `X-UserId`.
-     - How DataTables behaves when it gets a redirect back.
-     - The axios error branch that can crash.
-     - Whether cookies get the `secure` flag behind TLS.
-   - **Depend on the backend:**
-     - Gateway behavior on an expired token.
-     - Per-role authorization at the gateway or backend.
-     - `Api-Key` and CORS requirements.
-     - Whether `validate-session` or entity/access permissions exist.
-     - Signed-URL lifetime and storage policy.
-   - **Need an owner decision:**
-     - Whether the legacy gateway and the target's `API_HOST` are the same service.
-     - Which accounts are the payment and marketing users.
-   - **A1 unknowns carried over:**
-     - U28 is resolved: `DateComparison` is never registered, so it isn't used.
-     - U14 is resolved on the legacy side: cancel and final both call `…/cancels`.
-     - U04, U05, U06, U12 and U26 are partly resolved or classified.
+5. **Contradicted findings**
+   - **Content create:** it does **not** keep the entered values on a validation failure (A1 said it did). No form tested keeps old input.
+   - **JSON 401 for AJAX:** the Personalization and Loyalty `fail(401)` branches never run for an expired session, because `AuthSession` redirects first.
+   - **Forwarding `_csrf` to the gateway (A2-H06):** it happens on login, but signurl only forwards `_csrf` when it is sent in the body; the real uploader sends it in a header.
+   - **Global config create:** it shows no red border and no message. A1 expected one.
 
-6. **A3.1 readiness:** ready. A verification queue of 10 items is in §22, and the queue for A3.2 is in §23. Eight owner decisions (OD-1…OD-8) are listed for later. OD-8, removing tokens and passwords from the running system's logs, is urgent regardless of the migration.
+6. **Remaining unknowns**
+   - **Real gateway and backend** (need a test gateway and test accounts):
+     - The real login payload keys (U01/U05) and the real `expires_at` format (U02).
+     - The gateway's 401 body, and whether it has a refresh endpoint (U03).
+     - Whether the backend enforces authorization for payment and marketing tokens (U04).
+     - Which user id field the real payload carries (U09).
+   - **Backend or owner decisions:**
+     - `Api-Key` and CORS requirements, and whether this gateway is the same service as the target's `API_HOST` (U05/U06).
+     - Whether an entity/access permission endpoint exists (U07).
+     - Which accounts are the payment and marketing users (U13).
+   - **Storage and deployment:** signed-URL lifetime, required PUT headers and storage policy (U08), and the `Secure` cookie flag behind TLS (U12).
+   - **Not executed:** the real 240 s timeout (RT-U01), and the axios setup-error branch (U11), which can't be triggered without changing code.
+   - **Mock data too thin:** successful renders of Banner, FAQ and the edit pages (RT-U02).
+
+7. **A3.2 readiness:** ready. The queue has 11 items (§20). It will need a browser (playwright-cli is available), and ideally a test gateway with realistic data and masked test accounts, to settle RT-U02 and the unknowns that depend on the real gateway.
