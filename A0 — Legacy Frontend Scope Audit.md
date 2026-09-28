@@ -1,60 +1,43 @@
-1. **File:** `gpos-b2b-cms/docs/migration/RUNTIME_BEHAVIOR_AUDIT.md`
+1. **Created file:** `gpos-b2b-cms/docs/migration/VISUAL_BASELINE.md`
 
-2. **Summary**
-   - **Setup:** I ran the unmodified legacy app (commit `00bc6ea`) on 127.0.0.1 against a local mock gateway. Configuration was overridden through the environment only; no real gateway or storage was contacted.
-   - **Why a mock:** no test gateway or test accounts were available. I did not use the credentials prefilled in the legacy HTML.
-   - **Coverage:** everything at the Adonis layer was verified at runtime. What the real gateway or backend does is marked `[NOT OBSERVABLE]`.
-   - **Clean-up:** the test session files were deleted, both processes were stopped, and `git status` shows only `docs/`. No secrets are recorded; every value used was synthetic.
-   - **Browser behavior not seen:** tests ran through `curl`, not a browser, so how pages react in the UI (e.g. DataTables dialogs) is queued for A3.2.
-   - **Node version:** the app ran on Node 24; the Dockerfile targets Node 16.
+2. **Screenshot directory:** `gpos-b2b-cms/docs/migration/screenshots/a3.2/`
 
-3. **A3.1 STATUS: GO**
+3. **Screenshot count:** 56 in total (48 desktop at 1440×900, 3 tablet at 1024×768, 5 mobile at 390×844). Every screenshot the report names exists in the folder.
 
-4. **Confirmed findings**
-   - **Topology:** the browser only talks to Adonis. The bearer token is added server-side, and no token, gateway URL or API key reaches the browser.
-   - **Session:** it stores the gateway's login `data` exactly as received.
-   - **Refresh:** none happens in any scenario.
-   - **Expired session:** every request, including AJAX and DataTables, gets `302 → /` and then the login page as `200 text/html`, never a 401.
-   - **Access control:** the menu differs by account email, but payment and marketing accounts get 200 on every superadmin page tested.
-   - **DataTables:**
-     - Responses are `{draw, recordsTotal, recordsFiltered, data}` with HTML cells, and `recordsTotal === recordsFiltered` always.
-     - Gateway errors 400/401/403/500, or a gateway outage, give a silent empty table (200).
-     - Mapper errors give a 302.
-     - Notification returns a different shape on error.
-   - **Other error paths:**
-     - Gateway 401/403/500 on AJAX actions come back as 400.
-     - A refused connection takes the "not found" (404) path.
-     - Invalid credentials, a gateway 400, or the gateway being down all show no login error.
-   - **CSRF:**
-     - POST, PUT and DELETE without a token are rejected (403).
-     - PATCH, **and a POST with `?_method=PATCH`**, go through without a token and run resource updates. The GET voucher-cancel route also runs without a token.
-   - **Upload:** signurl accepts any file type, and returns an empty 500 when the gateway fails. Adonis and the gateway never see file bytes.
-   - **Identity headers:** Loyalty sends `X-Userid` = email; UserVerification sends `X-UserId` = `user_id` first.
-   - **Logging:** the logs contain the full `auth` object, the token, the `Authorization` header and the login password (A2-C01 and A2-C02 confirmed).
-   - **Raw data in scripts:** `toJSON` output is inserted straight into inline scripts.
-   - **Messages:** the Content bulk-delete messages are swapped, and validation messages are hidden (Content and Global Config show nothing).
-   - **New HIGH findings:**
-     - **A3-S02:** the expiry check fails open. A `null` or unparseable `expires_at` never expires. A timestamp without a timezone is read as server time (WIB), and epoch seconds count as expired.
-     - **A3-S01:** I propose raising the CSRF finding from A2-M01 (medium) to HIGH, because the `?_method=PATCH` bypass works from a plain HTML form. This needs your approval.
+4. **Summary**
+   - **Browser:** the existing Google Chrome 154 (headless), driven through its DevTools Protocol by a small Node script. Nothing was installed.
+   - **Environment:** the unmodified legacy app (commit `00bc6ea`) on 127.0.0.1, against the isolated mock gateway from A3.1.
+   - **Data and secrets:** all data is synthetic, the prefilled login values were masked before capture, and no real account emails or secrets appear.
+   - **Coverage:** all 20 categories are captured, and the report includes screenshot, interaction and pattern inventories plus an A4 input list.
+   - **Clean-up:** the test session files and the temporary browser profile are removed, all processes are stopped, and only `docs/` is new in the repo.
 
-5. **Contradicted findings**
-   - **Content create:** it does **not** keep the entered values on a validation failure (A1 said it did). No form tested keeps old input.
-   - **JSON 401 for AJAX:** the Personalization and Loyalty `fail(401)` branches never run for an expired session, because `AuthSession` redirects first.
-   - **Forwarding `_csrf` to the gateway (A2-H06):** it happens on login, but signurl only forwards `_csrf` when it is sent in the body; the real uploader sends it in a header.
-   - **Global config create:** it shows no red border and no message. A1 expected one.
+5. **Major visual findings**
+   - The UI is an Argon/Bootstrap 4 shell: a fixed white sidebar with 5 flat menu groups, a gradient header band, and content cards. Lists are jQuery DataTables with an export button bar, checkbox and action columns, a bulk-delete footer, and the "Processing…" and "No data available in table" states.
+   - A gateway error looks **exactly like an empty table**. On the Notification list, a gateway error leaves it **stuck on "Processing…"** forever.
+   - If the session expires mid-use, redrawing a table shows a **native alert "DataTables warning … Invalid JSON response"** and the old rows stay on screen. Navigating anywhere lands on the login page with no explanation.
+   - **Personalization delete after a gateway error shows a native `alert("Not Found")`.** This corrects the A3.1 inference that it would look like success: the browser re-sends the DELETE to the redirected list URL, which returns 404.
+   - Content bulk-delete messages are visibly swapped: a failure shows "Berhasil…" and a success shows nothing.
+   - Validation shows up in four different ways:
+     - Content: nothing at all, and the typed values are lost.
+     - Inventory: a red alert with the first message.
+     - Principal: red text under the field.
+     - Banner: Save stays disabled until the form is complete.
+   - Invalid credentials at login show no message.
+   - The mobile "My profile" and "Logout" links point to `href="null"`, next to placeholder menu items.
+   - Uploads show no progress indicator. An oversize file gets a red border and hint text. The file goes from the browser directly to storage with a PUT to the signed URL.
+   - Responsive support is partial. The sidebar becomes a hamburger menu under 768 px, but the page scrolls sideways on mobile and tables scroll inside their cards.
+   - **Menu visibility differs by account:** Superadmin has 30 links, Payment 1, Marketing 2. As A3.1 showed, route access is the same for everyone.
 
 6. **Remaining unknowns**
-   - **Real gateway and backend** (need a test gateway and test accounts):
-     - The real login payload keys (U01/U05) and the real `expires_at` format (U02).
-     - The gateway's 401 body, and whether it has a refresh endpoint (U03).
-     - Whether the backend enforces authorization for payment and marketing tokens (U04).
-     - Which user id field the real payload carries (U09).
-   - **Backend or owner decisions:**
-     - `Api-Key` and CORS requirements, and whether this gateway is the same service as the target's `API_HOST` (U05/U06).
-     - Whether an entity/access permission endpoint exists (U07).
-     - Which accounts are the payment and marketing users (U13).
-   - **Storage and deployment:** signed-URL lifetime, required PUT headers and storage policy (U08), and the `Secure` cookie flag behind TLS (U12).
-   - **Not executed:** the real 240 s timeout (RT-U01), and the axios setup-error branch (U11), which can't be triggered without changing code.
-   - **Mock data too thin:** successful renders of Banner, FAQ and the edit pages (RT-U02).
+   - **V-U01:** screens that didn't render with mock data. These are FAQ create, the Principal and Global Config edit pages, Gamification, Loyalty, and Setting Point pagination.
+   - **V-U02:** the kebab action dropdowns and the custom `pagination.js` lists weren't captured.
+   - **V-U03:** the AJAX toggle spinner and the Gamification loading overlay were too brief to capture.
+   - **V-U04:** how screens look with long, real-world data.
+   - **V-U05:** keyboard focus and accessibility states.
+   - **V-U06:** native alert dialogs couldn't be screenshotted; only their text is recorded.
+   - **Carried over from A3.1:** everything that depends on the real gateway or backend.
+   - **What would close most of these:** a test gateway with realistic data and test accounts.
 
-7. **A3.2 readiness:** ready. The queue has 11 items (§20). It will need a browser (playwright-cli is available), and ideally a test gateway with realistic data and masked test accounts, to settle RT-U02 and the unknowns that depend on the real gateway.
+7. **A3.2 STATUS: GO**
+
+8. **A4 readiness:** ready. The pattern inventory is in §18, the A4 input list in §22, and each legacy pattern is kept separate from any target decision in §21.
