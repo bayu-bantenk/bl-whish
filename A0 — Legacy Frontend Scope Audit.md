@@ -1,43 +1,47 @@
-1. **Created file:** `gpos-b2b-cms/docs/migration/VISUAL_BASELINE.md`
+Constraint noted. It will govern A4 and all later phases. Checked against the current `frontend/`, it mostly fits. Two points need a decision, and a few gaps should be tracked.
 
-2. **Screenshot directory:** `gpos-b2b-cms/docs/migration/screenshots/a3.2/`
+**Fits already**
+- **No Bootstrap or jQuery:** `frontend/` has none in `src/` or `package.json`.
+- **shadcn/ui is in place:** 52 primitives live in `src/components/ui/`, covering everything in your list: Button, Input, Textarea, Label, Checkbox, RadioGroup, Switch, Select, Combobox, Popover, Dialog, AlertDialog, DropdownMenu, Tabs, Accordion, Tooltip, Badge, Card, Table, Pagination, Calendar and Form. It also has Field, Empty, Skeleton, Spinner, Sheet, Sidebar and Sonner.
+- **The tiers exist:** `molecules/`, `organisms/` (including `data-table`) and `templates/` are there.
+- **The DataTable already has a base:** `organisms/data-table` plus `shared/hooks/use-data-table.ts` run on TanStack Table under the shadcn `Table`. That already gives server-side pagination, sort, search and filters, row selection, a floating bulk-action bar, column visibility, a skeleton, and URL/query-state sync.
 
-3. **Screenshot count:** 56 in total (48 desktop at 1440×900, 3 tablet at 1024×768, 5 mobile at 390×844). Every screenshot the report names exists in the folder.
+**Needs your decision**
+1. **Where the atoms layer lives.** Your structure and the project rules name `components/atoms/`, but it doesn't exist; the shadcn primitives sit in `components/ui/`, which the shadcn CLI writes to (the `aliases.ui` setting in `components.json`). Options:
+   - **(a) Treat `components/ui/` as the atoms tier.** No file moves, and the CLI keeps working. Only the rule text needs updating.
+   - **(b) Move the primitives to `components/atoms/` and repoint `aliases.ui`.** That touches every import.
 
-4. **Summary**
-   - **Browser:** the existing Google Chrome 154 (headless), driven through its DevTools Protocol by a small Node script. Nothing was installed.
-   - **Environment:** the unmodified legacy app (commit `00bc6ea`) on 127.0.0.1, against the isolated mock gateway from A3.1.
-   - **Data and secrets:** all data is synthetic, the prefilled login values were masked before capture, and no real account emails or secrets appear.
-   - **Coverage:** all 20 categories are captured, and the report includes screenshot, interaction and pattern inventories plus an A4 input list.
-   - **Clean-up:** the test session files and the temporary browser profile are removed, all processes are stopped, and only `docs/` is new in the repo.
+   I recommend (a).
+2. **Toast and DatePicker.** shadcn has deprecated its Toast in favor of Sonner, and the project already uses Sonner, so "Toast" should mean Sonner. DatePicker has no single shadcn primitive; it's Calendar plus Popover. That makes it a molecule, and `datetime-picker` / `daterange-picker` already exist there.
 
-5. **Major visual findings**
-   - The UI is an Argon/Bootstrap 4 shell: a fixed white sidebar with 5 flat menu groups, a gradient header band, and content cards. Lists are jQuery DataTables with an export button bar, checkbox and action columns, a bulk-delete footer, and the "Processing…" and "No data available in table" states.
-   - A gateway error looks **exactly like an empty table**. On the Notification list, a gateway error leaves it **stuck on "Processing…"** forever.
-   - If the session expires mid-use, redrawing a table shows a **native alert "DataTables warning … Invalid JSON response"** and the old rows stay on screen. Navigating anywhere lands on the login page with no explanation.
-   - **Personalization delete after a gateway error shows a native `alert("Not Found")`.** This corrects the A3.1 inference that it would look like success: the browser re-sends the DELETE to the redirected list URL, which returns 404.
-   - Content bulk-delete messages are visibly swapped: a failure shows "Berhasil…" and a success shows nothing.
-   - Validation shows up in four different ways:
-     - Content: nothing at all, and the typed values are lost.
-     - Inventory: a red alert with the first message.
-     - Principal: red text under the field.
-     - Banner: Save stays disabled until the form is complete.
-   - Invalid credentials at login show no message.
-   - The mobile "My profile" and "Logout" links point to `href="null"`, next to placeholder menu items.
-   - Uploads show no progress indicator. An oversize file gets a red border and hint text. The file goes from the browser directly to storage with a PUT to the signed URL.
-   - Responsive support is partial. The sidebar becomes a hamburger menu under 768 px, but the page scrolls sideways on mobile and tables scroll inside their cards.
-   - **Menu visibility differs by account:** Superadmin has 30 links, Payment 1, Marketing 2. As A3.1 showed, route access is the same for everyone.
+**Gaps against your DataTable requirements** (nothing to do now; they go into A4)
+- There is no **error state or retry**. B0 found the repositories swallow errors, so the table can't tell "failed" from "empty", which is the same silent-failure defect A3.2 captured in the legacy app.
+- The **empty state** needs checking against `ui/empty`.
+- **Responsive behavior and accessibility** haven't been verified.
+- **Data fetching** is client-side in `useEffect` (B0). This depends on the BFF decision (OD-1).
 
-6. **Remaining unknowns**
-   - **V-U01:** screens that didn't render with mock data. These are FAQ create, the Principal and Global Config edit pages, Gamification, Loyalty, and Setting Point pagination.
-   - **V-U02:** the kebab action dropdowns and the custom `pagination.js` lists weren't captured.
-   - **V-U03:** the AJAX toggle spinner and the Gamification loading overlay were too brief to capture.
-   - **V-U04:** how screens look with long, real-world data.
-   - **V-U05:** keyboard focus and accessibility states.
-   - **V-U06:** native alert dialogs couldn't be screenshotted; only their text is recorded.
-   - **Carried over from A3.1:** everything that depends on the real gateway or backend.
-   - **What would close most of these:** a test gateway with realistic data and test accounts.
+**Legacy capabilities with no shadcn equivalent** (A4 has to justify each one as a new primitive or dependency)
 
-7. **A3.2 STATUS: GO**
+| Legacy capability | Status |
+|---|---|
+| Rich text (Quill in Banner, Loyalty) | No shadcn or project equivalent. Needs a dependency decision. |
+| Drag-reorder (Group Story banners) | `react-easy-sort` is already a dependency. |
+| File upload | `react-dropzone` molecule already exists. |
+| Inline table toggle / sequence edit | Can be composed from Switch and Input. |
 
-8. **A4 readiness:** ready. The pattern inventory is in §18, the A4 input list in §22, and each legacy pattern is kept separate from any target decision in §21.
+**Design tokens.** `globals.css` holds the shadcn neutral theme. Whether the legacy brand look (orange→blue gradient, GPOS logo) becomes project tokens is an A4 decision. The legacy look is evidence only, not something to reproduce.
+
+**Housekeeping.** B0 found three overlapping primitive libraries installed (`radix-ui`, `@base-ui`, `react-aria`). A4 should say which one backs new work.
+
+I wrote `gpos-b2b-cms/docs/migration/TARGET_UI_FOUNDATION.md` and marked it binding for A4 onward, with option (a) recorded: `src/components/ui/` is the atoms tier. No code or rule files were changed.
+
+It covers:
+- **Foundation:** Tailwind + shadcn/ui + project design tokens. No Bootstrap, jQuery or compatibility wrappers. I confirmed `frontend/` contains none today.
+- **Tiers:** where each tier lives and which way imports may point, with feature components kept in `packages/<feature>/presentation/`.
+- **Reuse rule:** the 5-step check before creating any component, and the forbidden legacy-style wrappers.
+- **Capability mapping:** each legacy UI capability mapped to the shadcn atom or existing molecule/organism that covers it. Toast means Sonner, and DatePicker is a molecule (Calendar + Popover), not a primitive.
+- **DataTable:** the target is the existing `organisms/data-table` (TanStack Table under shadcn `Table`). What's missing is an error state separate from "empty" (today a failure looks empty, the same defect as the legacy app), retry, the `ui/empty` state, and checks for responsiveness and accessibility.
+- **Libraries:** most primitives use `radix-ui`; `@base-ui` is used only by `combobox` and `react-aria` only by `datetime-picker`. Rich text has no shadcn equivalent, so any editor dependency needs your approval in A4.
+- **Design tokens:** the legacy look is evidence only; whether any brand colours become tokens is an A4 decision.
+
+One follow-up the doc lists but doesn't do: `frontend/.claude/rules/component-organization.md` (and its `.cursor` and `.github` copies) still names `src/components/atoms/**`. It needs to say `src/components/ui/**` to match option (a). I can make that edit as its own change when you want it.
