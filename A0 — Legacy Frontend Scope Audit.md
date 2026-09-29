@@ -1,110 +1,101 @@
 ```text
-PHASE: A5.1
-STATUS: GO-WITH-RISKS
+A5.2 STATUS: GO-WITH-RISKS
 ```
 
-The auth/session/gateway boundary works in the real Next.js 16 runtime. Browser → Next server → gateway, with refresh when needed and exactly one retry, and no credentials reach the browser. The proof ran against a local mock gateway because no real test gateway exists yet (OD-36). The backend contract and deployment questions are still open, which is why this is GO-WITH-RISKS rather than GO. Nothing is committed yet.
+Every exit criterion passes. It's WITH-RISKS because:
+- The access policy is still "every signed-in user may see everything" (OD-05/06 undecided).
+- Only the Home page exists, so hidden-but-routable pages and the 403 page are proven with test fixtures, not a real feature route.
+- An automated accessibility scanner (axe) would need a new dependency, which needs your approval.
 
-One finding from the audit: the old code exported a Server Action, `getServerSession`, that any browser could call. It returned the decoded session cookie, gateway token included. That file and the rest of the better-auth setup are gone.
+None of these blocks the next phase. Nothing is committed yet.
 
-**AUTH**
-- **login:**
-  - The login Server Action takes only `email`, `password` and `loginBy`; extra form fields are dropped.
-  - The gateway response is validated, and a malformed response is a Contract error that creates no session.
-  - Wrong credentials show "Email atau password salah."
-- **session:**
-  - One encrypted, httpOnly, SameSite=Lax cookie (AES-256-GCM using Node's built-in crypto).
-  - A tampered, forged or unreadable cookie is treated as invalid.
-  - The dashboard layout checks the session on the server; the old client-side guards are removed.
-- **logout:** a Server Action. The gateway call is best effort (5 s timeout), and the local session is always cleared, even when the gateway returns 502.
+**Changed**
+- **Layout:** `app/(dashboard)/layout.tsx` now owns the whole shell. It reads the session once and builds the navigation view on the server. It renders `DashboardShell` (skip link, Navigator, Header, one `<main>`) exactly once.
+- **Navigator:** new `components/organisms/navigator/`, built on the shadcn `Sidebar`. On desktop it's a sidebar; below 768 px it's a Sheet.
+- **Header:** rebuilt as a server component with three small client pieces: the menu trigger (`aria-expanded`, returns focus on close), the breadcrumb, and the user menu (logout via the A5.1 Server Action).
+- **Navigation core:** in `src/shared/navigation/` — types, the single registry, path matching, breadcrumb/active-state logic, and the server-built navigation view.
+- **Authorization:** `src/shared/authorization/` holds the policy interface, with "legacy parity" active. Every page is guarded server-side through `app/(dashboard)/_shell/route-guard.tsx`:
+  - not signed in → `/login`
+  - not registered or not built → 404
+  - not permitted → 403 "Akses ditolak"
+- **New pages:** a dashboard `not-found` and `error` page, `/dashboard` → Home, and a catch-all that returns the 404 inside the shell.
+- **Home page:** content only; it no longer renders its own Header or sidebar wrapper.
+- **shadcn atom:** `SidebarInset` now renders a `<div>` instead of `<main>`, so the page has a proper header landmark and a single `<main>`.
+- **Removed:** the old template, `organisms/navigation/*` and `shared/utils/menus.ts`. They held a duplicate menu, a second user menu and placeholder links.
 
-**GATEWAY**
-- **server-only:** one gateway client in `src/shared/infrastructure/http/`, wired in one place (`src/shared/infrastructure/container/`). A test build that imported it from a client component failed as intended ("depends on server-only").
-- **gateway target:** chosen by config (`API_HOST` plus `GATEWAY_AUTH_CONTRACT = b0 | legacy-v1`). No endpoint was guessed; this is OD-02.
-- **API key:** `Api-Key` is sent only when `KONG_API_KEY` is set, and only from the server.
-- **timeout:** reads 15 s, mutations 30 s, logout 5 s. A timeout is reported as Timeout, never as empty data.
-- **error mapping:** the full A4 model (Unauthenticated, Forbidden, NotFound, Validation, Business, Conflict, RateLimited, Server, Timeout, Network, Contract, Unknown). Indonesian messages are added only at the presentation layer.
+**Architecture**
+- **One registry** (`shared/navigation/registry.ts`) feeds the menu, breadcrumbs, active state, the page guard and the static checks. Groups come from the legacy menu. The representative entries are:
 
-**REFRESH**
-- **expiry detection:** a token with 60 s or less left is refreshed first; the server clock decides.
-- **refresh:** the new token pair is saved before any retry. Where each context refreshes:
-  - navigation: the proxy refreshes proactively;
-  - Server Actions and Route Handlers: refresh in-process;
-  - Server Components can't write cookies, so they redirect to `/api/auth/refresh`.
-- **single-flight:** one refresh per session, keyed by session id plus refresh token. At runtime, 5 concurrent requests on an expiring session made 1 refresh call.
-- **rotation:** a completed refresh is reused for 10 s, so a request still carrying the old cookie never replays the rotated refresh token. The race across multiple instances is documented, not solved (OD-25).
-- **retry-once:** after a 401, GET/HEAD are retried exactly once, and a second 401 logs the user out. POST/PUT/PATCH/DELETE are not replayed by default, because the backend hasn't confirmed a 401 means no side effect (OD-04); the user resubmits.
+  | Entry | Status |
+  |---|---|
+  | Home | built |
+  | Payment (+ detail) | planned |
+  | Banner (+ create/update) | planned |
+  | Content | planned |
 
-**SECURITY**
-- **browser gateway access:** none. The gateway client is the only `fetch` caller in `src` (a static test enforces this).
-- **access token exposure:** none — not in localStorage, sessionStorage, `document.cookie`, the HTML or the RSC payload (checked in the browser).
-- **refresh token exposure:** none (same checks).
-- **API key exposure:** none. The bundle check script passes (0 hits for the variable names, the gateway paths or the configured values).
-- **credential logging:** 0 hits for tokens, password, session secret or `Bearer` in the server log after the full run.
+  Planned entries are never shown and return 404 until their page exists.
+- **Active-state matching:**
+  - Query strings and trailing slashes are ignored.
+  - Matching is whole-segment, so `/foo` never matches `/foobar`.
+  - A fixed part of the path wins over a variable one, and the longest match wins.
+  - A child page highlights its parent menu item.
+- **Breadcrumbs** follow the parent chain in the registry. Ancestors on dynamic routes keep working links. An unknown path ends in "Halaman tidak ditemukan".
+- **Access is checked per page, not in the layout.** Layouts don't re-render when moving between sibling pages, so a layout check would go stale. A static test fails if any dashboard page skips the guard.
+- **Browser data:** only a filtered view of permitted routes reaches the browser — ids, paths, titles, parents. Capabilities and denied routes stay on the server.
 
-**NEXT.JS**
-- **cookie-write behavior:** confirmed at runtime.
-  - Server Components can't set cookies.
-  - A cookie refreshed in the proxy reaches the same render.
-  - A Route Handler's `cookies().set()` followed by `redirect()` persists.
-  - A Server Action that changes cookies re-renders the current route.
-- **proxy behavior:** decrypts the cookie locally on each dashboard navigation and calls the gateway only when the token is about to expire. No full authorization logic there.
+**Tests**
 
-**TESTS** (150 pass, up from 2)
-
-| Area | Result |
+| Check | Result |
 |---|---|
-| login | PASS |
-| session | PASS |
-| refresh (full failure matrix) | PASS |
-| 401 retry | PASS |
-| single-flight | PASS |
-| logout | PASS |
-| security | PASS (static boundary test, bundle check, browser storage check) |
+| typecheck | exit 0 |
+| `npx eslint .` | 0 errors, 27 warnings (existing kinds) |
+| `npx vitest run` | 218/218 pass, 16 files (was 150) |
+| `npm run quality` | exit 0 |
+| `next build` | exit 0 |
+| client bundle check | PASS |
 
-11 browser scenarios (R1–R11) also passed. The first browser run found a real bug: after one render-time 401, a later unrelated 401 skipped its refresh. The fix limits that one-retry flag to render mode and a 10 s window, with 2 new tests. Separately, the reruns I made while debugging this hit a stale server because `pkill` didn't stop the old Next process; the final numbers come from a clean restart.
+The new suites cover matching, breadcrumbs, registry integrity, the navigation view, route access, the page guard, the shell (rendered once, redirect to login, mobile/tablet/desktop, keyboard) and the static shell/boundary rules.
 
-**DEPENDENCIES**
-- removed: `better-auth` (its role is taken by the new module; OD-16), `next-base64`, `axios`
-- added: none
+In a real browser (headless Chrome against `next start`):
+- At 1280, 1024, 768, 375 and 320 px there is one header, one main and one menu, with no horizontal overflow.
+- The mobile Sheet opens with Enter, keeps focus inside, closes with Escape, and returns focus to the trigger.
+- Every Tab stop shows a focus indicator.
+- `/dashboard/nope` and `/dashboard/banner` show the 404 inside the shell.
 
-**OPEN DECISIONS**
+**Fixes found by the browser run**
+- The skip link had no visible focus ring.
+- A hidden tooltip on menu links swallowed the first Escape inside the mobile Sheet. Tooltips are removed; they only matter in icon-collapse mode, which this shell doesn't use.
+- Focus dropped to the page body when the Sheet closed.
+- The header separator was misaligned.
 
-| OD | Status | Notes |
-|---|---|---|
-| OD-02 | BLOCKED / PENDING BACKEND CONFIRMATION | gateway target |
-| OD-03 | BLOCKED / PENDING BACKEND CONFIRMATION | API key |
-| OD-04 | BLOCKED / RETRY SAFETY UNKNOWN | expiry format, refresh endpoint, rotation, whether a 401 is side-effect free |
-| OD-15 | RESOLVED (provisional) | encrypted cookie. Reopen if real tokens exceed about 1.3 KB each, or the backend strictly rejects reused refresh tokens |
-| OD-16 | RESOLVED | better-auth replaced |
-| OD-25 | BLOCKED | replica count and sticky sessions unknown |
-| OD-36 | BLOCKED | no test gateway; proven against a local mock only |
+The three accessibility bugs now have regression tests.
 
-**DASHBOARD SHELL** (recorded in the report, not implemented)
-- **layout responsibility:** `(dashboard)/layout.tsx` owns the session guard and passes a token-free session view down (both done in A5.1).
-- **navigator:** the sidebar no longer uses `authClient`.
-- **header:** should move from feature views into the layout.
-- **feature responsibility:** content only. Known deviation: `dashboard/presentation/home.tsx` still renders `Header`/`SidebarInset` itself.
+**Security**
+- `authClient`, localStorage and sessionStorage: 0 uses in `src`. The only `document.cookie` is the sidebar's open/closed preference cookie, which has nothing to do with auth.
+- In the browser, storage is empty and no cookie is visible to JavaScript. The only cookie is the httpOnly session cookie.
+- The page HTML and RSC payload contain no tokens, API key or gateway URL, and the server log has no credentials.
+- No new dependencies; no Bootstrap, jQuery, TanStack Query or SWR.
 
-**BLOCKERS**
-1. Confirm OD-02/03/04 with the backend, then rerun R1–R11 on a real test gateway (OD-36).
-2. Decide the deployment topology (OD-25).
-3. Measure the real token size against the cookie limit.
-4. Provision `SESSION_SECRET` as a deployment secret (no longer optional).
-5. Carried from A5.0: `.env` is still copied into the Docker image; prettier isn't installed (it needs approval), so the Husky pre-commit hook is still blocked.
-6. New decision needed: register/forgot/reset/activation are template screens that don't exist on the legacy gateway — keep or remove them?
+**Shell duplication audit**
+- **Canonical:** the dashboard layout, `templates/dashboard-shell.tsx`, `organisms/navigator/navigator.tsx`.
+- **Feature content:** `dashboard/presentation/home.tsx`, whose duplicate shell is removed.
+- **Duplicates removed:** the old template, `organisms/navigation/*` and `menus.ts`.
+- **Remaining duplicates or exceptions:** none.
 
-**EVIDENCE**
-- typecheck: exit 0
-- lint: 0 errors, 27 warnings (existing kinds)
-- `npx vitest run`: 150/150
-- `npm run quality`: exit 0
-- `next build`: exit 0
-- server-only test build: exit 1, as intended
-- `check:bundle`: PASS
-- no cookie → 307 to `/login?returnTo=…`
-- cross-site `/api/auth/refresh` → 403
-- browser run R1–R11: all as specified
-- The temporary spike route used for the runtime proof has been removed. `.env` was never read and no secrets were printed.
+**Risks**
+- **RK-A52-01:** everyone currently gets the same menu; the legacy payment/marketing menus need OD-05/06.
+- **RK-A52-02:** 403 and hidden-route behaviour are proven only with fixtures.
+- **RK-A52-03:** the Sheet's accessible name and description come from shadcn in English ("Sidebar").
+- **RK-A52-04/05:** there is no axe scan, and the browser harness lives in `/tmp`, outside CI.
+- **RK-A52-06:** access depends on each page calling `guardRoute`; the static test enforces it.
+- **RK-A52-07:** breadcrumb labels for dynamic pages are generic ("Ubah Banner").
+- **RK-A52-08:** the Navigator comes before the Header in Tab order.
+- **RK-A52-09:** `SidebarInset` now differs from upstream shadcn and must be re-applied after a shadcn update.
+- The A5.1 risks carry over unchanged.
 
-**REPORT:** `frontend/docs/architecture/reviews/A5.1_AUTH_SESSION_GATEWAY_SPIKE.md`
+**Deferred**
+- **A5.3+:** DataTable, Form and Upload foundations; the real access policy and a Forbidden result for Server Actions; an E2E runner with axe; breadcrumb labels from page data; theme toggle.
+- **Feature phases:** register each of the 259 MIGRATE routes and mark it built when its page exists; keep the 49 REVIEW routes unregistered until OD-07/08/09; replace the placeholder Home content with the legacy widgets.
+- **Backend:** as in A5.1 (OD-02/03/04/25/36), plus backend-driven permissions if a permission API exists.
+
+**Report:** `docs/architecture/reviews/A5.2_DASHBOARD_SHELL_NAVIGATION.md`. Screenshots are in `docs/architecture/reviews/a5.2/`.
