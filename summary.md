@@ -1,63 +1,45 @@
-**A5.5 status: GO-WITH-RISKS.** The DataTable foundation works end to end in a real browser, and the first legacy endpoint (the Content list) is now bridged into the new architecture from evidence rather than guesses. It isn't GO because the real backend was never reached: there's no test gateway and the network blocks it, so no real-backend cURL exists. Nothing is committed yet.
+**A5.5R status: BLOCKED.** No request reached a real backend. I stopped at the safety gate before sending anything, because the target is ambiguous and I have no approved test account. The mock tests pass, but that isn't backend evidence, so I'm not calling it GO-WITH-RISKS.
 
-**Tests:** typecheck, `npm run quality`, `next build` and the bundle check all pass. Lint has 0 errors and 28 warnings (the one new warning is TanStack's own React Compiler notice). Vitest is 388 passed, 0 failed, 0 skipped (was 318). In the A5.1–A5.4 re-check (login, refresh, 5 concurrent navigations → 1 refresh, forged cookie, logout, shell, mobile menu, 404s, authorization) nothing regressed.
+**Why it's blocked** (config inspected by a script that printed only presence and a classification, never values):
+- **Two different gateways.** Your frontend `API_HOST` is plain `http`, includes a path prefix, and resolves to a private address. The legacy app's gateway (`APIGATEWAY_URL`) is a different, public `https` host. Nothing says which one should serve `/api/v1/cms/contents` (OD-02).
+- **Environment unconfirmed.** Both host names only *look* non-production.
+- **Auth mismatch.** `GATEWAY_AUTH_CONTRACT` isn't set, so it defaults to `b0` (`/auth/login`). The Content API belongs to the legacy `/api/v1` gateway, whose login is `/api/v1/auth/login`.
+- **API key.** `KONG_API_KEY` is set, so the new CMS will send it; legacy never sends one to its gateway.
+- **No test account.** I deliberately did not use the credentials that appear prefilled in the legacy login page; they aren't an approved test account.
 
-**Evidence and what it proves**
-- I ran the unmodified legacy app locally against a small capture server standing in for the gateway, and recorded exactly what legacy sends: `GET /api/v1/cms/contents?sort_by&asc_desc&page&take&keyword` with a Bearer token and no API key.
-  - `keyword` is always sent, even empty.
-  - The sort direction is lower case.
-  - Legacy also sends the same values as a JSON body on the GET.
-- The response shape comes from legacy code, not from a real backend: `{code:200, data:{rows, total_rows}}`.
-- The capture also confirmed legacy's silent failures. 401, 403, 422 and 500 all come back as an empty table, and a malformed response renders rows of "undefined". The new code shows each of these as its own state instead.
-- Every fact is labelled (verified at runtime / from legacy code / inferred / unknown) in `docs/architecture/contracts/legacy-api/content-list.md`. The sanitized fixtures are in `test/fixtures/api/legacy-content-list/`, and a test checks them for tokens, keys and cookies.
-- Cleanup: the 3 legacy session files the run created were deleted, and the legacy repo is unchanged.
+**What I built instead:** a read-only verification harness, `npm run test:live` (instructions in `frontend/test/live/README.md`).
+- It runs the same production path as the app: request scope, use case, repository, gateway client. No shortcut `fetch`.
+- It refuses to run unless you explicitly confirm the target is non-production and the host matches `API_HOST`.
+- It blocks every request except GET on the Content endpoint and POST on the login/refresh/logout endpoints.
+- It records only structure, counts, statuses and booleans — no row values, tokens or keys — and writes the result outside the repo.
+- It covers: login; the default list (query only); pagination, including whether pages start at 0 or 1; sort ascending vs descending; search hit and no-match; query-only vs query-plus-GET-body (optional); a request without the API key (optional); local permission denial with zero gateway calls; forged and expired sessions with zero calls; and 401 → refresh → retry once.
 
-**What was built**
-- **Table contracts** (`src/shared/table/`): `TableQuery`, `Page<T>`, `TableSpec` and a URL codec. They use A4's names, so the brief's "PageResult" is A4's `Page<T>`.
-  - The URL format is `?page&per_page&sort=field.asc&q`.
-  - Unknown keys or invalid values fall back to defaults, so a hand-edited URL never breaks the page.
-- **Content list reference** (`test/fixtures/content-list/`, a test fixture, not a production route):
-  - the legacy wire names live only in the repository's DTO file;
-  - the use case checks `content.read`, then validates the query, then calls the repository;
-  - the page follows the A5.3 pattern.
-- **Shared envelope helper:** I moved the `{code, message, data}` parsing out of the auth repository into `src/shared/infrastructure/http/` so both repositories use it. Auth behaviour is unchanged.
-- **Server-driven DataTable** (new files in `src/components/organisms/data-table/`):
-  - TanStack Table runs in manual mode under the shadcn Table, so there's no client-side sorting, filtering or fetching.
-  - Every interaction changes the URL and the server renders fresh data.
-  - The table has separate states for loading, data, no data, no results, page out of range, and error with retry. 403 shows "Akses ditolak".
-  - Labels are Indonesian, sortable headers carry `aria-sort`, and a live region announces results.
-  - Architecture rules keep TanStack out of domain, use case and repository code, and every rule was checked by planting a violation.
-- **Bugs found and fixed along the way:**
-  - A test caught search re-firing a stale value after pressing Enter.
-  - Lint flagged state being set inside an effect.
-  - A script mistake corrupted the architecture test file mid-edit; I repaired it and re-verified.
+**Evidence so far:**
+- Run without confirmation, the harness refuses and sends nothing.
+- A self-test against the local mock (synthetic account; harness correctness only) passed all 10 steps. It issued only the four allowed request types, the request id reached every call, and no credentials or tokens appear in its output.
+- No `src/` file changed. 388/388 tests pass, lint has 0 errors, and the build and bundle check pass.
+- I re-ran the A5.1–A5.4 browser regression: no change.
+- The Content contract doc has a new "Real Backend Evidence" section that sets out the Legacy / New CMS / Real backend comparison. All real-backend cells are UNKNOWN, and the A5.5 evidence is kept intact.
 
-**Browser run** (headless Chrome, 18 checks, all pass): one gateway call per navigation, pagination, sort with page reset, debounced search, reload and Back keep state, page size, out-of-range and no-results states, 500 with working retry, malformed → error without retry, 403, rows kept while loading, no page overflow at 320/375 px, keyboard sorting with focus kept. The temporary route I used for this has been removed.
+**To unblock, from you or the backend team:**
+1. Decide which host serves the Content API for the new CMS, confirm it's non-production, and put it in `API_HOST`.
+2. Set `GATEWAY_AUTH_CONTRACT` to match that host (`legacy-v1` if it's the legacy `/api/v1` gateway).
+3. Provide a dedicated test account. Export it only in your own shell (`A55R_EMAIL`, `A55R_PASSWORD`), never in chat or files.
+4. From a network that can reach the host, run:
+   ```bash
+   A55R_CONFIRM_NON_PRODUCTION=yes A55R_ALLOWED_HOST=<host> npm run test:live
+   ```
+   Optionally add `A55R_PROBE_GET_BODY=yes` and `A55R_PROBE_NO_API_KEY=yes`.
+5. Send me the sanitized evidence file (default `/tmp/a55r-live/evidence.json`). I'll mark the verified facts and change the DTO only where the evidence requires it.
 
-**Risks**
-- **RK-A55-01 (High):** real response types and error bodies are unverified.
-- **RK-A55-02 (Medium):** the new code sends list parameters in the query string only. If the backend reads only the GET body (which legacy also sends), lists will break.
-- **RK-A55-03 (Medium):** the strict mapper will show a Contract error if real field types differ from the evidence (for example, `total_rows` as a string).
+Error statuses (400, 404, 422, 429, 500) are recorded as not safe to trigger against a shared backend; the A5.5 fixtures keep covering them.
+
+**Risks:**
+- **High:** the real contract is still unverified, the gateway host is ambiguous, and the auth contract may not match that host.
+- **Medium:** `API_HOST` is plain HTTP with a path prefix; the API key is sent where legacy sends none; no GET body is sent.
 - **Low:**
-  - the date column shows `content_date` but sorts by `created_at`, as in legacy;
-  - the old B0 DataTable components (unused, client-side, depend on zod) now sit next to the new one;
-  - the fixture's service loader is test-only and must not be copied into features;
-  - the column picker is hidden on narrow screens;
-  - the browser harness lives outside CI.
+  - `CLAUDE.md` says `.claude/settings.json` blocks reading secret files, but it doesn't.
+  - `BETTER_AUTH_SECRET` is still in `.env` although it's unused since A5.1.
+  - The harness imports server internals and sits outside the architecture tests by design; it is never shipped.
 
-**Questions for you / the backend team**
-1. Should the Content date column sort by the date it shows (`content_date`) or keep legacy's `created_at`?
-2. Does the gateway honour list parameters in the query string?
-3. For invalid list parameters, does the backend return 400 or 422, and in what shape?
-4. Is `total_rows` counted after the search filter?
-5. What's the maximum page size? Legacy's "All" option isn't carried over.
-6. Is `asc_desc` case-sensitive?
-
-**Deferred**
-- **Content feature phase:** move the fixture into `src/packages/content/`, wire it into `composeFeatures()`, add a `content.read` grant, and activate the route.
-- **A5.6:** forms, upload and bulk actions.
-- **A5.7:** E2E tests in CI with axe.
-- **Cleanup:** consolidate the old B0 table components.
-- **Backend:** verify this contract on a real gateway.
-
-Report: `docs/architecture/reviews/A5.5_DATATABLE_API_CONTRACT_FOUNDATION.md`
+Report: `docs/architecture/reviews/A5.5R_REAL_BACKEND_CONTRACT_VERIFICATION.md`
