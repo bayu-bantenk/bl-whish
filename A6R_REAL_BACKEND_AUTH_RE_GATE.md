@@ -11,6 +11,8 @@
 ```text
 A6-R STATUS:     BLOCKED — REAL BACKEND INACCESSIBLE (target unconfirmed) + REAL TEST ACCOUNT UNAVAILABLE
 A6 FINAL STATUS: BLOCKED (unchanged)
+ATTEMPT 2:       STOPPED at pre-flight — API_HOST (localhost) ≠ confirmed gateway devb2b-api.gpos.id;
+                 gate variables not visible to the agent process
 ```
 
 **No request was sent to any real backend in A6-R.** The preconditions for a safe contact are all missing, and none changed since A5.5R:
@@ -21,6 +23,39 @@ A6 FINAL STATUS: BLOCKED (unchanged)
 - The live harness refuses to run, as designed. The safety gate was **not** modified or bypassed.
 - The TEST_ADAPTER suites, build and bundle remain green (re-run below).
 - One security finding was made and fixed in the working tree: **SF-A6R-01**, a committed API-key value in `.env.example`.
+
+## Execution attempt 2 — 2026-09-30 (stopped at pre-flight)
+
+**Inputs from the owner:**
+- Confirmed non-production gateway: `https://devb2b-api.gpos.id`.
+- Backend-provided refresh contract: `POST /api/v1/auth/refresh {refresh_token}` → `data {access_token, expires_at, refresh_token}`.
+- Backend-provided logout contract: `POST /api/v1/auth/logout`, `Authorization: Bearer`.
+- These are classified **BACKEND_DOC**: owner-supplied, not yet observed. Only a real response makes them VERIFIED_RUNTIME.
+
+**Pre-flight result: STOP.** No request was sent, and no code or config was changed.
+
+| Check | Observed | Result |
+|---|---|---|
+| Gate variables visible to the agent process | `A55R_CONFIRM_NON_PRODUCTION`, `A55R_ALLOWED_HOST`, `A55R_EMAIL`, `A55R_PASSWORD`: **none present**. They were exported in the owner's terminal, which this process does not inherit | BLOCKED |
+| `API_HOST` (frontend `.env`) | `http://localhost/api/v1` form: host **`localhost`**, port 4001, path prefix `/api/v1` | **MISMATCH** with `devb2b-api.gpos.id` |
+| Legacy `APIGATEWAY_URL` | https, hostname **equals** `devb2b-api.gpos.id` | matches (legacy config) |
+| `GATEWAY_AUTH_CONTRACT` | unset → `b0` (`/auth/login`, `/auth/refresh-token`) | wrong profile for this gateway |
+| `KONG_API_KEY` | set (value not read or printed) | requirement UNKNOWN (OD-03) |
+| Path prefix | `legacy-v1` and Content paths already contain `/api/v1`. For this gateway `API_HOST` must be the bare origin, or requests become `/api/v1/api/v1/...` | configuration note |
+
+This resolves OD-02 in principle: the confirmed gateway is the legacy `APIGATEWAY_URL` host.
+
+**Implementation gaps against the backend-provided contract.** Code change is deferred until config is aligned; the change must stay inside the existing `legacy-v1` profile, with no new auth implementation:
+
+| Profile item | Current `legacy-v1` | Backend-provided | Minimal correction |
+|---|---|---|---|
+| `refreshPath` | `null` (re-login) | `/api/v1/auth/refresh` | set path |
+| `refreshBody` | `{refresh_token}` | `{refresh_token}` | none |
+| `parseRefresh` | always Contract error | `data {access_token, expires_at, refresh_token}` | parse like login (`parseExpiresAt`) |
+| `parseLogin` refresh token | not read | UNKNOWN: login response not yet observed | read `refresh_token` if present, after the real login confirms it |
+| `logoutBody` | none; Bearer by GatewayClient | Bearer, no body | none |
+
+**Harness scope gap.** `test:live` is read-only: GET on the content list plus POST to the auth endpoints. Detail, create, update, forced-401 refresh, refresh failure and logout checks need an explicit, reviewed extension, including a write allowlist for the test record only. The safety gate itself stays unchanged.
 
 ## Backend environment
 
