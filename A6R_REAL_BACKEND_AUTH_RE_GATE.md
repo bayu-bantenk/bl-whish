@@ -13,7 +13,118 @@ A6-R STATUS:     BLOCKED — REAL BACKEND INACCESSIBLE (target unconfirmed) + RE
 A6 FINAL STATUS: BLOCKED (unchanged)
 ATTEMPT 2:       STOPPED at pre-flight — API_HOST (localhost) ≠ confirmed gateway devb2b-api.gpos.id;
                  gate variables not visible to the agent process
+ATTEMPT 3:       gateway REACHABLE; credential-free REAL_BACKEND probes executed (below);
+                 authenticated verification BLOCKED — gate variables still absent from the agent process
 ```
+
+## Execution attempt 3 — 2026-09-30 22:30–22:45 WIB
+
+### Pre-flight
+
+| Check | Observed | Result |
+|---|---|---|
+| `A55R_CONFIRM_NON_PRODUCTION`, `A55R_ALLOWED_HOST`, `A55R_EMAIL`, `A55R_PASSWORD` in the agent's shell | **all MISSING**, also in `zsh -i` | BLOCKED |
+| Why | The agent process (`claude`, parent of every tool shell) was started ~12 h before the owner exported the variables. A child process cannot see variables exported later in another terminal | — |
+| `frontend/.env.local` | does not exist | — |
+| `API_HOST` | still `localhost:4001/api/v1` (not changed; brief §3) | mismatch persists |
+
+`npm run test:live` was therefore **not run**. It would stop at `A55R_CONFIRM_NON_PRODUCTION=yes not set`, and the gate was not touched.
+
+### REAL_BACKEND — credential-free probes (executed)
+
+**Method:**
+- Direct HTTPS from this machine to the owner-confirmed non-production host `https://devb2b-api.gpos.id`.
+- **No credentials or tokens were sent.** The only token used was the literal string `a6r-invalid-probe`.
+- The configured `KONG_API_KEY` was sent in two probes only to test whether it is required. It was read inside the process and never printed.
+- Recorded: status, content type, envelope keys and types, the `code` / `status` / `error_code` / `message` fields, and `X-Request-Id` echo.
+- Scripts: `/tmp/a6r2/probe*.mjs` (outside the repo).
+
+| # | Request | Status | Envelope | Classification |
+|---|---|---|---|---|
+| P1 | `GET /api/v1/cms/contents?page=1&take=5`, no auth | **403** | `{code:403, status:"FAILED", data:null, message:"Forbidden"}` | VERIFIED_RUNTIME |
+| P2 | same, `Authorization: Bearer <invalid>` | **401**, **empty body**, no content-type, no `WWW-Authenticate` | — | VERIFIED_RUNTIME |
+| P3 | same, `Api-Key` only | 403 (same as P1) | same as P1 | VERIFIED_RUNTIME |
+| P4 | same, invalid Bearer + `Api-Key` | 401 (same as P2) | — | VERIFIED_RUNTIME |
+| P5 | `POST /api/v1/auth/refresh {refresh_token:"<invalid>"}` | **400** | `{code:400, status:"FAILED", data:null, message:"Invalid token"}` | VERIFIED_RUNTIME |
+| P6 | `POST /api/v1/auth/refresh {}` | 400 | `{code:400, status:"FAILED", error_code:"ERR_VALIDATION_ERROR", message:"Validation Error", data:[{FailedField:"RefreshTokenRequest.RefreshToken", Tag:"required", Value:""}]}` | VERIFIED_RUNTIME |
+| P7 | `POST /api/v1/auth/login {}` | 400 | same validation envelope; `data` holds 2 items: `LoginRequest.Email` and `LoginRequest.Password`, both `required` | VERIFIED_RUNTIME |
+| P8 | `POST /api/v1/auth/logout`, no auth | **500** | `{code:500, status:"FAILED", data:null, message:"Internal Server Error"}` | VERIFIED_RUNTIME |
+| P9 | `POST /api/v1/auth/refresh-token` (old path) | 404 `text/plain` | — | VERIFIED_RUNTIME |
+
+- **Across P1–P9:** `server: nginx-more`, **no `X-Request-Id` echo**, latency 14–251 ms.
+- **Network:** plain internet HTTPS works from this machine; no VPN or proxy needed, and the TLS chain was accepted by Node 24.
+
+### What the probes establish
+
+1. **Reachability:** the confirmed gateway is reachable. RK "network/VPN" is closed for this host.
+2. **Paths exist:**
+   - `/api/v1/auth/login`, `/api/v1/auth/refresh`, `/api/v1/auth/logout` and `/api/v1/cms/contents` are routed (JSON envelopes).
+   - `/api/v1/auth/refresh-token` does not exist (404), so the old `b0` refresh path is wrong for this host.
+3. **Request fields:**
+   - Login takes `Email` and `Password` (Go struct `LoginRequest`), which fits `legacy-v1` `{email, password}`. The exact JSON key casing is INFERRED until a real login.
+   - Refresh takes `refresh_token` (`RefreshTokenRequest.RefreshToken`), which fits the backend-provided contract.
+4. **Envelope:** `{code, status:"SUCCESS|FAILED"?, data, message, error_code?}`. On errors `code` equals the HTTP status. `status:"FAILED"` was observed; the success value is UNKNOWN.
+5. **Auth semantics:**
+   - **No Bearer → 403.** Invalid Bearer → **401 with an empty body.** The existing `GatewayClient` refreshes on HTTP 401 only, which matches: an expired token (presented but rejected) would take the 401 → refresh path.
+   - The app never sends a Content request without a Bearer (session required first), so the P1 403 is not reachable in-app.
+   - An empty 401 body is handled by status, not envelope. That the app treats it as Unauthenticated is TEST_ADAPTER-covered (`gateway-client.test.ts`), not yet real-run.
+6. **Refresh rejection:** a bad refresh token gets **HTTP 400** (not 401). The session manager treats any failed refresh as terminal (session cleared → login), so 400 lands on the correct path. This is TEST_ADAPTER-covered; the real end-to-end run is still pending.
+7. **API key:** no observable effect on an unauthenticated or invalid-token request (P1 = P3, P2 = P4). This does **not** prove it is unnecessary for authenticated calls. **UNKNOWN**; kept as configured.
+8. **Request ID:** the gateway does **not echo** `X-Request-Id`. Whether it reaches the backend is UNKNOWN (not observable from outside).
+9. **Logout without a token → 500.** The backend answers a malformed logout with a server error. The app's logout always sends a Bearer and clears the local session regardless of the result (A5.1), so this is safe for users. It is recorded as a backend robustness issue.
+
+### Code change (evidence-driven, minimal)
+
+| Step | Detail |
+|---|---|
+| Observed | `/api/v1/auth/refresh` exists (P5/P6, and the backend-provided contract); `/refresh-token` doesn't (P9) |
+| Mismatch | `legacy-v1.refreshPath = null` → the app would never refresh on this gateway; a 401 would end the session instead |
+| Correction | `src/packages/auth/repository/dto.ts` `legacy-v1` profile:<br>- `refreshPath: '/api/v1/auth/refresh'`;<br>- `parseRefresh` maps `data {access_token, expires_at, refresh_token}` through the shared `legacyTokens` (the zone-less `expires_at` rule is unchanged);<br>- `parseLogin` now also keeps an optional `refresh_token`.<br>No new auth implementation. Session, single-flight, retry and no-replay rules are unchanged |
+| Tests | `auth.repository.test.ts`, replacing the old "no refresh endpoint" test:<br>- login keeps `refresh_token`;<br>- refresh posts `{refresh_token}` to `/api/v1/auth/refresh` with no Bearer and maps the rotated pair;<br>- missing expiry / token → Contract;<br>- 400 "Invalid token" → failure |
+| Unverified | Refresh success envelope `code` (the repository expects 200, INFERRED from error codes = HTTP status); login response field names; whether login returns `refresh_token` |
+
+`server-config.ts` comment updated. **No configuration was changed** (`API_HOST` and `GATEWAY_AUTH_CONTRACT` untouched).
+
+### REAL_BACKEND verification matrix
+
+| # | Test | State | Reason |
+|---|---|---|---|
+| 1 | Real login | **BLOCKED** | no credentials visible to the agent. Route and field names only (P7) |
+| 2 | Authenticated Content list | **BLOCKED** | needs 1. Route exists; auth semantics observed (P1–P4) |
+| 3 | Content detail | BLOCKED | needs 1 |
+| 4 | Content create | BLOCKED | needs 1 + write permission |
+| 5 | Content update + read-back | BLOCKED | needs 1 + 4 |
+| 6 | Token refresh (success) | **BLOCKED** | needs a real refresh token. Endpoint existence **PASS** (P5/P6) |
+| 7 | Refresh-token rotation | BLOCKED | needs 6 |
+| 8 | 401 → refresh → retry | BLOCKED | invalid-token → 401 semantics **PASS** (P2); the full chain needs a session |
+| 9 | Refresh failure → session invalidation | NOT VERIFIED end-to-end | backend rejection semantics **PASS** (P5: 400 "Invalid token"); app behaviour is TEST_ADAPTER only |
+| 10 | Logout | BLOCKED | needs a token. Unauthenticated logout = 500 (P8) |
+| 11 | Browser token boundary | BLOCKED | needs a real login in the browser. TEST_ADAPTER PASS |
+| 12 | Authorization | BLOCKED | needs an account. No-token → 403 observed |
+| 13 | Request ID | **PARTIAL** | not echoed (P1–P9); propagation to the backend UNKNOWN |
+| 14 | Error mapping | **PARTIAL** | 400 validation (`ERR_VALIDATION_ERROR`, `data[] {FailedField, Tag, Value}`), 400 invalid token, 401 empty, 403, 404 text/plain, 500 observed. **The Content write 400/409/422 shapes are unobserved.** The A6 field-error mapper assumes `{errors:{field:[…]}}`, which does **not** match the observed `data[]{FailedField}` style (RK-A6-05 confirmed as a real risk; fix once a Content validation response is seen) |
+
+### Security notes from attempt 3
+
+- **SN-A6R-02:**
+  - Backend validation errors echo the submitted `Value` per failed field. A password that fails a non-`required` rule could come back in the response body.
+  - The app never logs gateway bodies (`gateway-client.ts` logs status / duration / kind only) and does not forward the raw `data` to the browser.
+  - Keep it that way; don't add body logging.
+- **SN-A6R-03:** unauthenticated logout → 500 (backend robustness). No app exposure.
+- Nothing secret was printed: no credential was used; the API key was sent twice and never printed.
+
+### To finish A6-R
+
+1. Restart Claude Code **from the terminal where the `A55R_*` variables are exported**, so the agent process inherits them. Alternatively, run the steps yourself.
+2. Approve a gitignored `frontend/.env.local` with `API_HOST=https://devb2b-api.gpos.id` (bare origin; the paths already carry `/api/v1`) and `GATEWAY_AUTH_CONTRACT=legacy-v1`.
+3. Then `npm run test:live` (login + list, read-only).
+4. The next harness extension (reviewed) covers:
+   - detail;
+   - a forced 401 via an invalidated access token on a copy of the session record;
+   - refresh / rotation;
+   - refresh failure;
+   - logout;
+   - create / update + read-back of a `A6R-TEST-*` record only.
 
 **No request was sent to any real backend in A6-R.** The preconditions for a safe contact are all missing, and none changed since A5.5R:
 - a confirmed **non-production** target host;
