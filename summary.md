@@ -1,119 +1,93 @@
 ```text
-A5.6 FORM + UPLOAD FOUNDATION
-=============================
+A5.7 E2E + CI + ACCESSIBILITY HARDENING
+========================================
+
 Status: GO-WITH-RISKS
-Real Backend Upload Contract: BLOCKED
 ```
 
-Seluruh fondasi form dan upload berfungsi dan terbukti lewat test serta browser run. Yang belum terverifikasi adalah kontrak backend yang sebenarnya, karena alasannya sama dengan A5.5R: host gateway belum dipastikan dan belum ada akun test. Belum ada yang di-commit.
+The whole A5 foundation now has in-repo, repeatable browser tests. The suite ran green 5 times in a row with no retries. It isn't GO for two reasons. The E2E suite doesn't run in CI yet: I couldn't check what the Jenkins build host supports. And the real backend is still unverified. Nothing is committed yet. Your dev server on :4000 was left untouched.
 
-**Implemented**
-- **Form:** React Hook Form + Zod + shadcn `Form`. Satu schema dipakai di browser (untuk UX) dan divalidasi ulang di server (sebagai otoritas). `applyActionError` memetakan error server ke field yang dikenal (lalu fokus ke field itu); error lain menjadi satu alert tingkat form yang tetap menjaga jenis error-nya.
-- **Upload:** package `src/packages/files`. Intent diminta lewat Server Action yang hanya menerima metadata. Use case-nya berurutan: cek purpose → `require(capability)` → cek kebijakan file di server → repository → gateway client.
-  - Kontrak diambil dari legacy: `POST /api/v1/files/signurl` dengan `{file_name, category, content_type}` → `{url, file_url}`.
-  - Browser PUT file langsung ke storage (`XMLHttpRequest`, dengan progress). File tidak pernah lewat Next.js.
-- **State machine upload:** `idle → requesting → uploading → success | error`, dengan retry (selalu meminta signed URL baru) dan remove (lokal saja).
-- **Submit gating:** submit diblokir selama upload berjalan atau gagal. Aturannya ditegakkan di handler submit, tidak hanya di tombol, dan alasannya ditampilkan.
-- **Komponen:** `UploadField` (molecule), `FormErrorAlert` dan `FormSubmit` (organism).
-- **Reference fixture:** Content Form di `test/fixtures/content-form/`. Repository create-nya fake (FIXTURE_ONLY), karena tidak ada kontrak backend untuk title/slug/description/attachment.
+**Existing infrastructure:**
+- Vitest + Testing Library: 474 tests, plus architecture and security rules and the bundle scan.
+- No browser E2E in the repo, only throwaway `/tmp` scripts.
+- No automated accessibility checks (`axe-core` was only an indirect dependency).
+- CI is Jenkins → remote `docker build`. The Dockerfile runs `quality`, the build and the bundle check; there is no E2E stage.
 
-**Keputusan yang menyimpang dari baseline A4**
-- **Intent via Server Action, bukan Route Handler:** A4 §9 merencanakan Route Handler `/api/bff/uploads/sign`. Saya pakai Server Action sesuai brief §25. Pemeriksaannya sama; yang berbeda hanya transport.
-- **Zod tetap transitive (4.3.6):** brief ini saya anggap sebagai persetujuan OD-14, tapi instalasi offline gagal (`notarget`) dan saya tidak mengedit lockfile manual. Perbaikannya satu perintah, `npm install zod@^4.3.6`, begitu registry bisa diakses.
-- **Capability baru `content.create`:** dasarnya A4 route matrix #170. Interim policy tidak memberikannya, jadi di production tetap 403 sampai ada grant.
-- **Atom `ui/progress` diubah:** sekarang meneruskan `value` ke root Radix supaya `aria-valuenow` muncul. Versi upstream shadcn tidak melakukannya.
+**New infrastructure:**
+- **Playwright 1.63 + `@axe-core/playwright` 4.13** as dev dependencies. The npm registry was reachable this time, so I also declared zod, which closes A5.6's RK-A56-02. Tests use the installed Chrome, so no browser download is needed locally.
+- **Mock backend** (`e2e/mock/`, marked TEST_ADAPTER, synthetic users and data): login/refresh/logout, the Content list, the signed-URL endpoint, and a separate storage origin.
+- **E2E-only routes:** `npm run e2e:build` copies small route files into the app, builds, and removes them again. The production build contains none of them, and a static test fails if any are left in `src/`.
+- **Automatic network check in every test:** it fails if the browser contacts anything other than the app or storage, or ever sends an `Authorization` header.
+- **Safety:** the app launcher refuses to start unless the backend is on `127.0.0.1`.
+- **Commands:** `npm run test:e2e:full` builds and runs everything.
 
-**Checklist**
+**Results**
 
-| Area | Status |
-|---|---|
-| Architecture | PASS |
-| Validation | PASS |
-| Server Actions | PASS |
-| Authorization | PASS |
-| Upload | PASS |
-| Security | PASS |
-| Accessibility | PASS |
-
-- **Architecture:** empat rule baru, semuanya dicek dengan menanam pelanggaran dan semuanya tertangkap. File tidak boleh sampai ke Server Action, Route Handler, DAL atau repository; `XMLHttpRequest` hanya ada di uploader storage dan hanya boleh diimpor kode client; modul upload tidak boleh logging.
-- **Validation:** field error, error bisnis, dan payload yang melewati browser tetap ditolak di server.
-- **Server Actions:** valid, validation, business, 403, 401, network, contract, timeout, dan unexpected (jadi `Unknown` + reference) semuanya bertipe.
-- **Authorization:** permintaan tanpa capability, purpose yang tidak terdaftar, atau tanpa sesi menghasilkan 0 panggilan ke gateway dan 0 penulisan ke repository.
-- **Upload:**
-  - intent berhasil dan gagal (500, 403, envelope, url hilang, url `javascript:`, network);
-  - PUT berhasil dan gagal;
-  - retry memakai intent baru;
-  - storage menolak berarti intent baru;
-  - file terlalu besar atau tipe salah tidak memicu intent;
-  - upload pending atau gagal memblokir submit, upload sukses mengizinkan submit.
-- **Security:**
-  - bundle check PASS;
-  - signed URL tidak pernah di-log, dirender, atau disimpan;
-  - browser run: browser hanya menghubungi host app dan host storage;
-  - storage menerima PUT dari Chrome dengan byte sama dengan ukuran file;
-  - body signurl hanya 72 byte.
-- **Accessibility:** label terhubung, `aria-invalid` dan `aria-describedby` ada, error diumumkan, progressbar punya `aria-valuenow`, upload hanya satu tab stop dengan focus ring yang terlihat, status tidak hanya lewat warna, tidak ada overflow di 375 dan 320 px.
-
-**Quality gates**
-
-| Gate | Hasil |
-|---|---|
-| Tests | 474 passed, 0 failed, 0 skipped (32 file; sebelumnya 388) |
-| Typecheck | 0 error |
-| Lint | 0 error, 28 warning (set yang sama seperti sebelumnya; tidak ada warning baru dari A5.6) |
-| `npm run quality` | exit 0 |
-| Build | PASS (route spike sementara sudah dihapus) |
-| Bundle check | PASS |
-
-Penambahan 86 test: upload 21, forms 20, actions 24, content-form 18, architecture +2, security +1.
-
-**Bug yang ditemukan lewat test dan browser run, lalu diperbaiki**
-- Nama file `../../etc/passwd` diproses lintas pemisah path. Sekarang hanya segmen terakhir yang dipakai.
-- Progressbar tidak punya `aria-valuenow`.
-- File input tersembunyi menjadi tab stop tanpa focus yang terlihat.
-
-**Regression**
-
-| Area | Status | Cakupan |
+| Area | Status | Evidence |
 |---|---|---|
-| A5.1 | PASS | login, refresh, 5 concurrent → 1 refresh, forged cookie, logout |
-| A5.2 | PASS | shell, mobile sheet via keyboard, halaman 404 |
-| A5.3 | PASS | DAL, error contract, TTFB median 12 ms |
-| A5.4 | PASS | menu hanya "Beranda", route planned → 404 |
-| A5.5 | PASS | suite DataTable, contract dan page tetap hijau |
+| E2E | PASS | 56 tests |
+| Accessibility | PASS | axe on WCAG 2.1 A/AA, no rules disabled, 9 page states |
+| Security | PASS | browser boundary, no secrets in HTML/RSC/storage/server log, no gateway host or wire names in responses, bundle clean |
+| Architecture | PASS | existing rules green, plus guards that the E2E routes stay out of production |
+| CI | BLOCKED | see Risks |
+| Auth regression | PASS | expired token → 1 refresh; 5 concurrent → 1 refresh; failed refresh → login with no retry storm; forged cookie; logout |
+| Authorization regression | PASS | a mutation from a screen that skips the page check is still refused by the server, with 0 gateway calls |
+| DataTable regression | PASS | exactly 1 gateway request per interaction |
+| Form regression | PASS | every error type distinct |
+| Upload regression | PASS | bytes go browser → storage only; expired signed URL gets a new one on retry; unsafe file names produce safe storage keys |
 
-**Risks**
-- **RK-A56-01 (High):** kontrak upload dan create belum terverifikasi di backend asli.
-- **RK-A56-02 (Medium):** zod dipakai tapi belum dideklarasikan di `package.json`.
-- **RK-A56-03 (Medium):** objek di storage bisa yatim, karena belum ada kontrak delete.
-- **RK-A56-04 (Medium):** umur signed URL tidak diketahui, jadi setiap retry meminta intent baru.
-- **RK-A56-05 (Low):** pesan error berbahasa Indonesia ada di dalam schema domain.
-- **RK-A56-06 (Low):** belum ada CSP. Nanti `connect-src` harus mengizinkan host storage.
-- **RK-A56-07 (Low):** atom `ui/progress` berbeda dari upstream shadcn.
-- **RK-A56-08 (Low):** loader action di fixture tidak boleh ditiru fitur asli.
-- **RK-A56-09 (Low):** cek rasio gambar dan alur CSV belum masuk.
+**Bugs the new suite found and I fixed:**
+- **Double navigation after login:** the server's redirect and the client's `window.location` raced each other. The login action now redirects once, server-side.
+- **Wrong return after session refresh:** the DataTable reference hard-coded where to return, so the user landed on a 404 and lost their page and sort. It now returns to the same page and sort. This matters because features will copy that page.
+- **Error text contrast below WCAG AA:** form errors used `red-500` (3.8:1) and the error colour token was 4.49:1. Both now meet 4.5:1. The error red is slightly darker, so a quick visual check is worth doing.
 
-**Open Questions**
-1. Apakah signurl tersedia di gateway CMS baru?
-2. Berapa lama signed URL berlaku?
-3. Header apa yang wajib saat PUT, dan apakah storage membatasi ukuran atau tipe file?
-4. Kategori selain `images`, dan batasnya masing-masing?
-5. Apakah `file_url` bisa diakses publik?
-6. Apakah ada endpoint delete atau cleanup untuk objek yang tidak jadi dipakai?
-7. Seperti apa format field error dari backend?
-8. Kontrak create Content yang sebenarnya? Di legacy: `POST /api/v1/cms/contents` `{code, name, is_active, value}`, sukses 201.
+**Flaky tests:** three intermittent failures, each reproduced, diagnosed and fixed rather than retried:
+- the double navigation above;
+- the page title arriving slightly after the URL changes;
+- axe sampling the mobile menu while it was still sliding in.
 
-**Documentation:** `docs/architecture/reviews/A5.6_FORM_UPLOAD_FOUNDATION.md`
+**Unit tests:** 478 passed, 0 failed, 0 skipped (+4).
 
-**Files changed**
-- **Baru:**
-  - `src/shared/upload/*`, `src/shared/forms/*`, `src/shared/hooks/use-upload.ts`;
-  - `src/components/molecules/upload/upload-field.tsx`, `src/components/organisms/forms/{form-error-alert,form-submit}.tsx`;
-  - `src/packages/files/**`;
-  - `test/fixtures/content-form/**`;
-  - 4 suite test baru.
-- **Diubah:**
-  - `capabilities.ts` (tambah `content.create`), `server-container.ts` (tambah `files`), `ui/progress.tsx`;
-  - `architecture.test.ts`, `security-boundary.test.ts`, `dal.test.ts`.
+**Integration tests:** included in the 478 (Vitest).
 
-**Files intentionally NOT changed:** `package.json`/lockfile, molecule dropzone B0, DataTable B0, auth/session/gateway/proxy/DAL, route production, navigation registry, dokumen A4.
+**E2E tests:** 56 passed, 0 failed, 0 skipped, 0 flaky. That was 5 consecutive runs (280/280), plus a final `CI=1 npm run test:e2e:full`.
+
+**Accessibility tests:** 7 axe specs covering login, login with an error, dashboard, mobile menu, DataTable with data and its error state, form with errors plus a failed upload, 403 and 404. Keyboard paths are covered in the other specs.
+
+**Typecheck:** 0 errors.
+
+**Lint:** 0 errors, 28 warnings (the same set as before).
+
+**Build:** PASS, with 0 E2E routes in the production build.
+
+**Security scan:** bundle check PASS.
+
+**A5.5R real backend:** BLOCKED
+
+**A5.6 real backend upload:** BLOCKED
+
+**Risks:**
+- **RK-A57-01 (High):** E2E doesn't run in CI. I didn't add it to the Jenkinsfile, because I can't check whether the build host has Node 24, Chrome or the free ports, and that pipeline deploys to production. A ready-to-use Jenkins stage is in the report.
+- **RK-A57-02 (High, carried):** the real backend and upload contract remain unverified.
+- **RK-A57-03 (Medium):** CI will need Chromium installed (`E2E_BROWSER_CHANNEL=chromium`).
+- **RK-A57-04 (Medium):** `loginAction` now redirects on success instead of returning `{ok: true}`.
+- **RK-A57-05 (Low):** the error colour token changed.
+- **RK-A57-06 (Low):** the E2E build writes to `.next`; a normal build restores it.
+- **RK-A57-07 (Low):** ports 18190, 18195 and 19190 must be free.
+
+**Open questions:**
+- Can the Jenkins build host run Node 24 plus Chromium (`npx playwright install --with-deps chromium`)? If so, the E2E stage can go in.
+- Is the slightly darker error red acceptable visually, or does design want a different red that still meets 4.5:1?
+- The A5.5R / A5.6 backend questions still stand: which host, which environment, a test account, and the signed-URL contract.
+
+**Documentation:** `docs/architecture/reviews/A5.7_E2E_CI_ACCESSIBILITY_HARDENING.md`
+
+**Files changed:**
+- **New:** `playwright.config.ts` and `e2e/**` (mock backend, build script, app launcher, support, 8 specs, route shims).
+- **Config:** `package.json`, `package-lock.json`, `vitest.config.js`, `.gitignore`.
+- **Fixes from findings:** `auth.actions.ts`, `login.tsx`, `home.tsx` (auth presentation), `ui/form.tsx`, `globals.css`, the content-list fixture page.
+- **Tests:** `auth.actions.test.ts`, `content-list-page.test.tsx`, `security-boundary.test.ts`.
+
+**Files intentionally NOT changed:** `Jenkinsfile`, `Dockerfile`, the legacy app, the backend, production routes and navigation, the old B0 components.
+
+**Final Gate:** GO-WITH-RISKS
