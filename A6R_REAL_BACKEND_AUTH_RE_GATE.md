@@ -15,7 +15,70 @@ ATTEMPT 2:       STOPPED at pre-flight — API_HOST (localhost) ≠ confirmed ga
                  gate variables not visible to the agent process
 ATTEMPT 3:       gateway REACHABLE; credential-free REAL_BACKEND probes executed (below);
                  authenticated verification BLOCKED — gate variables still absent from the agent process
+ATTEMPT 4:       target configured (.env.local); harness extended (read-only); npm run test:live
+                 refused by the gate — A55R_* still not in the agent process → BLOCKED
 ```
+
+## Execution attempt 4 — 2026-09-30
+
+### Pre-flight (REAL_BACKEND)
+
+| Check | Observed | Result |
+|---|---|---|
+| `printf 'CONFIRM=%s' "$A55R_CONFIRM_NON_PRODUCTION"` | `CONFIRM=` (empty) | BLOCKED |
+| `HOST` / `EMAIL` | empty / empty; `A55R_PASSWORD` unset (presence checked, not printed) | BLOCKED |
+| `zsh -i`, `zsh -l`, parent-process environment | 0 `A55R_*` variables | BLOCKED |
+| Agent process | same PID as attempt 3, uptime 12 h 31 m. Launched with `--input-format stream-json --output-format stream-json`, i.e. by an IDE / SDK host, **not** by the owner's terminal. Restarting from the terminal did not change the process this session runs in | root cause |
+| `frontend/.env.local` | **created**, gitignored (`.gitignore:34 .env*`). Contains only `API_HOST=https://devb2b-api.gpos.id` and `GATEWAY_AUTH_CONTRACT=legacy-v1`. Effective config: host `devb2b-api.gpos.id`, path `/`, contract `legacy-v1` | done |
+| `.env` | not modified | — |
+
+```text
+$ npm run test:live
+A5.5R BLOCKED by safety gate: A55R_CONFIRM_NON_PRODUCTION=yes not set
+Tests  1 passed | 12 skipped (13)
+```
+
+**Harness extension** (`test/live/content-list.live.test.ts`, still read-only; the gate is unchanged):
+- `S2b` detail: existing id + unknown id; GET on `/api/v1/cms/contents/:id` is allowed only for ids passing `isContentId`;
+- `S10` rotation booleans;
+- `S11` refresh failure on a session *copy*;
+- logout: local clear + whether the old access token is still accepted.
+
+No write step was added. Content create / update stays out of the harness until read access and write permission are shown for the account.
+
+### REAL_BACKEND matrix (attempt 4)
+
+| # | Check | State |
+|---|---|---|
+| 1 | Login | BLOCKED |
+| 2 | Authenticated Content list | BLOCKED |
+| 3 | Content detail | BLOCKED |
+| 4 | Content create | NOT VERIFIED — write permission of the test account not established (no login) |
+| 5 | Content update | NOT VERIFIED — as 4 |
+| 6 | Refresh endpoint `POST /api/v1/auth/refresh` | BLOCKED (existence + invalid-token 400 observed in attempt 3) |
+| 7 | Refresh-token rotation | BLOCKED |
+| 8 | 401 → refresh → retry | BLOCKED (invalid Bearer → 401 observed in attempt 3) |
+| 9 | Refresh failure / session invalidation | BLOCKED |
+| 10 | Logout | BLOCKED |
+| 11 | Authorization | BLOCKED |
+| 12 | Browser token boundary | BLOCKED (TEST_ADAPTER: PASS) |
+
+### TEST_ADAPTER (separate)
+
+- `npm run quality`: 35 files, 511 passed (after the attempt-3 `legacy-v1` refresh change).
+- `tsc` 0 errors and eslint clean after the harness extension.
+
+### Unblock (one command, in the owner's terminal)
+
+The owner's terminal has the variables, and `.env.local` now supplies the target. Run there:
+
+```bash
+cd frontend && npm run test:live
+```
+
+- Sanitized evidence is written to `$TMPDIR/a55r-live/evidence.json`: statuses, field names, counts and booleans; no values or tokens.
+- The agent can read that file to complete this report.
+- Alternatively, start the agent from that terminal as a plain CLI session (`claude` run in that shell), so the tool shell inherits the variables.
 
 ## Execution attempt 3 — 2026-09-30 22:30–22:45 WIB
 
