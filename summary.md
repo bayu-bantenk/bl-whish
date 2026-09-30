@@ -1,80 +1,52 @@
-```text
-==================================================
-A6-R — REAL BACKEND & AUTHENTICATION VERIFICATION
-==================================================
+A6-R is still **BLOCKED**. I stopped at the pre-flight check as your rules require, and no request went to the real backend.
 
-A6-R STATUS:
-BLOCKED — REAL BACKEND INACCESSIBLE (target not confirmed) + REAL TEST ACCOUNT UNAVAILABLE
+**Why it stopped**
 
-A6 FINAL STATUS:
-BLOCKED (unchanged)
+1. **The configured host doesn't match.** `API_HOST` in `frontend/.env` points to `localhost` (port 4001, path prefix `/api/v1`), not `devb2b-api.gpos.id`. The legacy app's `APIGATEWAY_URL` is the one that matches the confirmed host.
+2. **I can't see the variables you exported.** `A55R_CONFIRM_NON_PRODUCTION`, `A55R_ALLOWED_HOST`, `A55R_EMAIL` and `A55R_PASSWORD` are not set in my shell. It doesn't inherit your terminal session, so the safety gate would refuse to run anyway.
 
-REAL BACKEND:               BLOCKED
-REAL LOGIN:                 BLOCKED
-REAL REFRESH:               BLOCKED (if the host uses the legacy-v1 contract there is no refresh endpoint, so this becomes NOT APPLICABLE)
-REAL LOGOUT:                BLOCKED
-REAL AUTHENTICATED REQUEST: BLOCKED
-REAL CONTENT LIST:          BLOCKED
-REAL CONTENT CREATE:        BLOCKED
-REAL CONTENT UPDATE:        BLOCKED
-REAL AUTHORIZATION:         BLOCKED
-REAL UPLOAD:                NOT APPLICABLE (Content has no upload)
+**Results**
 
-BROWSER TOKEN EXPOSURE:
-PASS (TEST_ADAPTER only; not possible under REAL_BACKEND without a real login)
+| # | Item | Result |
+|---|---|---|
+| 1 | A6-R status | BLOCKED |
+| 2 | REAL_BACKEND tests run | none |
+| 3 | REAL_BACKEND passed | none |
+| 4 | REAL_BACKEND failed | none (all NOT VERIFIED) |
+| 5 | TEST_ADAPTER regression | green from the earlier run today: 508/508 unit tests, 65/65 E2E, build and bundle check pass. Nothing changed since, so I didn't re-run. |
+| 6 | Changes this turn | report only; no code or config changes |
 
-REQUEST ID:
-UNKNOWN (sent by GatewayClient; whether the gateway accepts or keeps it is unverified)
+**What will need to change once config is aligned (not done yet)**
 
-TEST_ADAPTER:
-- npm run quality: 35 files, 508 passed
-- E2E: 65/65 (A6 run; the only change since is .env.example)
+- **Configuration.**
+  - Set `API_HOST` to `https://devb2b-api.gpos.id` with no `/api/v1` prefix. The auth and Content paths already include `/api/v1`, so keeping the prefix would produce `/api/v1/api/v1/...`.
+  - Set `GATEWAY_AUTH_CONTRACT=legacy-v1`. It's currently unset, which means `b0` with the wrong login and refresh paths.
+- **Code, inside the existing `legacy-v1` auth profile (no new auth system).**
+  - Set the refresh path to `/api/v1/auth/refresh` (it's currently `null`).
+  - Parse the refresh response `{access_token, expires_at, refresh_token}`.
+  - Read `refresh_token` from the login response once a real login confirms it's there.
+  - Logout already sends the Bearer header with no body, so it needs no change.
+- **Live test harness.** `test:live` is read-only: it only lists Content and calls login/logout. Detail, create/update, forced-401 refresh, refresh failure and logout checks each need a reviewed extension, with writes allowed only on the test record. The safety gate itself stays unchanged.
 
-REAL_BACKEND:
-- npm run test:live: refused — "A5.5R BLOCKED by safety gate: A55R_CONFIRM_NON_PRODUCTION=yes not set"
-- 0 requests sent to any real host
+**Remaining blockers**
 
-BUILD:  PASS (next build exit 0; three Content routes present)
-BUNDLE: PASS (34 files; the example key value is in 0 static files)
+- The host mismatch above.
+- The gate variables aren't visible to me.
+- There's only one test account, so the "access denied" test is untested.
+- Permission is needed to create and update test Content rows.
+- Whether `KONG_API_KEY` is required is still unknown. It is set locally; I didn't read the value.
 
-CRITICAL FINDINGS:
-SF-A6R-01: frontend/.env.example contained a real-looking 32-character KONG_API_KEY value.
-- Committed since template commit 8c24d71.
-- Replaced with an empty placeholder in the working tree; git history still contains it.
-- Unknown whether the key is live.
+**Security**
 
-OPEN RISKS:
-- A6 risks RK-A6-01…09 carried over.
-- Auth contract unknown (b0 vs legacy-v1; refresh may not exist).
-- API key requirement unknown (OD-03).
-- GET body question unresolved (OD-31).
-- Detail response may lack is_active.
+- No new findings.
+- The API key that was committed in `.env.example` (SF-A6R-01) still needs rotating if it's real.
+- No credentials or tokens were read or printed.
 
-BLOCKERS:
-- BL-1: OD-02 — which host is authoritative, with written non-production confirmation.
-- BL-2: network access (VPN / corporate CA). API_HOST is plain http on a private address.
-- BL-3: test account(s), ideally one with write access and one without.
-- BL-4: which auth contract the host uses.
-- BL-5: permission to create/update test Content rows (the harness is read-only).
-- BL-6: whether KONG_API_KEY is required, and whether the committed value is real.
+**Can A6 be re-gated?** Not yet. It can once the steps below are done and the real login, Content list, refresh and write checks pass.
 
-DOCUMENT:
-docs/architecture/reviews/A6R_REAL_BACKEND_AUTH_RE_GATE.md
-```
+**To unblock, you need to:**
+1. Approve a gitignored `frontend/.env.local` override with `API_HOST=https://devb2b-api.gpos.id` and `GATEWAY_AUTH_CONTRACT=legacy-v1`. Neither value is secret. I'll create it if you say so, or you can.
+2. Make the `A55R_*` variables visible to me: start Claude Code from the terminal where you exported them. Alternatively, run `npm run test:live` in that terminal yourself and share the cleaned evidence file it writes outside the repo. I don't want to write the password into a file.
+3. Approve the auth profile change and the harness extension above.
 
-Nothing is set up for a real run yet:
-- No test account or confirmation variables exist anywhere.
-- Neither `.env` has changed since A5.5R.
-- It's still undecided which host is the real one.
-
-So I contacted no host and left the safety gate as it is. The document lists what each variable means and the exact order the gate checks things.
-
-**Needs your decision:**
-1. **The example API key (SF-A6R-01).** Treat it as exposed and rotate it if it's real. Removing it from git history is destructive, so I haven't done it; say if you want it.
-2. **To unblock A6-R.**
-   - Confirm the non-production host and auth contract. Put them in `frontend/.env.local`, which git ignores.
-   - Run `A55R_CONFIRM_NON_PRODUCTION=yes A55R_ALLOWED_HOST=<host> A55R_EMAIL=… A55R_PASSWORD=… npm run test:live` from your own shell. It needs VPN if the host requires it.
-   - Share the cleaned evidence file it writes outside the repo.
-   - Then I continue with the browser, refresh, logout and write checks.
-
-Nothing is committed. Your dev server on :4000 (pid 8638) is still running.
+**Report:** `docs/architecture/reviews/A6R_REAL_BACKEND_AUTH_RE_GATE.md` (new section "Execution attempt 2")
