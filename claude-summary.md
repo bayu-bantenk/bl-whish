@@ -1,129 +1,67 @@
-# Current status — 2026-10-01: A6R-1 / A6R-2 closeout
+Source backend tersedia di `~/Developments/BE/gpos-b2b-content-service` (branch `development`, commit `7897199`, 2025-10-16, working tree bersih). Penyebab D-A6R2-01 bisa ditelusuri dari kode: **kategori D, bug di repository/ORM update**. GORM `Updates(struct)` hanya menyimpan field yang nilainya bukan zero-value, sedangkan `false` adalah zero-value Go untuk `bool`, sehingga `is_active=false` dilewati tanpa error.
 
-Evidence: `$TMPDIR/a6r1-live/evidence.json`, `$TMPDIR/a6r2-live/evidence.json`. Both runs were real, against `devb2b-api.gpos.id` (non-production), through request scope → use case → repository → GatewayClient. Secret-pattern hits in the evidence: 0.
+Semua ini read-only: tidak ada request HTTP, tidak ada mutation, dan tidak ada file yang diubah (source, test, config, dokumentasi, maupun status gate).
 
-```text
-A5.5R      = GO-WITH-RISKS
-A6 READ    = SUBSTANTIALLY VERIFIED
-A6 CREATE  = VERIFIED              POST /api/v1/cms/contents → 201 {code:201,status:"OK",data:{message}} (no id); read-back ok
-A6 UPDATE  = VERIFIED-WITH-RISKS   PUT /api/v1/cms/contents/{id} → 200 {code:200,status:"OK",data:{message}};
-                                   name + value persisted, is_active=false NOT persisted (D-A6R2-01, critical)
-A6 DELETE  = NOT VERIFIED / OUT OF CURRENT SCOPE
-A6 overall = BLOCKED
-```
+## Jalur `PUT /api/v1/cms/contents/{id}`
 
-- **A6R-1 (CREATE): VERIFIED.**
-  - 1 POST → 201; pre-check found 0 matches.
-  - Read-back: 1 match by code, and the detail matches every submitted field.
-  - Record `68b42bae-dfd3-4da0-b3d5-dbe0733d0aa2` / `A6R-TEST-20261001-062932`, retained by approval.
-- **A6R-2 (UPDATE): VERIFIED-WITH-RISKS.**
-  - 1 PUT → 200.
-  - Read-back by ID and by code: id, code, name and value as intended; **`is_active` remained `true`** (intended `false`).
-  - That the app sends `is_active:false` is **INFERRED** from code and unit tests; request bodies weren't recorded. Cause UNKNOWN; no further mutation was made.
-- **Safety:** CREATE 1 · UPDATE 1 · DELETE 0 · PATCH 0 · retries 0 · second mutation 0 · secrets 0.
-- **Closed:** CREATE success code (201) and UPDATE success code (200) match the app; the test account's backend write permission is verified.
-- **Still open:**
-  - D-A6R2-01 (critical): deactivation is lost while the UI says "saved";
-  - `is_active:false` on CREATE not verified;
-  - duplicate-code behaviour;
-  - `value:null` semantics;
-  - Content validation error shape;
-  - no `created_at`;
-  - unknown ID → 403;
-  - S6 GET body / S7 API key;
-  - DELETE contract;
-  - production grant model (OD-05/06) and no restricted account;
-  - multi-instance refresh race (OD-25);
-  - 7-day session vs ~30-day token.
+| Tahap | File : baris | Temuan | Status |
+|---|---|---|---|
+| Route | `handler/content.go:31-35` | grup `/cms/` → `cmsGroup.Put("/contents/:id", h.CmsUpdateContent)` | VERIFIED (kode) |
+| Handler | `handler/content.go:175-199` | `ValidateParam` (id) → `ValidateBody` ke `dto.CmsUpdateContentRequest` → mapper → use case → respons `200 {message:"Success"}`. Tidak ada logic khusus `is_active` | VERIFIED |
+| Decode + validasi | `helper/validator.go:35-45` | `c.BodyParser` (JSON) lalu `ValidateStruct`. Tidak ada aturan validasi untuk `is_active` | VERIFIED |
+| Request DTO | `dto/content.go:42-47` (baris 46) | `IsActive bool \`json:"is_active"\``: **bool biasa**, bukan `*bool`, tanpa `omitempty`. JSON `false` dan field yang tidak dikirim sama-sama jadi `false`, tidak bisa dibedakan | VERIFIED |
+| Mapper | `mapper/content.go:63-74` (baris 72) | `IsActive: spec.IsActive` disalin apa adanya ke `model.Content` | VERIFIED |
+| Use case | `usecase/content.go:68-82` | cek record ada → cek kode unik → `UpdateContent(model)`. Tidak ada aturan bisnis untuk `is_active` | VERIFIED |
+| **Repository** | **`repository/content.go:66-74` (baris 67)** | **`repo.db.Updates(content)`**, struct penuh, tanpa `Select(...)`, `map`, atau `Save` | VERIFIED |
+| Model DB | `model/content.go:3-9` (baris 8) | `IsActive bool \`gorm:"default:true;not null"\``: bool biasa dengan default `true` | VERIFIED |
+| ORM | `go.mod:26` | `gorm.io/gorm v1.31.0` | VERIFIED |
+| Hook | — | tidak ada `BeforeUpdate` / `AfterUpdate` untuk `Content` | VERIFIED |
+| Endpoint alternatif | seluruh repo (`grep IsActive`) | tidak ada endpoint atau workflow lain untuk mengubah status Content; hanya ada CRUD di atas | VERIFIED (dalam repo ini) |
 
-Details: `frontend/docs/architecture/reviews/A6_WRITE_CONTRACT_READINESS.md` → "A6R-1 / A6R-2 closeout".
+## Mekanisme
 
----
+- Pada GORM, memanggil `db.Updates(struct)` hanya meng-update field yang bukan zero-value.
+  - `name` dan `value` berisi string tidak kosong, jadi ikut di-update.
+  - `is_active=false` adalah zero-value, jadi tidak masuk ke statement `UPDATE`. Kolom tetap `true` dan backend tetap mengembalikan 200.
+- Ini persis sama dengan bukti live A6R-2: PUT 200, `name`/`value` tersimpan, `is_active` tetap `true`.
+- **Status: INFERRED, keyakinan tinggi.** Kodenya VERIFIED dan perilaku ini adalah perilaku GORM yang terdokumentasi. Yang belum bisa dibuktikan dari sini: bahwa backend yang ter-deploy di `devb2b-api.gpos.id` menjalankan commit `7897199` (UNKNOWN), dan SQL yang benar-benar dieksekusi tidak terekam.
 
-# Previous content (origin/main 69bdf65, kept unchanged)
+## Klasifikasi
 
-**CREATE BLOCKED**, with nothing sent to the backend. All four preconditions are exactly as they were in the last two attempts, so this prompt gives the same result. Since there's no new evidence, I didn't change any documentation.
+| Opsi | Kesimpulan | Status |
+|---|---|---|
+| A. PUT sengaja mengabaikan `is_active` | Tidak didukung bukti. DTO, mapper, dan Swagger (`docs/docs.go`, `dto.CmsUpdateContentRequest`) semuanya menerima dan meneruskan `is_active`. Tidak ada komentar atau aturan yang mengecualikannya | INFERRED: tidak disengaja |
+| B. Harus lewat endpoint atau workflow lain | Tidak ada endpoint lain di service ini | VERIFIED (repo ini). Routing gateway ke service lain: UNKNOWN |
+| C. Bug DTO atau mapper | Bukan penyebabnya. Nilai `false` dibawa utuh sampai ke model. Desain `bool` non-pointer memang ikut berperan (tidak bisa membedakan `false` dari field kosong), tapi nilainya tidak hilang di tahap ini | VERIFIED |
+| **D. Bug repository/ORM update** | **Ya.** `repository/content.go:67` `Updates(struct)` membuang `false` | **INFERRED (keyakinan tinggi)**; kode VERIFIED, versi yang ter-deploy UNKNOWN |
+| E. Aturan bisnis | Tidak ada di use case, handler, maupun hook | VERIFIED |
+| F. Tidak bisa ditentukan | Tidak berlaku: penyebab teridentifikasi | — |
 
-```text
-A6R-1 CONTROLLED REAL CREATE VERIFICATION
+## Implikasi terkait (inferensi, belum diuji live)
 
-Baseline
-- branch: chore/a5.0-foundation-remediation
-- commit: 8c24d71bdc2444b1bc5e91c9928670703658b35e
-- working tree: 261 entries (A5.0–A6 work not yet committed), unchanged
+- **CREATE dengan `is_active=false` kemungkinan besar tersimpan sebagai `true`.**
+  - Model punya tag `default:true` (`model/content.go:8`), dan GORM `Create` melewati zero-value pada field yang punya default, sehingga database memakai default `true`.
+  - Status: INFERRED. A6R-1 hanya menguji `true`.
+- **Mengosongkan `value` lewat UPDATE kemungkinan juga diabaikan.**
+  - Frontend mengirim `null`; `BodyParser` mengubahnya jadi `""`, lalu `Updates` melewati `""`.
+  - Status: INFERRED. Ini terkait R7, semantik `null`.
+- **Legacy kemungkinan terdampak dengan cara yang sama**, karena mengirim body PUT yang identik. Status: INFERRED.
 
-Environment
-- backend: devb2b-api.gpos.id (confirmed non-production), contract legacy-v1
-- test code: none generated
+Jadi kontrak frontend (`PUT` dengan `is_active` boolean) sesuai OpenAPI. Perbaikannya ada di backend. Pola yang biasa dipakai, misalnya `Select("*")` / `Select(kolom...)`, update dengan `map`, atau `IsActive *bool`, adalah keputusan pemilik backend.
 
-Safety
-- CREATE attempts: 0
-- UPDATE attempts: 0
-- DELETE attempts: 0
-- retries: 0
-- bulk operations: 0
-- production business records modified: 0
-- secrets exposed: 0
+## Temuan sampingan (dari kode yang sama, di luar `is_active`)
 
-Authorization
-- local content.create: DENIED — AUTHZ_INTERIM_GRANTS is empty → BLOCKED_BY_LOCAL_AUTHZ (not changed, not bypassed)
-- backend write permission: UNKNOWN
+- **R1, bentuk validation error untuk Content: VERIFIED dari kode.**
+  - Content memakai `helper.ValidateBody` yang sama, jadi errornya 400 `ERR_VALIDATION_ERROR` dengan `data[{FailedField, Tag, Value}]`.
+  - `FailedField` berasal dari `err.StructNamespace()`, misalnya `CmsUpdateContentRequest.Code`.
+  - Ini **koreksi** atas catatan saya sebelumnya: `Value` adalah `err.Param()` (parameter aturan validasi), **bukan** nilai input yang dikirim user (`helper/validator.go:21-23`).
+- **Kode duplikat: VERIFIED dari kode.** Saat CREATE/UPDATE, backend mengembalikan 400 dengan pesan "Content Code %s already used" (`usecase/content.go:57-60`, `74-77`).
+  - Artinya ini Business 400, bukan 409.
+  - Saat itu use case belum menulis apa pun, jadi request yang sama sampai dua kali tidak membuat duplikat diam-diam.
 
-Pre-create
-- test code absent: NOT RUN (the test-account variables aren't in this process, so it can't log in)
+D-A6R2-01 tetap **OPEN / CRITICAL**, dan A6 tetap **BLOCKED**. Tidak ada status atau dokumen yang saya ubah.
 
-CREATE
-- endpoint: POST /api/v1/cms/contents (not called)
-- HTTP status: n/a
-- response code: n/a
-- response envelope: n/a
-- response data shape: n/a
-- returned ID: n/a
-
-READ-BACK
-- record found: n/a
-- code / name / is_active / value: n/a
-
-Contract findings
-- VERIFIED: the create path in the code (authorization runs before any request, validation runs
-  before the gateway, the body has exactly 4 fields, '' becomes null, is_active is a boolean, the
-  token stays on the server, a mutation is not replayed after 401, there is one HTTP client and no
-  other write path); the request shape matches what the legacy app sent
-- INFERRED: none new
-- UNKNOWN: real success code, response body / ID, persisted representation, duplicate behavior
-- NOT VERIFIED: CREATE on the real backend; Content validation error shape
-- POTENTIAL DEFECTS (unchanged): a create that succeeds with a code other than 201 shows as a failure,
-  and a retry would create a duplicate; the backend's field-error format would show as one form-level alert
-
-Cleanup
-- DELETE: not run (out of scope)
-- residual test record: none created; leaving one hasn't been approved → BLOCKED_PENDING_OWNER_APPROVAL
-
-Documentation changed
-- NONE (no new evidence; A6_WRITE_CONTRACT_READINESS.md and claude-summary.md already say BLOCKED)
-
-Source changes
-- NONE
-
-Result
-CREATE = CREATE BLOCKED
-```
-
-```text
-$ git diff --stat        → 82 files changed, 900 insertions(+), 1902 deletions(-)   (identical to baseline)
-$ git status --short     → 261 entries, identical to baseline
-```
-
-**What I checked just now:**
-1. **Credentials:** `A55R_CONFIRM_NON_PRODUCTION`, `A55R_ALLOWED_HOST`, `A55R_EMAIL` and `A55R_PASSWORD` are all missing. This is still the same process (PID 69151, running 24 h 16 min).
-2. **Local authorization:** with the test env config, `AUTHZ_INTERIM_GRANTS` is `<empty>`, so `require('content.create')` refuses before anything is sent.
-3. **No write harness:** `test/live/` only has the read-only `content-list.live.test.ts`, and its guard refuses `POST /api/v1/cms/contents`.
-4. **No cleanup approval:** neither the docs nor your prompts approve leaving a test record on the backend. Without DELETE, it would stay.
-
-Sending the same prompt again won't change any of these; each needs an action from you:
-1. **Credentials:** start Claude Code from the terminal where the `A55R_*` variables are exported, not from the IDE.
-2. **Local authorization:** say explicitly which you allow. Either `AUTHZ_INTERIM_GRANTS=content.read,content.create` in the gitignored `.env.test.local` for this test only, or a write harness with its own test policy.
-3. **Write harness:** allow me to add a new, narrowly scoped test file. It would do exactly one POST with an `A6R-TEST-*` code, a read-only check before and a read-back after, no retry, and refuse PUT and DELETE.
-4. **Cleanup:** state that one inert test record may remain on `devb2b-api.gpos.id`.
-
-With all four in place, I'll run A6R-1 in one pass. Stopped here; no UPDATE, no DELETE.
+Langkah berikutnya butuh keputusanmu dan/atau pemilik backend:
+1. Konfirmasi bahwa `devb2b-api.gpos.id` menjalankan commit `7897199` (atau commit dengan kode yang sama).
+2. Perbaikan di backend.
+3. Verifikasi ulang yang terkontrol untuk update `is_active=false`. Itu fase terpisah yang memerlukan persetujuan baru.
