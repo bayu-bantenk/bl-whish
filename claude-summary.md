@@ -1,97 +1,132 @@
-Status A5.5R sudah **GO-WITH-RISKS** di semua dokumen. Hampir semua isi brief ini sudah masuk lewat reconciliation sebelumnya, jadi kali ini saya hanya menambal tiga hal: baris unknown ID dipecah menjadi "HTTP behavior" dan "alasan semantik = UNKNOWN" plus catatan bahwa harness belum punya assertion; session lifetime dan expiry token sekarang ditulis sebagai dua hal terpisah; dan catatan unknown ID ditambahkan ke status A6-R. Hanya file dokumentasi yang berubah.
+CREATE and UPDATE are both **READY-WITH-RISKS** for a future controlled real-backend test, and neither was run. The request side matches the legacy runtime capture exactly, but the real backend's success codes, response bodies, error shapes and the test account's write permission are all unverified. Only documentation changed, and nothing was sent to the backend.
 
-## 1. A5.5R final status
+## 1. Baseline (before the audit)
 
 ```text
-GO-WITH-RISKS
+$ git status --short     → 261 entries (existing uncommitted A5.0–A6 work; docs/ = one untracked "?? docs/")
+$ git diff --stat        → 82 files changed, 900 insertions(+), 1902 deletions(-)
 ```
 
-## 2. Documentation files inspected
+## 2. A6 readiness summary
 
-Di `frontend/docs/architecture/`:
-- `contracts/legacy-api/content-list.md`, `content-write.md`
-- semua review A5.0 sampai A5.7, termasuk `A5.5R_REAL_BACKEND_CONTRACT_VERIFICATION.md`
-- `A6_FIRST_PRODUCTION_VERTICAL_SLICE.md`, `A6R_REAL_BACKEND_AUTH_RE_GATE.md`, `summary.md`
+```text
+A6 READ    = SUBSTANTIALLY VERIFIED
+A6 CREATE  = READY-WITH-RISKS
+A6 UPDATE  = READY-WITH-RISKS   (only after CREATE produces a dedicated test record)
+```
 
-Di luar repo frontend: `~/Developments/bl-whish/claude-summary.md`.
+A6 as a whole stays **BLOCKED** (not complete). A5.5R stays **GO-WITH-RISKS**.
 
-## 3. Documentation files changed
+## 3. Legacy CREATE contract
 
-**Diubah di task ini (dibandingkan snapshot di awal task):**
-- `reviews/A5.5R_REAL_BACKEND_CONTRACT_VERIFICATION.md` (+5 / −3): baris unknown ID dipecah dua; session lifetime dan expiry token dipisah; follow-up assertion harness dicatat.
-- `reviews/A6R_REAL_BACKEND_AUTH_RE_GATE.md` (+1): catatan unknown ID di bagian "Current status".
-- `~/Developments/bl-whish/claude-summary.md`: baris unknown ID dipecah dua dan kalimat soal lifetime diperjelas. Total diff terhadap commit terakhir +46, karena sudah termasuk blok status yang ditambahkan di task sebelumnya.
+**VERIFIED**, from the legacy code plus the A6 capture of what the legacy app sent:
+- `POST /api/v1/cms/contents`, JSON, `Authorization: Bearer`, no API key, no query string.
+- Body is exactly `{code, name, is_active, value}`:
+  - `is_active` is a boolean (`'true'` → `true`, anything else → `false`);
+  - an empty `value` is sent as `null`.
+- `code` and `name` are required; if missing, the request never reaches the gateway. There are no length or format rules.
+- Success only when the envelope `code == 201`. A `code 200` reply was treated as failure.
+- Every error collapses into one generic flash message. The error body is never parsed.
+- `store` doesn't call `checkAuth` (the other actions do); only the logged-in route group protects it.
 
-**Sudah ter-rekonsiliasi di task sebelumnya, tidak diubah lagi:**
-- `summary.md`, `A6_FIRST_PRODUCTION_VERTICAL_SLICE.md`
-- `content-list.md`, `content-write.md`
-- `A5.6_FORM_UPLOAD_FOUNDATION.md`, `A5.7_E2E_CI_ACCESSIBILITY_HARDENING.md`
+**UNKNOWN:**
+- the returned object, id and server-generated fields (legacy never reads them);
+- the real backend's success code and error bodies.
 
-Riwayat audit tetap utuh. Status BLOCKED lama ditandai historical / superseded, lalu diikuti status terkini.
+## 4. Legacy UPDATE contract
 
-## 4. Evidence matrix
+**VERIFIED:**
+- `PUT /api/v1/cms/contents/{id}`, JSON, Bearer, always the full 4-field body.
+- `code` and `name` are required.
+- Success when the envelope `code == 200`.
+- The edit form never pre-selects `is_active` (a legacy defect).
+- Failures use the flash key `Warning`, which no view shows, so they are silent.
 
-| Area | Status | Evidence |
+**INFERRED:** an empty `value` becomes `null`, through the same normalisation as create.
+
+**UNKNOWN:**
+- whether the backend treats `null` or omitted fields as "clear" or "leave unchanged";
+- the returned object;
+- error bodies.
+
+## 5. Contract comparison
+
+| Contract | Legacy | Current Next.js | Status |
+|---|---|---|---|
+| CREATE method / endpoint | POST `/api/v1/cms/contents` | same | COMPATIBLE |
+| CREATE body | 4 keys, boolean, `''` → `null` | `toContentBody` identical (test compares with the capture) | COMPATIBLE |
+| CREATE headers | Bearer | Bearer + `Api-Key` + `X-Request-Id` | INTENTIONAL MIGRATION CHANGE (whether the key is required: UNKNOWN) |
+| CREATE validation | required only, no message shown, input lost | zod: trim, required, length limits; checked in the browser and on the server; messages shown, input kept | INTENTIONAL MIGRATION CHANGE (length limits are my own safety bounds) |
+| CREATE success | envelope 201 | success code 201; other 2xx → `Contract` | COMPATIBLE with legacy; real code UNKNOWN |
+| CREATE error shape | never parsed | typed by status; 400 + `{errors}` → Validation | INTENTIONAL MIGRATION CHANGE; field errors are a POTENTIAL DEFECT (§6) |
+| UPDATE method / endpoint | PUT `/{id}` | same, id checked by `isContentId` | COMPATIBLE |
+| UPDATE body / semantics | full body | full body | COMPATIBLE; backend `null` semantics UNKNOWN |
+| UPDATE `is_active` | never pre-selected | pre-filled from the detail response (presence confirmed on the real backend) | INTENTIONAL MIGRATION CHANGE (defect fix) |
+| UPDATE success | envelope 200 | success code 200 | COMPATIBLE; real code UNKNOWN |
+| UPDATE error shape | silent | typed and shown | INTENTIONAL MIGRATION CHANGE; real shape UNKNOWN |
+| UPDATE missing record | any failure → list | 404 → `notFound()`, 403 → AccessDenied; the real unknown ID returned **403** | POTENTIAL DEFECT (UX) |
+
+## 6. Validation error contract
+
+- **Legacy:** the backend body is never parsed.
+- **Real backend, auth endpoints only:** 400 with `error_code: "ERR_VALIDATION_ERROR"` and `data: [{FailedField: "<Struct>.<Field>", Tag, Value}]`.
+- **Real backend, Content:** never observed.
+- **Current mapping:** 400 with `{errors: {field: [...]}}` → Validation; otherwise → Business. So the auth-style shape would show up as **one "Validation Error" alert at the top of the form, with no per-field messages**. That fails visibly, keeps the user's input, and logs nothing; it's degraded, not unsafe.
+- **Final status:** **NOT VERIFIED**.
+
+## 7. Known contract risks
+
+| # | Risk | Status |
 |---|---|---|
-| Login | VERIFIED | `POST /api/v1/auth/login` → 200; backend mengembalikan `access_token`, `refresh_token`, `expires_at` |
-| Backend `expires_at` | VERIFIED | format RFC 3339 dengan nanodetik, `+07:00`, sekitar 30 hari ke depan; diterima apa adanya. Backend adalah source of truth, tanpa batas maksimum dari frontend |
-| Content list | VERIFIED | `GET /api/v1/cms/contents` → 200 |
-| Content detail | VERIFIED | ID yang ada → 200; field `id, name, code, value, is_active` |
-| Pagination | VERIFIED | halaman 1 dan 2 tidak tumpang tindih; page 0 sama dengan page 1; halaman di luar jangkauan → kosong |
-| `code` sorting | VERIFIED | asc dan desc; desc persis kebalikan asc |
-| Search | VERIFIED | ada hasil → hanya baris yang cocok; tanpa hasil → kosong, bukan error |
-| Local authorization denial | VERIFIED | `Forbidden`, 0 request ke gateway |
-| 401 → refresh → retry | VERIFIED | 401 → `POST /api/v1/auth/refresh` 200 → retry tepat satu kali → 200; tidak ada loop |
-| Refresh rotation | VERIFIED | access token dan refresh token berganti; expiry baru di masa depan |
-| Failed refresh cleanup | VERIFIED | 401 → refresh 400 → session lokal dihapus → request berhenti. Tidak ada request logout dari flow ini |
-| Logout/revocation | VERIFIED | logout → 200; request Content berikutnya dengan token yang sama → 401 |
-| Unknown ID HTTP behavior | VERIFIED as observed 403/Forbidden | Observed backend behavior for the tested unknown ID: 403 Forbidden. Mapping aplikasi 403 → `Forbidden`, 404 → `NotFound`, jadi hasilnya `Forbidden` |
-| Unknown ID semantic reason | UNKNOWN | alasan backend mengembalikan 403 belum diketahui. Step harness belum punya assertion, jadi ini hanya observasi HTTP |
-| S6 GET body | NOT VERIFIED | probe tidak diaktifkan; implementasi tetap memakai query parameter saja |
-| S7 API key requirement | NOT VERIFIED | semua request membawa API key; tidak ada pembanding tanpa API key |
-| Content CREATE | NOT VERIFIED | Not tested |
-| Content UPDATE | NOT VERIFIED | Not tested |
+| 1 | Validation error shape mismatch (above) | NOT VERIFIED / POTENTIAL DEFECT |
+| 2 | **No `created_at` or `content_date` in real rows.** The "Tanggal Konten" column will always show "—". The default sort is `created_at desc`, and that ordering is unverified | OPEN CONTRACT RISK |
+| 3 | **Unknown ID returns 403**, so the update page shows AccessDenied where it relies on 404 for `notFound()`. The reason for the 403 is UNKNOWN | OPEN CONTRACT RISK |
+| 4 | S6 GET body: the app doesn't need it; whether the backend accepts one is unknown | NOT VERIFIED |
+| 5 | S7 API key: always sent; whether it's required is unknown | NOT VERIFIED |
+| 6 | **CREATE false failure → duplicate.** If the real backend answers with a code other than 201 (e.g. 200), or a timeout hits after the backend saved the record, the app reports failure even though the record exists. A user retry would then create a duplicate. Also unknown: whether duplicate `code` values are rejected (409) | UNKNOWN |
+| 7 | UPDATE: success code 200 unverified; `value: null` semantics unknown | UNKNOWN |
+| 8 | Authorization: production grants (`AUTHZ_INTERIM_GRANTS`, OD-05/06) are your decision and still open; the test account's backend write permission is unknown (login returns only `role_id` and `role_name`); no restricted account for a denial test | UNKNOWN |
+| 9 | Cleanup: no migrated delete; the legacy DELETE endpoint was never captured | NOT VERIFIED / out of captured contract |
 
-## 5. Remaining A6 blockers/risks
+Authorization itself is checked three ways on the current side:
+- the route guard on each page;
+- the use case's `require` call, before validation and before any backend request;
+- Server Actions run only through `runAction` → data-access layer → use case.
 
-1. Kontrak Content CREATE di backend asli belum diuji.
-2. Kontrak Content UPDATE di backend asli belum diuji.
-3. Bentuk validation error belum terverifikasi untuk Content. Endpoint auth asli mengembalikan `ERR_VALIDATION_ERROR` dengan `data[{FailedField, Tag, Value}]`, sedangkan aplikasi mengasumsikan `{errors:{field:[…]}}`.
-4. Response asli tidak punya `created_at`, padahal A6 punya kolom "Dibuat" dan default sort `created_at desc`.
-5. Alasan di balik 403 untuk unknown ID masih UNKNOWN; A6 mengharapkan `NotFound`.
-6. Kompatibilitas GET body (S6) belum diuji.
-7. Apakah API key wajib (S7) belum diuji.
-8. Risiko lain yang didukung evidence:
-   - semua respons 401 berbody kosong;
-   - refresh yang ditolak mengembalikan 400, bukan 401;
-   - backend tidak mengembalikan `X-Request-Id`;
-   - session lifetime aplikasi (7 hari) adalah konsep terpisah dari expiry token backend (sekitar 30 hari);
-   - belum ada akun kedua yang dibatasi aksesnya.
+Menu and button visibility is UI only. Mock-backend tests show a read-only user produces 0 write requests, and the real backend run (S8) shows a locally denied request makes 0 backend calls.
 
-**Follow-up yang tidak saya kerjakan sekarang:**
-- assertion harness untuk unknown ID, setelah kontrak 403 vs 404 diputuskan;
-- penyesuaian mapper validation error;
-- keputusan soal kolom dan default sort `created_at`.
+**Preconditions for a future controlled CREATE/UPDATE test:**
+- your approval for writes on the non-production gateway, and a test-record naming convention (e.g. `A6R-TEST-<timestamp>`);
+- a cleanup decision: either accept a leftover test record, or separately approve and verify DELETE;
+- exactly one attempt with no retry, followed by reading the record back;
+- a harness extension that allows writes only to the test record;
+- UPDATE only on the record CREATE produced.
 
-## 6. Safety confirmation
-
-- **Kode aplikasi, kode test, dan live test harness tidak berubah.** Checksum semua file di luar `docs/` identik sebelum dan sesudah.
-- **Runtime configuration tidak berubah.** Checksum `.env`, `.env.local`, dan `.env.test.local` identik.
-- **Tidak ada request ke backend sama sekali di task ini**, jadi juga tidak ada write.
-- **Tidak ada secret yang terekspos.** Isi dokumen hanya placeholder dan deskripsi.
+## 8. Real backend safety
 
 ```text
-$ git status --short     (frontend/)
-261 entries, identik dengan baseline. Seluruh docs/ tercatat sebagai satu entri untracked: ?? docs/
-
-$ git diff --stat
- 82 files changed, 900 insertions(+), 1902 deletions(-)    (identik dengan baseline)
-
-$ git diff -- docs
-(kosong, karena docs/ untracked. Perubahan task ini ada di diff snapshot di atas: 2 file, +5 / −3)
-
-bl-whish$ git status --short
- M claude-summary.md
+Real CREATE executed: NO
+Real UPDATE executed: NO
+Real DELETE executed: NO
+Real state-changing request: NO   (no request of any kind was sent to the backend)
 ```
 
-Baseline 261 entri dan 82 file itu adalah pekerjaan A5.0 sampai A6 yang memang belum di-commit; task ini tidak menyentuhnya. Semua file yang berubah adalah dokumentasi, dan belum ada yang di-commit.
+## 9. Files changed (documentation only)
+
+- `docs/architecture/reviews/A6_WRITE_CONTRACT_READINESS.md` (new, +243)
+- `docs/architecture/reviews/summary.md` (A6 row and "Latest" line, +2 / −2)
+
+No source, test, harness or config files changed. Checksums of every non-`docs/` file and of `.env`, `.env.local` and `.env.test.local` are identical before and after. `bl-whish/claude-summary.md` is unchanged.
+
+## 10. Final diff
+
+```text
+$ git status --short     → 261 entries, identical to the baseline ("?? docs/" covers both doc files)
+$ git diff --stat        → 82 files changed, 900 insertions(+), 1902 deletions(-)   (identical to the baseline)
+$ git diff -- docs       → (empty: docs/ is untracked)
+Doc changes vs the start-of-task snapshot:
+  A6_WRITE_CONTRACT_READINESS.md | 243 +++
+  summary.md                     |   4 +-
+```
+
+Every change is documentation or status. Nothing is committed.
