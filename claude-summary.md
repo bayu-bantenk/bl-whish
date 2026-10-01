@@ -1,82 +1,104 @@
-A5.5R can move from **BLOCKED to GO-WITH-RISKS**. A6 stays **BLOCKED**, mainly because Content create and update haven't run against the real backend.
+A5.5R is now marked **GO-WITH-RISKS** across the docs. Only documentation changed; checksums confirm no code, test, harness or env file was touched.
 
-The evidence file hasn't changed since the last assessment: 18 332 bytes, run started 2026-10-01T02:28:22Z, 20 observations. It's the run you just reported (12 passed, 1 skipped). This was read-only: I changed no files, sent no writes, and didn't open the GitHub link. Where older reports say A5.5R is BLOCKED, this evidence replaces them.
+The old text (A5.5R "BLOCKED", "no real gateway", the A6-R attempt logs) is kept and labelled as historical, superseded by the 2026-10-01 live run. No real write request was sent.
 
-### 1. Status reconciliation (real backend)
+### 1. Files inspected
+
+**`frontend/docs/architecture/`:**
+- `contracts/legacy-api/content-list.md`, `content-write.md`
+- `reviews/A5.0` through `A5.7` reports, including `A5.5R_REAL_BACKEND_CONTRACT_VERIFICATION.md`
+- `reviews/A6_FIRST_PRODUCTION_VERTICAL_SLICE.md`
+- `reviews/A6R_REAL_BACKEND_AUTH_RE_GATE.md`
+- `reviews/summary.md`
+
+**Elsewhere:**
+- `~/Developments/bl-whish/claude-summary.md` (your local clone of the GitHub file; working tree was clean)
+- the evidence file `$TMPDIR/a55r-live/evidence.json` (unchanged: run 2026-10-01T02:28:22Z, 20 observations)
+
+### 2. Files changed (documentation only)
+
+| File | Change |
+|---|---|
+| `reviews/A5.5R_REAL_BACKEND_CONTRACT_VERIFICATION.md` | New section "Re-gate 2026-10-01 — current status": historical status → superseded → current status, evidence matrix, security evidence, open risks. The old "Final status: BLOCKED" line is labelled historical |
+| `reviews/A6R_REAL_BACKEND_AUTH_RE_GATE.md` | New section "Current status — 2026-10-01". Attempts 1–5 marked historical. Correction recorded: the failed-refresh path does **not** call logout |
+| `reviews/A6_FIRST_PRODUCTION_VERTICAL_SLICE.md` | Status note: A6 stays BLOCKED; RK-A6-01 now covers create/update only; new risks (403 unknown ID, no `created_at`, validation error shape) |
+| `reviews/summary.md` | A5.5R row → GO-WITH-RISKS; A6 and A6-R rows reconciled; "Latest" line updated |
+| `contracts/legacy-api/content-list.md` | Row "Real backend (2026-10-01)": observed fields, no `created_at`, GET body NOT VERIFIED |
+| `contracts/legacy-api/content-write.md` | Row "Real backend (2026-10-01)": detail VERIFIED, unknown ID → 403, create/update NOT VERIFIED |
+| `reviews/A5.7_E2E_CI_ACCESSIBILITY_HARDENING.md` | One line: "A5.5R BLOCKED" superseded; upload still BLOCKED |
+| `reviews/A5.6_FORM_UPLOAD_FOUNDATION.md` | One line: A5.5R is GO-WITH-RISKS; upload and create still not verified |
+| `~/Developments/bl-whish/claude-summary.md` | New "Current status — 2026-10-01" block at the top; old body kept under "Historical". Separate repo, not committed |
+
+These needed no change:
+- A5.0–A5.4 and A5.5 (no statements contradicted by the evidence);
+- `test/live/README.md` (counts as harness, so left alone).
+
+### 3. A5.5R final gate
+
+```text
+GO-WITH-RISKS
+```
+
+### 4. Evidence matrix
 
 | Area | Status | Evidence |
 |---|---|---|
-| Login | VERIFIED | `POST /api/v1/auth/login` 200, envelope `code 200`; session created with a refresh token |
-| Backend `expires_at` | VERIFIED | RFC3339 with nanoseconds, `+07:00`, 30 days ahead; the parser accepted it |
-| Content list | VERIFIED | 200; `data {limit, page, sort, total_rows, total_pages, rows[]}`; 5 of 19 rows |
-| Content detail, existing ID | VERIFIED | 200; `id, name, code, value`, `is_active` as a boolean |
-| Pagination | VERIFIED | pages 1 and 2 don't overlap; page 0 returns the same as page 1; page 5 returns 0 rows of 19 |
-| Sorting by `code` | VERIFIED | asc and desc over all 19 rows; desc is the exact reverse |
-| Sorting by `created_at` (the default) | UNKNOWN | the backend accepts it, but rows have no `created_at` field, so the order can't be checked |
-| Search and no-match | VERIFIED | a hit returns 1 of 1 matching code or name; no match returns 0 of 0 as success, not an error |
-| Authorization: backend read | VERIFIED | the test account can list and read detail |
-| Authorization: app policy | VERIFIED (app only) | S8: `Forbidden` with 0 backend calls. S9: forged or expired session gives `Unauthenticated` with 0 backend calls |
-| Authorization: backend write or denial | NOT VERIFIED | no write sent, and no restricted second account |
-| 401 → refresh → retry | VERIFIED | `GET` 401 (empty body), then `POST /api/v1/auth/refresh` 200, then `GET` 200; exactly 1 refresh and 1 retry |
-| Refresh rotation | VERIFIED | access token changed, refresh token present and rotated, new expiry in the future (compared as true/false inside the process; no values stored) |
-| Failed refresh | VERIFIED | `GET` 401, then `POST /refresh` 400 with `data:null`; mapped to `Unauthenticated`; no loop |
-| Session cleanup after failed refresh | VERIFIED (local) | session cleared. It did **not** call backend logout. The test used a copy of the session |
-| Logout | VERIFIED | the harness's final step: `POST /api/v1/auth/logout` with the Bearer token, 200 `{message}`; local session cleared |
-| Token revoked after logout | VERIFIED | the logged-out access token then gets `GET` 401 |
-| Request ID | UNKNOWN (backend side) | the app sent `X-Request-Id` on all 20 requests; the gateway doesn't echo it back |
+| Login | VERIFIED | `POST /api/v1/auth/login` → 200; `access_token`, `refresh_token`, `expires_at` returned |
+| Backend `expires_at` | VERIFIED | RFC 3339 with nanoseconds, `+07:00`, about 30 days ahead; accepted. Backend value is the source of truth, no frontend maximum |
+| Content list | VERIFIED | `GET /api/v1/cms/contents` → 200 |
+| Content detail | VERIFIED | existing ID → 200; `id, name, code, value, is_active` |
+| Pagination | VERIFIED | pages 1 and 2 don't overlap; page 0 returns page 1; out-of-range page → empty |
+| Sorting | VERIFIED | `code` asc and desc. `created_at desc` is NOT VERIFIED |
+| Search | VERIFIED | a hit returns matching rows; no match → empty, not an error |
+| Local authorization denial | VERIFIED | `Forbidden` with 0 backend calls |
+| 401 → refresh → retry | VERIFIED | 401 → `POST /api/v1/auth/refresh` 200 → one retry → 200; no loop |
+| Refresh rotation | VERIFIED | access and refresh tokens rotated, new expiry in the future |
+| Failed refresh cleanup | VERIFIED | 401 → refresh 400 → local session cleared → request stops; no logout call |
+| Logout | VERIFIED | logout → 200; the same token then gets 401 |
+| Unknown ID behavior | VERIFIED as observed 403/Forbidden | the tested unknown ID returned `403 Forbidden`; the app maps 403 → `Forbidden`. One observation only |
+| S6 GET body | NOT VERIFIED | probe not enabled |
+| S7 API key behavior | NOT VERIFIED | no comparison without the key was run |
+| Content create | NOT VERIFIED | Not tested |
+| Content update | NOT VERIFIED | Not tested |
 
-### 2. Unknown ID
+### 5. Remaining risks before the A6 re-gate
 
-- **Backend:** HTTP **403**, empty body, no content type (VERIFIED).
-- **App mapping:** `gateway-errors.ts` maps 403 to `Forbidden`; only 404 maps to `NotFound`. The recorded result is `{ok:false, kind:"Forbidden"}`.
-- **The final result is not `NotFound`.** The test passed only because that step has no assertion, so its name is misleading.
-- The same account reads an existing ID fine, so a missing read permission isn't the cause. Whether 403 always means "not found" on this backend is UNKNOWN; one sample isn't enough.
+1. Real Content create contract: not verified.
+2. Real Content update contract: not verified.
+3. Field validation error shape: the real auth endpoints return `ERR_VALIDATION_ERROR` with `data[{FailedField, Tag, Value}]`. The app's field-error mapping assumes `{errors:{field:[…]}}`. Content validation errors have not been observed yet.
+4. No `created_at` in the real Content fields, so the "Dibuat" column and the default `created_at desc` sort aren't supported by what the backend returns.
+5. Unknown-ID 403: the app shows `Forbidden` where A6 expected `NotFound`. What the 403 means is not established.
+6. S6 GET-body compatibility: not verified.
+7. S7 API-key requirement: not verified.
+8. Other risks backed by the evidence:
+   - all 401 responses have an empty body (the app relies on the status code);
+   - a rejected refresh returns 400, not 401;
+   - the backend doesn't echo `X-Request-Id`;
+   - tokens last about 30 days but the session lasts 7 days;
+   - the unknown-ID harness step has no assertion;
+   - no restricted second account, so backend-side denial is untested.
 
-### 3. S6 and S7
+### 6. Safety confirmation
 
-| Step | Status | Evidence |
-|---|---|---|
-| S6, GET request with a body | NOT VERIFIED (skipped) | `"NOT_RUN: A55R_PROBE_GET_BODY not set"`; no request in the run carried a GET body |
-| S7, request without the API key | NOT VERIFIED (skipped) | `"NOT_RUN: probe not enabled or no API key configured"`; all 20 requests carried the API key |
+- **No application code changed.** Checksum of every non-`docs/` file in `frontend/` is identical before and after.
+- **No test or harness code changed** (covered by the same checksum).
+- **No runtime configuration changed.** `.env`, `.env.local` and `.env.test.local` checksums are identical.
+- **No real write operation was executed.** This task made no backend requests at all.
+- **No secret was exposed.** A scan of the changed docs found only placeholder or prose matches (`Bearer <REDACTED>`, `Bearer token`, etc.).
 
-The run still answers what the app needs from S6. Pagination, sort and search all responded correctly to query parameters alone, so **the app doesn't need a GET body** (OD-31, VERIFIED). Whether the backend would also accept one is UNKNOWN and doesn't matter to the app. Whether the backend *requires* the API key is UNKNOWN (OD-03).
+```text
+$ git status --short          (frontend/, 261 entries, identical to the pre-task baseline)
+...
+?? docs/                      ← the whole docs/ tree is untracked, so doc edits don't change this list
+...
+?? test/
+?? vitest.live.config.js
 
-### 4. Secrets
+$ git diff --stat
+ 82 files changed, 900 insertions(+), 1902 deletions(-)   ← identical to the pre-task baseline
 
-The pattern scan found nothing:
-- no JWT strings, `Bearer` values or long opaque strings;
-- no `authorization`, `cookie`, `set-cookie` or `password` keys, no API-key values, no email addresses.
+bl-whish$ git status --short
+ M claude-summary.md
+```
 
-No request bodies are stored. Authorization and the API key are recorded only as true/false. Tokens are recorded as types only, the expiry as a digit-masked format, and the search term as `<term>`.
-
-### 5. A5.5R re-gate
-
-**From BLOCKED to GO-WITH-RISKS.** Verified against the real non-production backend:
-- the read contract: list, detail, pagination, sort by code, search;
-- authentication: login, refresh with rotation, logout and revocation;
-- error behavior: 401, 403, and 400 on a rejected refresh;
-- the evidence contains no secrets.
-
-It isn't GO because these are still open (non-critical, documented):
-- whether the API key is required (OD-03);
-- whether the backend accepts a GET body (not needed by the app);
-- what the 403 on an unknown ID means;
-- the missing `created_at` field;
-- how the backend handles the request ID.
-
-### 6. Gaps before A6
-
-| ID | Gap | Impact | Needed |
-|---|---|---|---|
-| G1 | **Content create and update not verified** against the real backend | blocks A6 GO and GO-WITH-RISKS, because both ship in the slice | write permission for the test account, plus an approved harness write step limited to an `A6R-TEST-*` record |
-| G2 | **Unknown ID returns 403**, mapped to `Forbidden` | the edit page shows "access denied" instead of 404; the A6 mock assumed 404 | decide: accept 403 as the contract, or ask the backend for 404. Then align the mock and tests |
-| G3 | **No `created_at` or `content_date` in list rows** | the "Dibuat" column is empty; the default sort can't be checked | decide: drop the column or change the default sort, or ask the backend to add the field |
-| G4 | Validation error shape: the backend returns `data[{FailedField, Tag, Value}]` (seen on login and refresh); the form mapper expects `{errors:{field:[…]}}` | real field errors won't attach to form fields | observe a real Content validation error during G1, then align the mapper |
-| G5 | Backend write or denial authorization untested; no restricted account | denial is only tested inside the app | a second, restricted test account |
-| G6 | `AUTHZ_INTERIM_GRANTS` applies to every signed-in user | needs a decision before any deploy | owner decision (OD-05/06) |
-| G7 | Browser token boundary not run against the real backend | only mock-backend evidence | a browser or E2E smoke test against the real backend, after G1 |
-| G8 | API key requirement (OD-03) and request-ID handling | low | optional S7 probe, or ask the backend team |
-| G9 | Session ends after 7 days, token is valid for 30 days | policy question | owner decision |
-| G10 | The unknown-ID harness step has no assertion | weak evidence quality | add an assertion once G2 is decided |
-
-**Overall:** A6 needs at least G1 verified, and G2 and G3 decided and recorded, before it can reach GO-WITH-RISKS. Once you approve, I'll update `claude-summary.md` and the repo reports from this assessment.
+The 261 entries and the 82-file diff are the existing uncommitted A5.0–A6 work. This task didn't touch them, as both checksum comparisons show. Every file changed in this task is documentation. Nothing is committed.
