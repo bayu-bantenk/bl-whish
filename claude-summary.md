@@ -1,89 +1,73 @@
-Status A7 Konfigurasi Umum sementara **HOLD**, menunggu live READ. Audit kontrak statisnya sudah selesai, tetapi live READ **belum jalan**. Kredensial `A55R_*` hanya ada di terminal Anda, jadi probe read-only perlu Anda jalankan dari sana.
-
-### 1. Status akhir A7
+F30 Konfigurasi Umum sudah selesai diimplementasi dan dites, tetapi **live smoke belum jalan**. Kredensial `A55R_*` tetap tidak terlihat di proses saya, jadi statusnya **HOLD**: menunggu live smoke, bukan karena ada cacat.
 
 ```text
-A6 = HOLD / BLOCKED                    (tidak berubah)
-D-A6R2-01 = OPEN / CRITICAL            (tidak berubah)
-
-A7 Konfigurasi Umum readiness = HOLD   (hanya menunggu live READ)
-Static contract audit         = COMPLETE
-Live READ                     = PENDING (probe siap)
-Live WRITE                    = NOT RUN → WRITE_REQUIRES_SAFE_TEST_KEY
+F30 Migration Status: HOLD (implementasi + test selesai; live smoke menunggu terminal Anda)
 ```
 
-### 2. Live READ
+**Contract:**
+- Dicek langsung dari source backend (product-service) dan legacy. Tidak ada blocker fundamental.
+- **`created_at` ada di kontrak CMS.** DTO CMS memuatnya, jadi canonical `createdAt` dipertahankan (nullable). Klaim audit seleksi A7 bahwa respons hanya `{id, key, value}` keliru: itu DTO endpoint client.
+- **Update aman dari pola bug D-A6R2-01** (dibuktikan lewat code path). Primary key ikut terkirim, dan `key`/`value` divalidasi tidak kosong, jadi `Updates(struct)` selalu menulis keduanya.
+- **Batas modul:**
+  - `updatebyproductgposb2b` adalah perilaku F09 di atas endpoint PUT bersama;
+  - `/detail` (body pada GET) milik F09/F26;
+  - keduanya tidak dibawa ke F30.
 
-Belum ada evidence live; saya tidak mengarang hasilnya. Probe-nya `test/live/global-configuration-read.live.test.ts`:
-- **Hanya GET** ke `/api/v1/cms/global-configurations` dan `/{id}`, plus login/logout. Method dan path lain ditolak sebelum keluar dari proses.
-- **Tidak menyimpan** key/value konfigurasi, token, atau password. Yang dicatat hanya tipe, jumlah, true/false, dan format timestamp yang di-mask.
-- **Tanpa kredensial berhenti di gate**: "A7R BLOCKED by safety gate: A55R_CONFIRM_NON_PRODUCTION=yes not set".
+**Implementation:**
+- Package `src/packages/global-configuration/` dengan pola A6, plus 3 route `/dashboard/global-configuration[/create|/update/[id]]`.
+- Fitur: list, search key/value, sort, pagination, detail, create, edit, delete, dan bulk delete.
+- **`sort_by` hanya dari allowlist**, karena backend menyisipkannya langsung ke `ORDER BY`.
+- **Cacat legacy tidak ikut dimigrasikan:** value yang terisi key, create yang selalu "sukses", dan kegagalan update yang tidak tampil.
+- Otorisasi fail-closed lewat 4 capability baru `global-configuration.*`, tanpa grant default.
+- Tidak ada perubahan foundation; yang dipakai hanya titik ekstensi (capability, registry, ikon `settings`, container).
 
-Yang akan diamati:
-- default list, untuk melihat envelope, bentuk pagination, dan apakah `created_at` ada;
-- page 1 vs page 2, halaman di luar jangkauan, dan `take=100`;
-- sort `key` dan `created_at`;
-- search dan no-match;
-- detail untuk ID yang ada dan ID yang tidak dikenal.
+**Tests:**
 
-Jalankan di terminal Anda:
+| Gate | Hasil |
+|---|---|
+| Unit / integration | **556/556** (+33 F30) |
+| E2E (mock) | **74/74** (+9 F30; Content tetap hijau) |
+| Lint | 0 error |
+| Build | lolos |
+| Bundle check | lolos; path gateway, capability, `sort_by`, `total_rows` ada di 0 file client |
+
+**Live READ — belum dijalankan.** Jalankan di terminal yang punya `A55R_*`:
 
 ```bash
 cd frontend
-npx vitest run --config vitest.live.config.js test/live/global-configuration-read.live.test.ts
+LIVE_MODULE=global-configuration npx vitest run --config vitest.live.config.js test/live/module-smoke.live.test.ts
 ```
 
-Lalu bilang "done". Saya baca `$TMPDIR/a7r-live/evidence.json` dan lakukan re-gate.
+**Live WRITE — belum dijalankan, menunggu konfirmasi eksplisit Anda** (tambahkan `MODULE_LIVE_WRITE_CONFIRM=yes` ke perintah di atas):
+- **Alur:** satu key baru `MIGRATION_LIVE_<UTC>`, lalu create → read-back → update → read-back → delete → read-back.
+- **Batasan:** satu percobaan per langkah tanpa retry, berhenti di langkah pertama yang tidak terverifikasi, dan tidak pernah menyentuh key yang sudah ada.
+- **Sisa data:** delete di backend bersifat soft delete, jadi baris uji tetap tersisa di tabel dan key-nya tidak bisa dipakai ulang.
 
-### 3. Temuan kontrak dan gap (dari source)
+**Generic harness:**
+- File: `test/live/module-smoke.live.test.ts`, dengan adapter per modul di `test/live/modules/`. Probe read-only khusus F30 dari A7 sudah dihapus dan digantikan harness ini.
+- **Self-test terhadap mock lokal (bukan backend asli):** R1–R5 dan W0–W3 lolos, dengan tepat 1 POST, 1 PUT, dan 1 DELETE, masing-masing diikuti read-back.
+- **Marker one-shot terbukti:** run kedua menghasilkan 0 mutation.
+- Untuk modul batch A berikutnya cukup tambah satu file adapter.
 
-**Koreksi atas audit A7 sebelumnya:**
-- **`created_at` didukung (DOCUMENTED).** List dan detail CMS memakai `dto.GlobalConfiguration {id, key, value, created_at}`.
-- **Klaim "respons `{id, key, value}`" di audit seleksi A7 bertentangan dengan source (CONTRADICTED).** Itu sebenarnya DTO endpoint *client*, bukan CMS.
+**Findings:**
+- **Aksesibilitas:** varian tombol `destructive` di shadcn gagal aturan axe color-contrast. F30 memakai gaya solid. Template `organisms/modal/alert-delete.tsx` dan `alert-reject.tsx` masih memakai varian itu, tetapi tidak ada di route aktif.
+- **Key duplikat menghasilkan 500**, bukan 400/409 (INFERRED dari unique index).
 
-**F30 aman dari kelas bug D-A6R2-01 (VERIFIED lewat code path):**
-- Validator `required` menolak `""`, jadi `key` dan `value` tidak pernah zero-value.
-- Karena itu `Updates(struct)` selalu menulis keduanya.
-- Mapper ikut mengirim primary key, sehingga update hanya mengenai baris tersebut.
+**Risks:**
+- Nilai konfigurasi dibaca logic bisnis backend (`MAINTENANCE`, `BANNER_INTERVAL`, …), jadi grant produksi perlu keputusan Anda (OD-05/06).
+- Di backend, `sort_by` disisipkan langsung ke `ORDER BY` tanpa allowlist. Frontend sudah membatasi nilainya, tetapi perbaikan di backend tetap disarankan.
+- Backend tidak membatasi `take` (frontend membatasi 50).
+- Transaksi delete keluar tanpa rollback saat error.
+- Bulk delete dengan ID yang tidak dikenal tetap melaporkan sukses.
+- Validation error berbentuk `data[]` belum dipetakan ke field form.
+- Status untuk ID tidak dikenal (404 menurut source) dan versi backend yang ter-deploy belum diverifikasi live.
 
-**`/cms/global-configurations/detail` tidak dibutuhkan F30:**
-- Endpoint ini membaca **body dari request GET**. Kalau body kosong, ia mengembalikan **semua** baris.
-- Hanya F09 dan F26 yang memakainya, jadi frontend F30 tidak perlu wrapper untuknya.
+**Report:** `frontend/docs/architecture/reviews/F30_MIGRATION_REPORT.md`
 
-**Batas F30 dan F09:**
-- `updatebyproductgposb2b` adalah perilaku **F09** yang memakai endpoint PUT bersama (SHARED CONTRACT).
-- F30 hanya mengekspos CRUD generik.
+**Next module:** belum dimulai, sesuai instruksi. Kandidat batch A: F11, F20, F24, F25, FAQ.
 
-**Cacat legacy yang tidak boleh ikut dimigrasikan:**
-- Form edit mengisi field Value dengan **key** (`edit.edge:41`). Menyimpan tanpa mengetik ulang akan menimpa value.
-- Create menampilkan "berhasil" meskipun backend gagal (`if (!result)`).
-- Kegagalan update tidak terlihat, karena flash memakai key `Warning`.
+A6 Content tetap HOLD dan D-A6R2-01 tetap OPEN/CRITICAL; package Content tidak berubah. `.env*` tidak berubah, tidak ada yang di-commit, dan dev server Anda di :4000 tidak saya sentuh.
 
-**Risiko di backend:**
-- `sort_by` disisipkan langsung ke `ORDER BY` tanpa allowlist, jadi frontend wajib mengirim nilai dari allowlist saja.
-- Key duplikat kemungkinan menghasilkan 500, bukan 400/409 (INFERRED). Key yang sudah di-soft-delete juga tidak bisa dipakai lagi.
-- Tidak ada batas maksimum `take`.
-- Transaksi delete/bulk delete keluar tanpa rollback saat error.
-- Bulk delete dengan ID yang tidak dikenal tetap melaporkan sukses (INFERRED).
-
-**Gap yang tersisa:**
-- Envelope, pagination, dan `created_at` belum diamati langsung di backend.
-- Status untuk ID yang tidak dikenal belum diketahui: source mengembalikan 404, padahal Content di live memberi 403.
-- Validation error berbentuk `data[{FailedField, Tag, Value}]` tanpa `error_code`, dan frontend belum punya pemetaan per-field untuk bentuk ini.
-- Versi backend yang ter-deploy belum diketahui (repo lokal ada di branch `cms-filter-banner`).
-- Model grant otorisasi masih OD-05/06. Nama capability yang diusulkan (`global-configuration.read` dan seterusnya) belum final, tanpa grant default.
-
-### 4. Keputusan
-
-```text
-HOLD  (sementara, hanya menunggu live READ)
-```
-
-Implementasi tidak dimulai hanya berdasarkan source, karena A6 sudah membuktikan source dan runtime bisa berbeda. Kalau live READ cocok dengan kontrak di laporan §6, §7, dan §12, statusnya naik ke **GO-WITH-RISKS**. Write tetap menunggu persetujuan terpisah sesuai laporan §21: satu key uji inert `A7R_TEST_<UTC>`, tanpa menyentuh key yang sudah ada.
-
-### 5. Lokasi
-
-- Laporan: `frontend/docs/architecture/reviews/A7_KONFIGURASI_UMUM_CONTRACT_READINESS.md` (24 bagian, 413 baris)
-- Probe: `frontend/test/live/global-configuration-read.live.test.ts`
-
-Selain dua file itu tidak ada yang berubah: checksum semua file lain dan file `.env*` identik dengan sebelumnya. Tidak ada request ke backend dan belum ada yang di-commit.
+Langkah berikutnya:
+1. Jalankan perintah READ di atas di terminal Anda, lalu bilang "done". Saya baca evidence-nya dan perbarui status F30.
+2. Kalau READ sesuai, beri konfirmasi untuk WRITE.
