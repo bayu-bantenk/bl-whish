@@ -1,58 +1,89 @@
-A7 selesai. Modul berikutnya yang dipilih berdasarkan evidence adalah **Konfigurasi Umum (F30)**. Laporannya ada di `frontend/docs/architecture/reviews/A7_NEXT_MODULE_SELECTION_AUDIT.md` (321 baris, satu-satunya file yang berubah). Tidak ada kode yang ditulis dan tidak ada request ke backend.
+Status A7 Konfigurasi Umum sementara **HOLD**, menunggu live READ. Audit kontrak statisnya sudah selesai, tetapi live READ **belum jalan**. Kredensial `A55R_*` hanya ada di terminal Anda, jadi probe read-only perlu Anda jalankan dari sana.
+
+### 1. Status akhir A7
 
 ```text
-A6 = HOLD / BLOCKED
-D-A6R2-01 = OPEN / CRITICAL
+A6 = HOLD / BLOCKED                    (tidak berubah)
+D-A6R2-01 = OPEN / CRITICAL            (tidak berubah)
 
-Selected Next Module = Konfigurasi Umum (F30)
-API Readiness        = CONTRACT_PARTIAL
-Vertical Slice       = SUITABLE
-Proposed phase       = A7 — Konfigurasi Umum Contract & Readiness  (readiness saja, belum implementasi)
+A7 Konfigurasi Umum readiness = HOLD   (hanya menunggu live READ)
+Static contract audit         = COMPLETE
+Live READ                     = PENDING (probe siap)
+Live WRITE                    = NOT RUN → WRITE_REQUIRES_SAFE_TEST_KEY
 ```
 
-**Hasil kelayakan:**
+### 2. Live READ
 
-| Kelompok | Modul |
-|---|---|
-| ELIGIBLE (lolos 10 syarat, tanpa ranking) | F11 Pembatasan produk, F20 Produk Sponsor, F24 Kode Telesales, F25 Grup Pelanggan, F30 Konfigurasi Umum, F32 FAQ |
-| BLOCKED karena A6 | F32 Konten |
-| BLOCKED karena upload | 11 modul (F07, F08, F09, F12, F16, F17, F18, F19, F21, F28, F29) |
-| BLOCKED karena workflow / toggle status | 10 modul (F03, F05, F13, F14, F17, F21, F22, F23, F26, F27) dan F31 Manajemen Pengguna (toggle `update-is-active` pada akun user asli, tanpa record uji) |
-| INSUFFICIENT EVIDENCE | F02, F04, F06, F10, F14, F15, F32 Masukan |
+Belum ada evidence live; saya tidak mengarang hasilnya. Probe-nya `test/live/global-configuration-read.live.test.ts`:
+- **Hanya GET** ke `/api/v1/cms/global-configurations` dan `/{id}`, plus login/logout. Method dan path lain ditolak sebelum keluar dari proses.
+- **Tidak menyimpan** key/value konfigurasi, token, atau password. Yang dicatat hanya tipe, jumlah, true/false, dan format timestamp yang di-mask.
+- **Tanpa kredensial berhenti di gate**: "A7R BLOCKED by safety gate: A55R_CONFIRM_NON_PRODUCTION=yes not set".
 
-Beberapa modul (F14, F16, F17, F21) masuk ke lebih dari satu kelompok. Rinciannya per modul ada di laporan.
+Yang akan diamati:
+- default list, untuk melihat envelope, bentuk pagination, dan apakah `created_at` ada;
+- page 1 vs page 2, halaman di luar jangkauan, dan `take=100`;
+- sort `key` dan `created_at`;
+- search dan no-match;
+- detail untuk ID yang ada dan ID yang tidak dikenal.
 
-**Alasan memilih F30:** dari enam kandidat, hanya F30 yang memenuhi semua poin berikut.
-- **Tidak ada dependency hulu:** tidak butuh options atau lookup dari fitur lain.
-- **Evidence kontraknya paling lengkap:** kode legacy, peta gateway A2, dan source backend beserta Swagger untuk setiap operasinya.
-- **Modelnya aman dari kelas bug D-A6R2-01:** hanya dua field, `key` dan `value`, keduanya string `required`.
-- **Bentuk list-nya sama dengan list Content** yang sudah diverifikasi live (`sort_by/asc_desc/page/take/keyword`), jadi pola A6 bisa diuji ulang di service dan domain lain.
+Jalankan di terminal Anda:
 
-**Verifikasi angka scope:**
-- **VERIFIED:** 32 feature, 427/330 route, 259 MIGRATE (dihitung langsung dari baris matrix: 259/49/119), 107 screen, 32 DataTable, 9 custom list, 13 upload.
-- **PARTIALLY VERIFIED:** 40 form (tabel hanya 39 baris), 55 dialog (39 baris), dan 34 fungsi HTML (22 baris). Selisih ini kemungkinan karena satu baris tabel mewakili beberapa item.
-- **CONTRADICTED:** rincian REMOVE di teks A4 §1 menjumlah 120, sedangkan baris matrix menjumlah 119. Total 427 dan 119 sendiri tetap konsisten.
+```bash
+cd frontend
+npx vitest run --config vitest.live.config.js test/live/global-configuration-read.live.test.ts
+```
 
-**Risiko yang terkonfirmasi untuk F30:**
-- **Nilai konfigurasi dipakai logic bisnis backend:** `MAINTENANCE`, `BANNER_INTERVAL`, `CUSTOMER_CHANNEL_ID_ONLY_…`, dan `PRODUCT_IDS_ONLY…`. Akibatnya verifikasi live hanya boleh memakai key uji baru yang inert.
-- **Kolom "Created" dan sort default `created_at DESC` di legacy tidak punya field di respons backend** (`{id, key, value}`). Ini kelas risiko yang sama dengan R2 di Content.
-- **`updatebyproductgposb2b` terdaftar di route F30 tetapi dipanggil dari F09**, jadi batas scope-nya harus diputuskan di fase readiness.
+Lalu bilang "done". Saya baca `$TMPDIR/a7r-live/evidence.json` dan lakukan re-gate.
 
-Self-check:
+### 3. Temuan kontrak dan gap (dari source)
+
+**Koreksi atas audit A7 sebelumnya:**
+- **`created_at` didukung (DOCUMENTED).** List dan detail CMS memakai `dto.GlobalConfiguration {id, key, value, created_at}`.
+- **Klaim "respons `{id, key, value}`" di audit seleksi A7 bertentangan dengan source (CONTRADICTED).** Itu sebenarnya DTO endpoint *client*, bukan CMS.
+
+**F30 aman dari kelas bug D-A6R2-01 (VERIFIED lewat code path):**
+- Validator `required` menolak `""`, jadi `key` dan `value` tidak pernah zero-value.
+- Karena itu `Updates(struct)` selalu menulis keduanya.
+- Mapper ikut mengirim primary key, sehingga update hanya mengenai baris tersebut.
+
+**`/cms/global-configurations/detail` tidak dibutuhkan F30:**
+- Endpoint ini membaca **body dari request GET**. Kalau body kosong, ia mengembalikan **semua** baris.
+- Hanya F09 dan F26 yang memakainya, jadi frontend F30 tidak perlu wrapper untuknya.
+
+**Batas F30 dan F09:**
+- `updatebyproductgposb2b` adalah perilaku **F09** yang memakai endpoint PUT bersama (SHARED CONTRACT).
+- F30 hanya mengekspos CRUD generik.
+
+**Cacat legacy yang tidak boleh ikut dimigrasikan:**
+- Form edit mengisi field Value dengan **key** (`edit.edge:41`). Menyimpan tanpa mengetik ulang akan menimpa value.
+- Create menampilkan "berhasil" meskipun backend gagal (`if (!result)`).
+- Kegagalan update tidak terlihat, karena flash memakai key `Warning`.
+
+**Risiko di backend:**
+- `sort_by` disisipkan langsung ke `ORDER BY` tanpa allowlist, jadi frontend wajib mengirim nilai dari allowlist saja.
+- Key duplikat kemungkinan menghasilkan 500, bukan 400/409 (INFERRED). Key yang sudah di-soft-delete juga tidak bisa dipakai lagi.
+- Tidak ada batas maksimum `take`.
+- Transaksi delete/bulk delete keluar tanpa rollback saat error.
+- Bulk delete dengan ID yang tidak dikenal tetap melaporkan sukses (INFERRED).
+
+**Gap yang tersisa:**
+- Envelope, pagination, dan `created_at` belum diamati langsung di backend.
+- Status untuk ID yang tidak dikenal belum diketahui: source mengembalikan 404, padahal Content di live memberi 403.
+- Validation error berbentuk `data[{FailedField, Tag, Value}]` tanpa `error_code`, dan frontend belum punya pemetaan per-field untuk bentuk ini.
+- Versi backend yang ter-deploy belum diketahui (repo lokal ada di branch `cms-filter-banner`).
+- Model grant otorisasi masih OD-05/06. Nama capability yang diusulkan (`global-configuration.read` dan seterusnya) belum final, tanpa grant default.
+
+### 4. Keputusan
 
 ```text
-[x] A6 tetap HOLD/BLOCKED
-[x] D-A6R2-01 tetap OPEN/CRITICAL
-[x] Tidak ada source code berubah (checksum identik)
-[x] Tidak ada test berubah
-[x] Tidak ada config/.env berubah (checksum identik)
-[x] Tidak ada API mutation / DB mutation (tidak ada HTTP request sama sekali)
-[x] Tidak ada A6 workaround
-[x] Seluruh module inventory diperiksa (34 baris; F32 dipecah 3)
-[x] Selection berdasarkan evidence, tanpa ranking/score
-[x] Unknown tetap UNKNOWN
-[x] Tidak ada invented API contract
-[x] Report A7 dibuat
+HOLD  (sementara, hanya menunggu live READ)
 ```
 
-`git diff --stat` dan `git status --short` tetap sama seperti baseline (82 file / 261 entri). Folder `docs/` masih untracked, dan belum ada yang di-commit.
+Implementasi tidak dimulai hanya berdasarkan source, karena A6 sudah membuktikan source dan runtime bisa berbeda. Kalau live READ cocok dengan kontrak di laporan §6, §7, dan §12, statusnya naik ke **GO-WITH-RISKS**. Write tetap menunggu persetujuan terpisah sesuai laporan §21: satu key uji inert `A7R_TEST_<UTC>`, tanpa menyentuh key yang sudah ada.
+
+### 5. Lokasi
+
+- Laporan: `frontend/docs/architecture/reviews/A7_KONFIGURASI_UMUM_CONTRACT_READINESS.md` (24 bagian, 413 baris)
+- Probe: `frontend/test/live/global-configuration-read.live.test.ts`
+
+Selain dua file itu tidak ada yang berubah: checksum semua file lain dan file `.env*` identik dengan sebelumnya. Tidak ada request ke backend dan belum ada yang di-commit.
