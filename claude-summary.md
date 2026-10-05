@@ -1,82 +1,63 @@
-F11 Pembatasan produk sudah diimplementasi dan semua test lolos, tetapi statusnya **HOLD**. Alasannya: live READ belum jalan, karena kredensial hanya ada di terminal Anda, bukan di proses saya. Live WRITE juga belum dijalankan. Tidak ada cacat yang memblokir.
+Live WRITE F11 tidak dijalankan: saya berhenti sebelum mutation apa pun, jadi CREATE, UPDATE, dan DELETE semuanya 0. Fixture yang Anda setujui hanya punya **satu channel**, sehingga UPDATE tidak bisa diverifikasi secara semantik.
 
-Sebelum mulai, evidence WRITE F30 sudah saya cek ulang: 1 POST (201), 1 PUT (200), dan 1 DELETE (200), masing-masing dengan read-back yang cocok.
+**1. Hasil**
 
 ```text
-F11 Migration Status: HOLD (live verification pending; no defect blocker)
+F11 Live WRITE: STOPPED before any mutation (HOLD)
+Reason: the approved fixture has one channel → UPDATE cannot be semantically verified
 ```
 
-**Contract: PARTIAL, tetapi aman diimplementasi.** Source legacy dan backend (product-service, account-service) lengkap dan konsisten; perilaku runtime menunggu live READ.
-- **Makna "Pembatasan produk"** (VERIFIED dari kode): satu record per **produk** berisi **whitelist tipe channel customer**. Produk disembunyikan dari customer di channel lain lewat cache Redis. Tidak ada status, tanggal, maupun prioritas.
-- **Edit hanya mengubah channel;** produknya tetap, baik di legacy maupun backend.
-- **Perilaku backend:**
-  - sort sudah di-allowlist di backend;
-  - produk yang sudah dibatasi menghasilkan 400 "Product already restricted";
-  - ID tidak dikenal menghasilkan 404;
-  - update tidak terkena kelas bug D-A6R2-01.
+Kenapa berhenti:
+- **UPDATE tidak punya perubahan yang bisa diverifikasi.** Dengan satu channel, kemungkinan state-nya hanya dua:
+  - `[78bd978f…]`: sama persis dengan hasil CREATE, jadi no-op;
+  - `[]`: ditolak kontrak aplikasi (minimal 1 channel). Di backend, nilai ini justru mencabut pembatasan.
+- **CREATE pun tidak saya jalankan.** Brief Anda mensyaratkan W3 hanya setelah W1 dan W2 terverifikasi. Menjalankan CREATE saja akan meninggalkan pembatasan nyata yang menyembunyikan produk `066e6346…` dari customer di 54 tipe channel lain di devb2b.
+- **Harness memang dirancang menolak kasus ini.** Adapter F11 butuh minimal 2 channel. Dengan fixture ini harness hanya menjalankan READ, tanpa jalur write.
+- **Pre-check W0 tidak dijalankan.** Kredensial live tidak terlihat di proses saya (proses yang sama, sudah jalan lebih dari 53 jam), dan W0 tidak lagi diperlukan setelah fixture terbukti tidak cukup.
 
-**Implementation:**
-- Package `src/packages/product-restriction/` dengan pola A6/F30, dan route `/dashboard/product-restriction[/create|/update/[id]]` di grup menu "Produk & Katalog".
-- **Pemilih produk** memakai pencarian lewat Server Action; browser tidak pernah memanggil backend.
-- **Tipe channel** dipilih lewat checkbox, dan ID-nya dicek terhadap daftar channel asli sebelum create/update. Backend sendiri menyimpan string apa pun.
-- **Minimal 1 channel wajib dipilih** (aturan legacy). Backend menerima daftar kosong, yang diam-diam akan menghapus pembatasan.
-- **Bulk delete tidak dibuat.**
-- `ConfirmDeleteButton` dipindah ke shared karena sekarang punya konsumen kedua; F30 hanya berubah import-nya.
-- Otorisasi fail-closed dengan 4 capability `product-restriction.*`.
+**2. Jumlah percobaan mutation**
 
-**Tests:**
+| CREATE | UPDATE | DELETE | Retry |
+|---|---|---|---|
+| 0 | 0 | 0 | 0 |
 
-| Gate | Hasil |
+Tidak ada record lain yang tersentuh.
+
+**3. Read-back semantik:** tidak berlaku, karena tidak ada mutation.
+
+Saya menemukan bukti baru dari run READ Anda. **Live READ F11 di backend asli sudah VERIFIED** (0 mutation, 0 secret):
+
+| Langkah | Hasil |
 |---|---|
-| Unit / integration | **581/581** (+25 F11) |
-| E2E (mock) | **82/82** (+8 F11, termasuk axe; reader 403 dengan 0 write) |
-| Lint | 0 error |
-| Build | lolos |
-| Bundle check | lolos |
+| R1 | 2 baris |
+| R2 | paging benar, halaman di luar jangkauan kosong |
+| R3 | sort `productName` dan `productCode` asc/desc urut dengan benar |
+| R4 | search 1/1 cocok; tanpa hasil 0 |
+| R5 | detail 200; ID tidak dikenal **404** (sesuai source) |
+| R6 | 55 tipe channel; product search 20 hasil |
 
-**Live READ — PENDING, belum dijalankan.** Jalankan di terminal Anda:
+**4. Evidence**
+- READ: `$TMPDIR/module-live/product-restriction/evidence-20261002082508.json`
+- WRITE: tidak ada evidence baru, karena tidak dijalankan.
+- Laporan diperbarui: `frontend/docs/architecture/reviews/F11_MIGRATION_REPORT.md` (§8, §9, §13).
 
-```bash
-cd frontend
-LIVE_MODULE=product-restriction npx vitest run --config vitest.live.config.js test/live/module-smoke.live.test.ts
+**5. Status F11**
+
+```text
+F11 = HOLD   (live READ VERIFIED; live WRITE not executed: fixture insufficient for UPDATE)
 ```
 
-**Live WRITE — PENDING, belum dijalankan.** Selain `MODULE_LIVE_WRITE_CONFIRM=yes`, Anda perlu menunjuk data uji:
-- `LIVE_TEST_PRODUCT_ID`: produk non-produksi yang belum dibatasi;
-- `LIVE_TEST_CHANNEL_IDS=<id1>,<id2>`: dua tipe channel.
+**6. Sisa risiko dan temuan**
+- **Fixture:** dibutuhkan **satu channel ID tambahan** yang Anda setujui untuk produk yang sama. Alurnya lalu create `[ch1]` → read-back → update `[ch1, ch2]` → read-back → delete → read-back (404). Perintahnya, dijalankan sekali di terminal Anda:
+  ```bash
+  MODULE_LIVE_WRITE_CONFIRM=yes LIVE_MODULE=product-restriction LIVE_TEST_PRODUCT_ID=066e6346-19b7-4fa7-ad06-07e514ef9719 LIVE_TEST_CHANNEL_IDS=78bd978f-2c69-11ee-a134-7cd30ae46a0c,<ch2> npx vitest run --config vitest.live.config.js test/live/module-smoke.live.test.ts
+  ```
+- **Dampak bisnis:** selama sekitar satu detik dalam run tersebut, produk tersebut tersembunyi dari customer di channel lain.
+- **Temuan lama tetap berlaku:**
+  - bulk delete di backend tertutup oleh route `/:id`;
+  - backend menerima daftar channel kosong;
+  - endpoint lookup menyusun ORDER BY tanpa allowlist;
+  - transaksi delete tidak di-rollback saat error;
+  - perilaku untuk customer tanpa tipe channel belum diketahui.
 
-Tidak ada produk yang benar-benar netral: **selama record uji ada, produk itu tersembunyi dari customer tipe channel lain** di devb2b. Tanpa variabel itu, harness tidak punya jalur write sama sekali.
-
-**Generic harness:**
-- Self-test mock-nya sendiri sempat **gagal**: guard menolak `GET /customer-channels` yang dibaca use case create sebelum POST. Tidak ada POST yang terkirim.
-- Perbaikannya generik dan tetap ketat: modul mendeklarasikan `readPaths` lookup (hanya GET), dan langkah baru **R6** memverifikasi lookup tersebut. Ini juga akan dipakai F20, F24, dan F25.
-- Setelah perbaikan, self-test terhadap mock lokal (bukan backend asli) lolos untuk F11 READ, F11 WRITE (1/1/1 dengan read-back), dan regresi F30.
-
-**Findings:**
-- **Bulk delete tidak bisa dipakai di backend:** `DELETE /:id` didaftarkan sebelum `/bulk`, sehingga `/bulk` dianggap sebagai id "bulk" dan menghasilkan 404 (INFERRED). Legacy juga tidak punya tombol untuk bulk delete.
-- **Backend menerima daftar channel kosong** dan tidak memvalidasi keberadaan ID channel.
-- **Endpoint lookup** `/cms/products` dan `/cms/customer-channels` menyusun ORDER BY dari `sort_by` tanpa allowlist; frontend hanya mengirim nilai tetap.
-- **Transaksi delete** keluar tanpa rollback saat error.
-
-**Risks:**
-- Live WRITE mengubah visibilitas produk yang nyata.
-- Perilaku untuk customer tanpa tipe channel belum diketahui.
-- Detail untuk produk yang sudah dihapus mungkin menghasilkan 404 atau 500.
-- Daftar channel bisa mencapai 1000 opsi.
-- Validation error berbentuk `data[]` belum dipetakan ke field form.
-- Grant produksi masih menunggu keputusan (OD-05/06).
-
-**Open Questions:**
-1. Produk dan channel non-produksi mana yang boleh dipakai untuk live WRITE?
-2. Apakah bulk delete memang dibutuhkan? Ini butuh keputusan produk dan perbaikan backend.
-3. Bagaimana seharusnya perilaku untuk customer tanpa tipe channel?
-
-**Report:** `frontend/docs/architecture/reviews/F11_MIGRATION_REPORT.md`
-
-**Next Step:**
-1. Jalankan live READ F11 di terminal Anda, lalu bilang "done".
-2. Tunjuk produk dan channel uji, lalu beri konfirmasi WRITE.
-
-Belum lanjut ke F20, F24, F25, atau FAQ. A6 tetap HOLD dan D-A6R2-01 tetap OPEN; package Content, `.env*`, dan dev server Anda tidak berubah, dan belum ada yang di-commit.
-
-**Satu catatan F30:** evidence READ-nya masih menunjukkan sort `key` menghasilkan 500 (reserved word MySQL `key` di ORDER BY). Jadi status F30 yang lebih tepat adalah **DONE-WITH-RISKS**, bukan DONE, sampai keputusan perbaikannya diambil.
+Saya tidak mengubah source code dan tidak lanjut ke modul lain.
