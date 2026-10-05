@@ -1,38 +1,58 @@
-What I built
-- New core package backend/app/core/capabilities/ (about 550 lines). It defines the capability contract, the registry (register, resolve, list, describe, unregister), a single executor (execute_capability), and typed errors.
-- Capability ids follow <module>.<resource>.<action>, and the first segment must be the module that owns it. So a module can only publish under its own name. That's why the real id is 
-  leave_management.leave_request.create, not the brief's employee.leave.create.                              One real capability: leave_management.leave_request.create v1. It's registe
-  when it activates and removed when it deactivates. It calls the same LeaveRequestService the HTTP route    uses.                                                                      
-- Not published, on purpose:                                                                                 - submit / approve / reject / cancel go through the Workflow caller-identit
-    architecture test allows that only in api.py and flow_step.py, and a third file needs your decision.     - update doesn't exist in the module, so I didn't invent it.               
-- Existing systems stay in charge. Permission checks use the existing RBAC path. The tenant comes only from  the logged-in caller. A tenant_id sent in the payload is ignored, and the e
-  tenant bypass or when the caller's tenant differs from the request's.                                      No changes to the frontend, migrations, dependencies, Workflow, Application
-  database code.                                                                                             
+Phase 2 is done, but the honest answer to the brief's key question, "is it safe to start the Visual Form Builder?", is not yet. The form definition foundation itself is sound and rated GO-WITH-CONDITIONS. The full regression passes with 0 failures (3,889 before, 3,930 after; the +41 are the new tests).
 
-Why I didn't extend an existing registry
-- ContractRegistry is keyed by Python class types, which would leak implementation names into the id.
-- The Application Flow action dict belongs to Flow and has no metadata. Making the Form Platform depend on it would point the dependency the wrong way.
-- Having both a Flow action registry and a capability registry is open debt; the audit's plan is for Flow actions to call execute_capability later.
+What I built (as you approved at the audit gate: new package, Postgres trigger, thin HTTP API)
+- The audit's decision was "new boundary". The old metadata_engine form tables are unused (0 rows, no 
+  callers). They're tied to dynamic table definitions, have no versions, and treat a missing tenant as "shared
+  with everyone". I left them untouched, and the new package is not allowed to import them.           
+- app/core/form_platform/ stores two things per tenant:
+  - Form definitions: a stable key such as employee_leave_request, unique per tenant.                 
+  - Form versions: each bound to an exact capability version, holding a validated presentation document
+    (fields, sections, simple show/hide/readonly rules).                                              
+- Lifecycle: draft → review → published → archived. Publishing a new version archives the old one. Archived is
+  final; you bring a form back by copying it into a new draft.                                        
+- HTTP API: /api/v1/form-definitions (12 routes in total with runtime) and /api/v1/form-runtime/{key}. The
+  runtime finds the single published version and submits through the Phase 1 capability executor only.
+- Migration c3d4e5f6a7b8:
+  - tenant_id is required on both tables, so forms can never become "global".                         
+  - Row-level security is enabled and forced.
+  - An index allows at most one published version per form.                                           
+  - The approved trigger blocks any change to a non-draft version, any illegal status change, and deleting a
+    non-draft version.                                                                                
+- Permissions: four new codes, core.forms.read/design/review/publish. Using a form needs no extra permission;
+  it requires the bound capability's own permission. Every lifecycle change writes an audit row in the
+  transaction.
+- Frontend: no changes. The runtime returns fields in SchemaForm's existing FieldSpec shape. A test checks the backend's widget list against SchemaForm's FieldKind in the .tsx source.
 
 Evidence
-- 61 new tests: 52 unit/AST plus 9 against the real Postgres database. The Postgres tests activate the real module, execute the capability by id only, and read the result back through the module's real HTTP GET. Tenant A gets 200 with an identical body; tenant B gets 404.
-- RLS proof: raw SQL counts the new row as 1 for its tenant, 0 for another tenant, and 0 with no tenant.
-- Mutation check: with the executor's tenant binding removed, Postgres rejected every insert with new row violates row-level security policy and 4 of 9 tests failed. With it restored, all pass.
-- No coupling: an AST test proves the consumer test imports nothing from the leave module.
-- One change to an existing test: I added app.core.capabilities to the leave module's import allowlist. It follows Phase 4.3's app.core.application_flow entry.
+- 41 new tests: 30 unit/AST and 11 against the real Postgres database. They cover:
+  - the mandatory immutability scenario, including four direct-SQL edits rejected by the trigger
+  - capability-version pinning: form v1 keeps executing capability v1 after v2 appears
+  - tenant A getting 404 on every operation against tenant B's form
+  - the full designer / reviewer / publisher / runtime-user permission matrix
+  - the audit trail
+  - a fresh-database migration test: upgrade, downgrade, upgrade again
+- Mutation checks:
+  - With the service's "drafts only" check removed, the trigger alone still blocked the edit.
+  - With the runtime resolving the newest capability version, the pinning test failed.
+  - With the service's tenant filter removed, row-level security alone still kept tenants apart.
 
-Pre-existing problems I found but didn't fix
-- F-2 (high): on FastAPI 0.115.6, ModuleCleanup.unregister_routes fails, so a deactivated module's HTTP routes stay mounted until restart. The unmodified test_leave_management_real_flow.py shows it too. Auth, permission and tenant checks still apply on those routes, so it's not a privilege escalation, and I didn't interrupt you for it.
-- F-1 (medium): Application Flow action handlers aren't cleared when a module deactivates.
-- test_engine_execution.py, run on its own, gives 27 failures. They're all "no current event loop", the file's known problem. Neither the file nor the code it tests changed. I didn't run it before my change, so there's no direct before/after for it.
+Things you should know
+- Two Postgres servers run on port 5432. localhost:5432 is a local Homebrew PostgreSQL 14, which is what the tests, Alembic and db.py use. The Docker erp_postgres container backs the app container on :8000.
+  - I migrated only the Homebrew database. The container database is still on the old revision, so the running container app has no form_platform tables until it's migrated.
+  - Some of my earlier docker exec checks looked at the container instead. I re-ran them against localhost, got identical results, and corrected the citations in both audits.
+- F-5 (high, deferred as you chose): the old /api/v1/metadata API takes tenant_id from the client, and rows without one are visible to every tenant. It's dormant (0 rows).
+- F-6: the old metadata service contract calls methods that don't exist, so it silently does nothing.
+- summary.md named in the brief doesn't exist anywhere in the repo.
 
-Conditions for Phase 2 (Form Definition + Versioning)
-- C-1: first assess the legacy app/core/metadata_engine (FormSchema, UiLayout) before creating any new form-definition store.
-- C-2: forms bind to an exact capability id and version. Lifecycle actions need a decision on the Workflow security-import allowlist first.
-- C-3: any HTTP endpoint added later must go through AuditMiddleware. Today, in-process executions write only a log line, no audit row.
-- C-4: schedule a separate fix for F-2.
+Before the Visual Form Builder can start
+- B-1: an HTTP endpoint for listing capabilities, filtered by the caller's permissions. Today discovery only works in-process, so a builder can't see what to bind.
+- B-2: one generic runtime screen that renders a published form through the unchanged SchemaForm, with a browser (Playwright) test. Right now that path is only checked by contract tests.
+
+I suggest a short "Phase 2.5" for those two, then re-issuing the readiness report as GO before Phase 3. Every form today is also a create form, until you decide whether lifecycle capabilities (submit/approve/cancel) may use the Workflow security exception.
 
 Files are in docs/architecture/:
-- reviews/FORM_CAPABILITY_FOUNDATION_AUDIT.md
-- reviews/FORM_CAPABILITY_FOUNDATION_READINESS.md
-- CAPABILITY_PLATFORM.md
+- reviews/FORM_DEFINITION_METADATA_AUDIT.md
+- reviews/FORM_DEFINITION_FOUNDATION_READINESS.md
+- FORM_DEFINITION_PLATFORM.md
+
+Nothing was committed.
