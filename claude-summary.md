@@ -1,63 +1,50 @@
-Live WRITE F11 tidak dijalankan: saya berhenti sebelum mutation apa pun, jadi CREATE, UPDATE, dan DELETE semuanya 0. Fixture yang Anda setujui hanya punya **satu channel**, sehingga UPDATE tidak bisa diverifikasi secara semantik.
+UI F11 **sudah lengkap**; audit tidak menemukan gap fungsional. Live WRITE masih **BLOCKED**, karena fixture yang Anda setujui tidak bisa dipakai. Kodenya sendiri sudah siap.
 
-**1. Hasil**
+**1. Yang saya periksa:**
+- **Legacy:** route (`routes.js` l.426-443), controller, repository, mapper, view list/create/edit, lookup produk dan channel, permission, dan menu.
+- **Next.js:** package `src/packages/product-restriction/` lengkap (domain, use case, repository, DTO, Server Actions, page, form, tabel, product picker, registry, capability).
+- **Test dan evidence live** yang sudah ada.
 
-```text
-F11 Live WRITE: STOPPED before any mutation (HOLD)
-Reason: the approved fixture has one channel → UPDATE cannot be semantically verified
-```
+Satu klaim di brief tidak sesuai source: "backend stores `customer_channel_ids` as a string". Kolomnya JSON array (`datatypes.JSON`), dan di wire bentuknya `string[]`. Implementasi tidak terpengaruh.
 
-Kenapa berhenti:
-- **UPDATE tidak punya perubahan yang bisa diverifikasi.** Dengan satu channel, kemungkinan state-nya hanya dua:
-  - `[78bd978f…]`: sama persis dengan hasil CREATE, jadi no-op;
-  - `[]`: ditolak kontrak aplikasi (minimal 1 channel). Di backend, nilai ini justru mencabut pembatasan.
-- **CREATE pun tidak saya jalankan.** Brief Anda mensyaratkan W3 hanya setelah W1 dan W2 terverifikasi. Menjalankan CREATE saja akan meninggalkan pembatasan nyata yang menyembunyikan produk `066e6346…` dari customer di 54 tipe channel lain di devb2b.
-- **Harness memang dirancang menolak kasus ini.** Adapter F11 butuh minimal 2 channel. Dengan fixture ini harness hanya menjalankan READ, tanpa jalur write.
-- **Pre-check W0 tidak dijalankan.** Kredensial live tidak terlihat di proses saya (proses yang sama, sudah jalan lebih dari 53 jam), dan W0 tidak lagi diperlukan setelah fixture terbukti tidak cukup.
+**2. UI sudah lengkap.** Semua 14 baris matrix PASS. Beberapa item sebelumnya belum dibuktikan oleh test, sekarang sudah:
+- breadcrumb di create/edit;
+- perubahan page size;
+- tampilan 375 dan 320 px tanpa overflow horizontal;
+- double submit diabaikan;
+- uncheck semua channel di edit menampilkan pesan dan tidak memanggil action;
+- `productId` yang dimanipulasi tidak pernah sampai ke backend, karena produk memang tidak bisa diubah di batas use case.
 
-**2. Jumlah percobaan mutation**
+Semua lolos tanpa mengubah source. Tidak ada detail screen, karena legacy juga tidak punya.
 
-| CREATE | UPDATE | DELETE | Retry |
-|---|---|---|---|
-| 0 | 0 | 0 | 0 |
+**3. Perubahan:** hanya test dan harness, tidak ada source aplikasi.
+- **6 test baru:** 3 unit, 3 E2E.
+- **Preflight fixture read-only di W0** pada harness generik (dan adapter F11). Ini menutup celah dari run Anda sebelumnya: fixture placeholder kini berhenti sebelum CREATE, dengan 0 mutation dan tanpa marker. Sudah dibuktikan lewat self-test terhadap mock untuk empat skenario: placeholder, ID tidak dikenal, fixture valid, dan regresi F30.
 
-Tidak ada record lain yang tersentuh.
+**4. Hasil test (run hari ini):**
 
-**3. Read-back semantik:** tidak berlaku, karena tidak ada mutation.
-
-Saya menemukan bukti baru dari run READ Anda. **Live READ F11 di backend asli sudah VERIFIED** (0 mutation, 0 secret):
-
-| Langkah | Hasil |
+| Gate | Hasil |
 |---|---|
-| R1 | 2 baris |
-| R2 | paging benar, halaman di luar jangkauan kosong |
-| R3 | sort `productName` dan `productCode` asc/desc urut dengan benar |
-| R4 | search 1/1 cocok; tanpa hasil 0 |
-| R5 | detail 200; ID tidak dikenal **404** (sesuai source) |
-| R6 | 55 tipe channel; product search 20 hasil |
+| `npm run quality` | exit 0; lint 0 error; **584/584** |
+| `CI=1 npm run test:e2e:full` | **85/85** |
+| `next build` | lolos |
+| `check:bundle` | PASS |
 
-**4. Evidence**
-- READ: `$TMPDIR/module-live/product-restriction/evidence-20261002082508.json`
-- WRITE: tidak ada evidence baru, karena tidak dijalankan.
-- Laporan diperbarui: `frontend/docs/architecture/reviews/F11_MIGRATION_REPORT.md` (§8, §9, §13).
+**5. Live READ:** tidak dijalankan ulang di fase ini, karena kredensial tidak terlihat di proses saya. Evidence terakhir (run Anda 2026-10-02) tetap berlaku untuk kode saat ini, karena source F11 terakhir diubah sebelum run itu. Hasilnya R1–R6 lolos, 0 mutation, dan 0 secret.
 
-**5. Status F11**
+**6. Live WRITE: BLOCKED,** karena dua hal pada fixture:
+- **Produk `066e6346-19b7-4fa7-ad06-07e514ef9719` sudah punya pembatasan** (data yang sudah ada), sehingga W0 menghentikan run sebelumnya dengan 0 mutation.
+- **ID channel kedua yang asli belum ada.** Run sebelumnya mengirim teks literal `ID_CHANNEL_KEDUA`.
 
-```text
-F11 = HOLD   (live READ VERIFIED; live WRITE not executed: fixture insufficient for UPDATE)
-```
+**7. Laporan:** `frontend/docs/architecture/reviews/F11_VERTICAL_SLICE_GATE.md`
 
-**6. Sisa risiko dan temuan**
-- **Fixture:** dibutuhkan **satu channel ID tambahan** yang Anda setujui untuk produk yang sama. Alurnya lalu create `[ch1]` → read-back → update `[ch1, ch2]` → read-back → delete → read-back (404). Perintahnya, dijalankan sekali di terminal Anda:
-  ```bash
-  MODULE_LIVE_WRITE_CONFIRM=yes LIVE_MODULE=product-restriction LIVE_TEST_PRODUCT_ID=066e6346-19b7-4fa7-ad06-07e514ef9719 LIVE_TEST_CHANNEL_IDS=78bd978f-2c69-11ee-a134-7cd30ae46a0c,<ch2> npx vitest run --config vitest.live.config.js test/live/module-smoke.live.test.ts
-  ```
-- **Dampak bisnis:** selama sekitar satu detik dalam run tersebut, produk tersebut tersembunyi dari customer di channel lain.
-- **Temuan lama tetap berlaku:**
-  - bulk delete di backend tertutup oleh route `/:id`;
+**8. Blocker dan risiko:**
+- **Butuh fixture baru:** produk yang belum punya pembatasan, plus dua ID channel asli yang berbeda.
+- **Keberadaan produk tidak bisa dicek lewat kontrak F11** (tidak ada lookup produk per ID), padahal backend juga tidak memvalidasinya saat create. Jadi produk itu harus Anda pastikan sendiri.
+- **Risiko backend dari laporan F11 masih berlaku:**
   - backend menerima daftar channel kosong;
+  - bulk delete tertutup oleh route `/:id`;
   - endpoint lookup menyusun ORDER BY tanpa allowlist;
-  - transaksi delete tidak di-rollback saat error;
-  - perilaku untuk customer tanpa tipe channel belum diketahui.
+  - transaksi delete tidak di-rollback saat error.
 
-Saya tidak mengubah source code dan tidak lanjut ke modul lain.
+Repo backend dan legacy tidak berubah, dan belum ada yang di-commit. Saya berhenti di sini, tanpa live WRITE.
