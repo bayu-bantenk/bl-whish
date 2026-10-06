@@ -105,14 +105,15 @@ done
 ## Closure gate (2026-10-06)
 
 ```text
-Batch 2 Status: HOLD
+Batch 2 Status: CONDITIONAL GO
 ```
 
 Details: `BATCH2_CLOSURE_GATE.md`.
 
 **Gate results:**
 - static and E2E green: vitest 960, E2E 132 / 132, tsc 0, eslint 0 errors, build PASS, bundle PASS;
-- **blocked:** Live READ (credentials only in the owner terminal) and the F19 story-group backend contract (source unavailable).
+- live READ passed for all 5 modules (owner run 2026-10-06; F18 criteria mapping defect found live and fixed);
+- remaining conditions: the F19 write contract (backend source unavailable) and backend defects B2-01 … B2-08.
 
 **Fixed during the gate:**
 - remounting table cells (memoized columns);

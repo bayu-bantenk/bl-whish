@@ -98,3 +98,28 @@ Perubahan bersama di batch ini:
 - **Test E2E:** network guard mengizinkan GET ke file publik di storage, karena preview gambar memang membaca `file_url` dari sana. Helper aksesibilitas menunggu `<title>` dimuat sebelum mengecek, untuk menghilangkan flake saat suite berjalan penuh.
 
 Laporan lengkap: `docs/architecture/reviews/BATCH2_MIGRATION_REPORT.md`.
+---
+
+## Batch 2 — Closure Gate (2026-10-06)
+
+```text
+Batch 2 Status: CONDITIONAL GO
+```
+
+| Module | Static | E2E | Live READ | Contract | Visual | Status |
+|---|---|---|---|---|---|---|
+| F07 Produk | PASS | PASS | PASS (R5 = backend 500, B2-01) | PASS | PASS | CONDITIONAL GO |
+| F08 Kategori Produk | PASS | PASS | PASS | PASS | NEEDS EVIDENCE | GO |
+| F18 Banner & Iklan | PASS | PASS | PASS (criteria defect fixed) | PASS | NEEDS DECISION (Quill) | CONDITIONAL GO |
+| F19 Group Story | PASS | PASS | PASS (READ) | WRITE BLOCKED | PASS | CONDITIONAL GO |
+| F28 Prinsipal | PASS | PASS | PASS (R2 overlap = backend, B2-08) | PASS | NEEDS EVIDENCE | CONDITIONAL GO |
+
+**Automated:** vitest 961 / 961 · E2E 132 / 132 · tsc 0 · eslint 0 errors · build PASS · bundle PASS.
+
+**Live READ:** 5 / 5 modules, mutations 0, secrets 0.
+
+**Conditions:**
+- the F19 story-group write contract has to be confirmed by the backend team;
+- backend bugs B2-01 … B2-08 stay open.
+
+Details: `BATCH2_CLOSURE_GATE.md`. Batch 3: NOT STARTED.

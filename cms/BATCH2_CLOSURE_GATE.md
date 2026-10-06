@@ -10,22 +10,25 @@
 ## 1. Executive summary
 
 ```text
-BATCH 2 CLOSURE DECISION: HOLD
+BATCH 2 CLOSURE DECISION: CONDITIONAL GO
 ```
 
-**Implementation and automated gates are green.**
+All automated gates are green.
 
-**Two closure inputs are missing:**
-1. **Live READ** has not been executed for any Batch 2 module. The `A55R_*` credentials exist only in the owner's terminal, so it is blocked by the environment, not failed.
-2. **F19 Group Story backend contract is unavailable.** The story-group service source is not in the workspace, and create / update run on legacy evidence only.
+**Live READ against `devb2b-api.gpos.id` (owner run 2026-10-06):**
+- every module authenticates and lists, pages, sorts, searches, reads details and loads lookups through the production DAL;
+- zero mutations and zero secrets in the evidence;
+- one real frontend mapping defect was found by live READ (F18 criteria detail) and fixed, and the re-run passed.
 
-**Expected follow-up:** once Live READ passes (5/5) and the F19 contract is confirmed (or accepted as legacy-evidenced by the owner), the decision is expected to move to CONDITIONAL GO. Backend defects are documented, with no workarounds.
+**Remaining conditions, all outside frontend responsibility and documented:**
+- the F19 story-group **write** contract cannot be verified from backend source;
+- backend defects B2-01 to B2-08.
 
 ## 2. Automated validation (canonical commands, `frontend/`)
 
 | Command | Result |
 |---|---|
-| `npm run quality` (eslint + `tsc --noEmit` + `vitest run`) | exit 0 · eslint **0 errors** (28 pre-existing warnings, none in Batch 2 files) · tsc **0** · vitest **62 files / 960 passed** |
+| `npm run quality` (eslint + `tsc --noEmit` + `vitest run`) | exit 0 · eslint **0 errors** (28 pre-existing warnings, none in Batch 2 files) · tsc **0** · vitest **62 files / 961 passed** |
 | `npm run e2e:build` + `playwright test` (full suite) | **132 / 132 passed** (final run 4.3 min; see §3) |
 | `npm run build` | exit 0 (all Batch 2 routes built) |
 | `npm run check:bundle` + wire scan of `.next/static` | PASS · `cms/banners`, `cms/story-groups`, `custom-criterias`, `product-categories`, `products/principals`, `customer-areas`, `image_thumb`, `sort_by`, `restrict_customer`, `banner_ids`, `file_url`, `customer_ids`, `principal_ids` → **0** client files |
@@ -36,7 +39,7 @@ BATCH 2 CLOSURE DECISION: HOLD
 |---|---|---|
 | F07 | 34 | 4 |
 | F08 | 40 | 4 |
-| F18 | 45 | 8 |
+| F18 | 46 | 8 |
 | F19 | 47 | 4 |
 | F28 | 41 | 5 |
 
@@ -78,30 +81,25 @@ Test-quality note (not changed, outside Batch 2): its `retry must reach the gate
 
 Each passed when rerun, and the final full suite at lower load passed 132 / 132.
 
-## 4. Live READ
+## 4. Live READ (owner terminal, 2026-10-06 07:12–07:19 UTC, READ only)
 
-```text
-LIVE READ — BLOCKED BY CREDENTIAL/ENVIRONMENT
-```
+Login: `superadmin@gpos.id` test account (not recorded in evidence). Every run: POST 0 / PUT 0 / DELETE 0. Secret scan of every evidence file (JWT, bearer, token / password / cookie / authorization / api-key keywords, account email): **0**.
 
-No live call was made in this gate. Earlier `$TMPDIR/module-live` evidence (Batch 1 / F11) was cleared by the OS; Batch 1 / F11 results remain recorded in their reports.
+| Module | Login | R1 list | R2 paging | R3 sort | R4 search | R5 detail / unknown | R6 lookups | Result |
+|---|---|---|---|---|---|---|---|---|
+| F08 | ✓ | 5 / 12 | disjoint ✓ | name, sequence, createdAt ✓ | 4 hits ✓ | ✓ / NotFound ✓ | n/a | **PASS** |
+| F07 | ✓ | 5 / 29 987 | disjoint ✓ | code, name, isActive, isDraft ✓ | 1 hit ✓ | ✓ / **Server (500)** | n/a | **PASS except B2-01** |
+| F18 | ✓ | ✓ | disjoint ✓ | ✓ | ✓ | ✓ / NotFound ✓ | channels 55, areas 49, customers 20, 7 criteria options (131 / 20 / 9 / 3 / 10 / 10 / 10), criteria detail ✓ | **PASS** (after fix) |
+| F19 | ✓ | 5 / 6 | disjoint ✓ (5 + 1) | sequence desc ✓; asc check flags the legacy "expired groups sink to the bottom" rule | 1 hit ✓ | ✓ / NotFound ✓ | story banners 6 | **READ PASS** |
+| F28 | ✓ | 5 / 142 | **pages overlap** (B2-08) | code, name, phone, isActive ✓ | 2 hits ✓ | ✓ / NotFound ✓ | n/a | **PASS except B2-08** |
 
-Run once in the owner terminal (read-only adapters, no `write`; guard allows GET only). Non-secret variables: `A55R_CONFIRM_NON_PRODUCTION=yes`, `A55R_ALLOWED_HOST=devb2b-api.gpos.id`, plus the test-account variables `A55R_EMAIL` / `A55R_PASSWORD` already set in that terminal.
+**F18 mapping defect found live and fixed:**
+- **What happened:** `GET /cms/custom-criterias/detail` returns the full master-data label lists (e.g. 7 639 product classes), some with blank text. The mapper treated a blank label as a contract violation, so the Katalog Produk tab would have failed for every banner.
+- **Fix:** a blank label falls back to the id, while type checks stay strict.
+- **Tests:** a live-shape unit test was added.
+- **Result:** re-run 07:19 UTC → PASS.
 
-```bash
-cd frontend
-for m in product product-category banner group-story principal; do
-  LIVE_MODULE=$m npx vitest run --config vitest.live.config.js test/live/module-smoke.live.test.ts
-done
-```
-
-| Module | Expected steps | Known expectation |
-|---|---|---|
-| F07 | R1–R6 | **R5 unknown-id → `Server` (backend 500 instead of 404, BACKEND BUG)** |
-| F08 | R1–R6 | none |
-| F18 | R1–R6 + 10 lookups (channels, areas, customers, 7 criteria options) + criteria detail | `banner.update` grant is harness-local; GET only |
-| F19 | R1–R5 + banner lookup | READ shape is legacy-evidenced; a strict mapping mismatch would show as a `Contract` error |
-| F28 | R1–R5 | none |
+The evidence files are in `$TMPDIR/module-live/<module>/evidence-20261006071*.json`. They are OS-temporary; the results are recorded here.
 
 ## 5. F19 Group Story: contract
 
@@ -192,7 +190,8 @@ Two shared components gained optional props, with unchanged defaults: `ConfirmDe
 | B2-04 | PUT `/cms/products/principals/{id}` | `Updates(struct)` drops `is_active=false` and cleared phone / fax / website / address | persist | cannot deactivate a principal (UI note) | B |
 | B2-05 | PUT `/cms/custom-criterias/{id}` | `Updates(struct)` drops price 0 | persist | cannot clear a price | B |
 | B2-06 | list endpoints F07 / F08 / F18 / F28 | `sort_by` concatenated into ORDER BY | allowlist | SQL injection (frontend sends allowlist only) | B |
-| B2-07 | `/cms/story-groups/*` | source unavailable | contract | F19 write unverified | **A** |
+| B2-07 | `/cms/story-groups/*` | source unavailable (READ shape verified live) | contract | F19 write unverified | **A → condition** |
+| B2-08 | list endpoints with a non-unique default sort (F28 `is_active`, F07 `is_draft`) | no tiebreaker in ORDER BY → live F28 page 1 and page 2 overlap | add a unique secondary key (e.g. `id`) | rows duplicated / skipped across pages (same in legacy) | B |
 
 **Classes:**
 - **A** blocks Batch 2;
@@ -203,24 +202,29 @@ Two shared components gained optional props, with unchanged defaults: `ConfirmDe
 
 | Module | Static | E2E | Live READ | Contract | Visual | Status |
 |---|---|---|---|---|---|---|
-| F07 | PASS | PASS | BLOCKED | PASS | PASS | HOLD (live READ) |
-| F08 | PASS | PASS | BLOCKED | PASS | NEEDS EVIDENCE | HOLD (live READ) |
-| F18 | PASS | PASS | BLOCKED | PASS (promo lookup N/A) | NEEDS DECISION (Quill) | HOLD (live READ) |
-| F19 | PASS | PASS | BLOCKED | BLOCKED | PASS | HOLD (contract) |
-| F28 | PASS | PASS | BLOCKED | PASS | NEEDS EVIDENCE | HOLD (live READ) |
+| F07 | PASS | PASS | PASS (R5 = backend B2-01) | PASS | PASS | CONDITIONAL GO (backend bugs) |
+| F08 | PASS | PASS | PASS | PASS | NEEDS EVIDENCE (no legacy captures) | GO |
+| F18 | PASS | PASS | PASS | PASS (promo lookup n/a) | NEEDS DECISION (Quill) | CONDITIONAL GO |
+| F19 | PASS | PASS | PASS (READ) | WRITE BLOCKED | PASS | CONDITIONAL GO (write contract) |
+| F28 | PASS | PASS | PASS (R2 = backend B2-08) | PASS | NEEDS EVIDENCE | CONDITIONAL GO (backend bugs) |
 
 ## 10. Final gate decision
 
 ```text
-HOLD
+CONDITIONAL GO
 ```
 
-**Blockers:**
+**Why it is not GO:**
+- **F19:** create / update follow legacy evidence only. The READ shape inferred the same way is now proven live, but the story-group backend source is unavailable. Action: the backend team confirms the content-service handler / DTO.
+- **Backend defects B2-01 … B2-08:** documented, with no frontend workaround.
 
-| ID | Module | Problem | Evidence | Impact | Required resolution | Owner |
-|---|---|---|---|---|---|---|
-| G-01 | all 5 | Live READ not executed | no `A55R_*` in agent env; `$TMPDIR/module-live` empty | real mapping unverified | run the §4 command once | Owner (terminal) |
-| G-02 | F19 | Story-group contract unavailable | §5 | create / update unverified | content-service story-group handler / DTO (git fetch or author) | Backend team |
+**Why it is not HOLD:**
+- no broken frontend functionality;
+- authorization / navigation verified;
+- live READ passes for all modules;
+- the only frontend defect found live has been fixed and re-verified.
+
+Earlier blockers G-01 (live READ) and G-02 are reduced to the F19 write-contract condition.
 
 ## 11. Remaining deferred work
 
