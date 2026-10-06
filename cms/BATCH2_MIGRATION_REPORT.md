@@ -101,3 +101,21 @@ for m in product product-category banner group-story principal; do
   LIVE_MODULE=$m npx vitest run --config vitest.live.config.js test/live/module-smoke.live.test.ts
 done
 ```
+
+## Closure gate (2026-10-06)
+
+```text
+Batch 2 Status: HOLD
+```
+
+Details: `BATCH2_CLOSURE_GATE.md`.
+
+**Gate results:**
+- static and E2E green: vitest 960, E2E 132 / 132, tsc 0, eslint 0 errors, build PASS, bundle PASS;
+- **blocked:** Live READ (credentials only in the owner terminal) and the F19 story-group backend contract (source unavailable).
+
+**Fixed during the gate:**
+- remounting table cells (memoized columns);
+- duplicate inline sequence PUT (F18, F19);
+- F18 "Katalog Produk" tab implemented;
+- visual parity fixes for F07, F08, F18, F19.
