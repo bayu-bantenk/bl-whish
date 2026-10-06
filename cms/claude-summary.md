@@ -1,47 +1,40 @@
-Rekomendasi Batch 3 adalah empat modul dengan urutan **F04 → F10 → F09 → F06**. Laporannya ada di `cms/BATCH3_SCOPE_DISCOVERY.md`. Tidak ada kode yang diubah dan tidak ada panggilan live.
+### F04 Order Review
 
-**1. Modul yang direkomendasikan:**
+F04 is implemented as a read-only list and detail slice, and every automated check passes. The one thing left is the live READ run, which you need to do from your terminal (command below).
 
-| # | Modul | Cakupan | Alasan |
-|---|---|---|---|
-| 1 | **F04 Order Review** | list + detail (read-only) | Kontrak terverifikasi di source order-service, tanpa master data, risiko rendah |
-| 2 | **F10 Personalisasi Katalog** (inti) | CRUD katalog, criteria per katalog, produk homepage katalog | Kontrak terverifikasi di product-service; memakai ulang repository criteria dan 7 picker dari F18 |
-| 3 | **F09 Produk Gpos B2b** | 3 tab: setting, criteria, produk homepage | Pola sama dengan F10; upload signed-URL sudah terverifikasi |
-| 4 | **F06 Inventory/Persediaan** | CRUD inventory + stok | Kontrak penuh terverifikasi; melengkapi menu "Produk & Katalog". Live WRITE tetap tidak diizinkan |
+- **Implementation:** PASS.
+  - **What it does:** list and detail only, through the existing page → DAL → use case → repository → gateway chain. Create, update and delete were not built, because the backend has no CMS write endpoint for order reviews.
+  - **Contract:** checked against order-service source: `handler/order_review.go:31-32`, `dto/order_review.go`, the mapper and the repository.
+  - **Where it lives:** route `/dashboard/order-review` and `/dashboard/order-review/detail/[id]`. Capability `order-review.read`; the page denies access without it.
+  - **Menu:** under Transaksi, in the legacy position.
+- **Tests:** 16/16 for F04 (contract and page tests). Full `npm run quality` passes: 977/977 tests in 64 files, 0 TypeScript errors, 0 lint errors.
+- **E2E:** 6/6 for F04, covering list, pagination, sorting by rating, search, detail, unknown id (404), the 500 error state, a 375px layout, the read-only account and accessibility checks. The full suite was 137/138; the single failure is in a Batch 2 banner test (T-01 below), not in F04.
+- **TypeScript:** PASS (0 errors).
+- **Lint:** PASS (0 errors; the 28 warnings were already there before F04, none are in F04 files).
+- **Build:** PASS, and the client-bundle check passes with no backend paths or API field names in browser code.
+- **Live READ:** **PENDING**, because the credentials are only in your terminal. Run this from `frontend/` with the `A55R_*` variables set:
+  ```bash
+  LIVE_MODULE=order-review npx --no-install vitest run --config vitest.live.config.js test/live/module-smoke.live.test.ts
+  ```
+- **Live mutations:** 0. No create, update, delete or upload, no live call from me, and F11 W3 not started.
+- **Visual parity:** structure verified against the legacy source (columns and their order, which columns sort, page size 5, detail fields and their order, Kembali button). Exact look and spacing: **NEEDS EVIDENCE**, because there's no legacy screenshot of F04.
+- **Known backend issues:**
+  - **B3-01 (suspected, to confirm in live R4):** search almost certainly returns nothing for any keyword. The backend filters `customer_name` / `purchase_no` on the `order_reviews` table, but those columns live on `orders`, and the SQL error is ignored. Legacy uses the same endpoint, so it has the same problem. The search box is kept for parity, with no workaround.
+  - **B3-02:** the backend pastes `sort_by` straight into ORDER BY. The frontend only ever sends `rating` or `created_at`.
+- **Module Gate:** **PASS (automated)**; live READ still pending.
 
-**2. Alasan urutan:** F04 paling kecil dan read-only, jadi aman sebagai pemanasan. F10 dikerjakan sebelum F09 karena F10 membangun komponen criteria dan produk homepage yang dipakai ulang F09. F06 paling akhir karena permukaan write-nya terbesar: stok mengubah katalog yang dilihat pembeli. Kalau kapasitas terbatas, F06 bisa dipindah ke Batch 4 tanpa memengaruhi modul lain.
+**Batch 2 test finding (T-01), not changed:** the `banner.spec.ts:107` test picks an option in the edit form before the page finishes hydrating, so the choice is sometimes reset. It failed in 1–2 of 3 isolated runs while the machine was busy. F04 doesn't touch any banner code, shared component or banner mock route. Per your instruction not to modify other tests for this module, I only recorded it; the fix would be to wait for hydration in that spec.
 
-**3. Blocker utama:**
-- **Keputusan produk:**
-  - OD-09: drop fitur delete di Order Review, karena tidak ada handler backend-nya.
-  - OD-07: 17 route REVIEW di F10 (layar CCPH dan criteria standalone) tetap di luar scope.
-  - Batas F30 untuk F09: key global configuration mana yang dimiliki tab setting F09.
-- **Bug backend yang memengaruhi kandidat:** kelas bug `Updates(struct)` membuat nilai nol atau kosong tidak tersimpan. Ini ada di repository backend F09 dan F10. Dicatat, tanpa workaround.
-- **Di luar Batch 3:**
-  - F26 BLOCKED, karena source config_service tidak ada.
-  - F14 dan F16 BLOCKED oleh OD-07; F14 juga punya fix GOPH-4102 yang belum di-merge.
-  - F27 dan F31 BLOCKED karena belum ada strategi akun test (approve/reject dan revoke menyentuh user asli).
-  - F03, F05, F12, F13, F17, F21, F22, F23 dan F29 dijadwalkan nanti, karena write-nya berdampak nyata: ERP, pembayaran, poin, voucher, push notification.
+**Files changed (frontend):**
+- **New F04 code:** `src/packages/order-review/**` (9 files) and `src/app/(dashboard)/dashboard/order-review/**` (3 files).
+- **F04 tests:** `src/__tests__/order-review.contract.test.ts`, `order-review-pages.test.tsx`, `e2e/specs/order-review.spec.ts`, `e2e/mock/order-review-backend.mjs`, `test/live/modules/order-review.ts`.
+- **Shared wiring:** `capabilities.ts`, `registry.ts`, `navigation/types.ts`, `nav-icon.tsx`, `server-container.ts`, `dal.test.ts` (feature allowlist), `e2e/mock/mock-backend.mjs`, `e2e/support/fixtures.ts`, `playwright.config.ts` (grants), `e2e/specs/authorization.spec.ts` (expected menu), `test/live/modules/index.ts`.
+- **Report:** `docs/architecture/reviews/F04_ORDER_REVIEW_REPORT.md`, also copied to `~/Developments/bl-whish/cms/F04_ORDER_REVIEW_REPORT.md` (untracked, not committed).
+- `git diff --check` is clean.
+- I didn't change backend code, Batch 2 documents or `BATCH3_SCOPE_DISCOVERY.md`.
 
-**4. Evidence gap:**
-1. Bentuk respons live untuk F04, F06, F09 dan F10. Ini akan didapat lewat live READ saat Batch 3, seperti di Batch 2.
-2. Keputusan OD-09, OD-07 dan batas F30.
-3. Key `global-configurations` yang dipakai tab setting F09.
-4. Source config_service.
-5. Kesamaan versi lokal dengan `origin/development` untuk loyalty-service (clone lokal tertinggal 6 commit) dan payment-service.
-6. Otorisasi gateway untuk token non-superadmin (A2-U04).
-7. Definisi OD-P1 dan OD-P4, yang dirujuk di dokumen tapi tidak didefinisikan di `A4_OPEN_DECISIONS.md`.
+**Evidence still needed:**
+- the live READ output for `order-review`, which also confirms or rules out B3-01;
+- a legacy screenshot of `/order-review` and one detail page, if you need exact visual parity.
 
-Ada tiga dokumen lama yang ternyata keliru, dan sudah saya koreksi di laporan berdasarkan evidence:
-- Upload signed-URL sudah terverifikasi sejak Batch 2. Tulisan "upload BLOCKED" di A7 sudah usang.
-- Path stok F06 sudah jelas, jadi "CONTRACT_UNKNOWN" di A7 bisa dicabut.
-- Keputusan untuk dashboard adalah OD-10, bukan OD-P4.
-
-**5. File yang berubah:**
-- Baru: `cms/BATCH3_SCOPE_DISCOVERY.md` (194 baris, belum di-commit).
-- `git diff --check` bersih dan tidak ada trailing whitespace.
-- Karena file baru masih untracked, `git diff -- cms/BATCH3_SCOPE_DISCOVERY.md` tidak menampilkan apa-apa.
-
-Di `git status`, empat file Batch 2 (`BATCH2_CLOSURE_GATE.md`, `BATCH2_MIGRATION_REPORT.md`, `summary.md`, `claude-summary.md`) masih berstatus modified. Itu sisa tugas closure Batch 2 sebelumnya yang belum kamu commit, bukan perubahan dari discovery ini.
-
-Konfirmasi: tidak ada CREATE, UPDATE, DELETE, upload maupun panggilan API live. F11 W3 tidak dimulai. Kode aplikasi, test dan backend tidak berubah. Implementasi Batch 3 belum dimulai.
+F10 has not been started.
