@@ -1,50 +1,29 @@
-Phase 2.5 is finished: both blockers are closed, and the report now says GO for Phase 3 (the Visual Form 
-Builder). I haven't started Phase 3; it needs its own brief.
-                                                                                                         
-B-1: listing what a form can bind to (GET /api/v1/capabilities). The previous session's uncommitted code was sound, so I kept it with no changes. One design decision to note: access is all-or-nothing behind 
-core.forms.design. The list is not trimmed to the capabilities the caller has business permissions for. Form designers usually have no business permissions, so trimming would show them an empty list. A desig
-can't use a form they publish; the browser test confirms they get 403.                                                                                                                                         
-B-2: a generic runtime view at /forms/:formKey.                                                              - It renders any published form version: sections, columns, show/hide/readonly rules, typed submis
-  placed under the right field, and a 409 if the version was replaced after the page loaded.                 - SchemaForm is unchanged. To make a single field readonly, the view gives each field its own Sche
-  because SchemaForm's only readonly switch (disabled) applies to all its fields at once.                    - The browser rule logic and the server's reference logic run against one shared test-case file in
-  and Vitest, so if either changes the other's tests fail.                                                   - A test fails if the view's code names any business module, field or form key, or calls anything 
-  /form-runtime. I planted a field name to confirm the test catches it.                                      - The view is not in the sidebar and cannot create or edit forms, so it is not a builder.         
-                                                                                                             
-Playwright on the real backend and real Postgres: 4/4 pass.
-- FR1: submitting through the form creates a real leave request, checked through the Leave module's own read API. The only POST the browser made was to /form-runtime.
-- FR2: invalid dates are rejected by the business capability, not the form, and nothing is saved.
-- FR3: a user without permission and a user from another tenant are both refused.
-- FR4: publishing v2 makes an open v1 page get a 409; a reload shows v2, and v1 is kept archived unchanged.
+The Visual Form Builder foundation is built, and every acceptance check from the brief passes against the real backend, real Postgres and a real browser. I'm calling it GO-WITH-CONDITIONS, not a clean GO. The main reason: the backend can't fully prevent two people from overwriting each other's draft edits, and fixing that needs a backend API change the brief doesn't allow. No backend production code changed, and nothing has been committed.                                                                                                             PHASE 3A — VISUAL FORM BUILDER FOUNDATION                                                                                                             Status:                       GO-WITH-CONDITIONSCapability Discovery:         PASS                                                                           Capability Version Pinning:   PASSField Schema Mapping:         PASS                                                                           Canvas:                       PASSSections/Layout:              PASS                                                                           Properties:                   PASSDeclarative Rules:            PASS                                                                           Preview:                      PASSDraft Persistence:            PASS                                                                           Reload:                       PASSRuntime Compatibility:        PASS                                                                           Tenant Isolation:             PASSAuthorization:                PASS                                                                           Genericity Guard:             PASSArchitecture Tests:           PASS (68 checks; planted violations were caught)                               Unit Tests:                   43 Builder (19 editor + 24 parity with backend) + 14 backend parity tests                                    backend unit total 3,621Component Tests:              14 Builder + 1 sidebar                                                         Integration Tests:            18 Builder flow                              backend: 179 + 5 skipped, real Postgres 148, architecture 8                    E2E:                          3/3 new Builder tests; 22/22 including the regression specs                              Vitest total: 809/809                                                          Build:                        PASS                                                                           Lint:                         NOT RUNNABLE (no ESLint config or TypeScript parser in the repo, as before)Typecheck:                    PASS                                                                           Documentation:                PASS                                                                                                             Batch 3A:                     GO, with three tracked conditions (see below)                                                                                                             How it works- Built only on existing APIs. The Builder uses the capability discovery API and the Form Definition API,      nothing else. The form being edited is the same presentation document the server stores, so there is no  second schema.                                                                                             - Validation before saving. The Builder checks forms in the browser using small ports of three server  functions. A test regenerates the cases from the Python code, and it fails if the Builder's copy drifts. Th server still re-validates every save.
+- Preview uses the runtime's renderer. I pulled the runtime view's rendering part into a shared component (FormRuntimeBody) without changing its behaviour. The preview renders through it into the unchanged SchemaForm, and the end-to-end test shows it makes zero API calls.
+- The main end-to-end test runs on the real leave capability. A designer:
+  a. finds leave_management.leave_request.create:v1 and picks it;
+  b. sets field properties, a two-column section and a show/hide rule;
+  c. previews the form, saves it and reloads the page.
 
-The existing Schema-to-Form and leave-management specs still pass: 19/19 in the same run.
+  The stored document exactly matches what was expected, still pinned to v1. After publishing through the existing API (there's no publishing UI in 3A), an employee runs it in the unchanged runtime and a real leave request is saved.
+- Conflict handling. A concurrent edit made on the server is caught as a conflict. The Builder sends nothing, so the other person's change isn't overwritten.
 
-┌──────────────────────┬─────────────────┬─────────────────┐
-│        Suite         │     Before      │       Now       │
-├──────────────────────┼─────────────────┼─────────────────┤
-│ Architecture         │ 8               │ 8               │
-├──────────────────────┼─────────────────┼─────────────────┤
-│ Unit                 │ 3,597           │ 3,607           │
-├──────────────────────┼─────────────────┼─────────────────┤
-│ Integration          │ 179 + 5 skipped │ 179 + 5 skipped │
-├──────────────────────┼─────────────────┼─────────────────┤
-│ Real Postgres        │ 146             │ 148             │
-├──────────────────────┼─────────────────┼─────────────────┤
-│ Vitest               │ —               │ 664             │
-├──────────────────────┼─────────────────┼─────────────────┤
-│ Type-check and build │ —               │ pass            │
-└──────────────────────┴─────────────────┴─────────────────┘
+Conditions and findings
+- C-3A-1: concurrent draft edits. The draft edit endpoint has no concurrency token. Before saving, the Builder re-reads the draft and handles 409s, which stops every overwrite it can detect. Two saves landing at the same instant can still both succeed, and closing that requires a backend API change.
+- C-3A-2: the shell forgets the user on reload (an existing bug). The shell's auth store never restores the user after a page reload, so permission checks in the browser return false for everyone. The Builder treats the browser-side permission check as a hint and lets the server's 403 decide. Side effect: after a reload, the "Form Builder" sidebar entry disappears even for designers until they log in again; direct links still work. The fix is a small change to shared auth code that I left for you to approve.
+- C-3A-3: lint can't run. There's no ESLint tooling.
+- Smaller limits:
+  - There's no API to rename a form; name and description are set at creation.
+  - Creating a form takes two calls; if the second fails, the editor offers to create the first version.
+  - A form whose key is literally new can't be opened in the Builder.
 
-Docs
-- New closure doc: docs/architecture/reviews/FORM_BUILDER_PREREQUISITES_READINESS.md.
-- FORM_DEFINITION_FOUNDATION_READINESS.md has a re-issue note at the top.
-- FORM_DEFINITION_PLATFORM.md has new sections on discovery (§5.1) and the runtime view (§7).
+Other things to know
+- Files changed outside the new feature folder: App.tsx (routes), ShellLayout.tsx (sidebar entry), that entry's test, and FormRuntimeView.tsx (the extraction). Everything else is new files, plus one backend test file.
+- Test run state: leave_management was activated for the run and deactivated afterwards. The run left uniquely named test forms and leave requests in the dev database.
+- One flaky test: an existing Workflow Studio test failed once while the backend suites were running at the same time. It passed 3/3 on its own and in a clean full run.
 
-Things you should know
-- Seed script change: seed_worklist_e2e.py now adds the core.forms.* permissions and two designer users, phase25_form_designer_a and phase25_form_designer_b. I ran it on the local dev database.
-- Machine and database state: I installed Playwright's Chromium (it was missing). I activated leave_management for the test run and deactivated it afterwards, so the module states are back to how they were. The test runs left some uniquely named test forms and leave requests in the dev database.
-- Findings I noted but didn't fix, all out of scope:
-  - A global handler replaces every 404 message with {"error":"not_found"}, so the view shows a generic "not available" message.
-  - The seed script looks up existing permissions without checking the module name. Nothing collides today.
-  - npm run lint can't run because the repo has no ESLint config.
-- Still open from Phase 2, none blocking: conditions C-1 to C-5. The one that matters most for planning Phase 3 is C-5: there is still only one capability a form can bind to (create leave request).
-- Nothing has been committed.
+Phase 3B has not been started.
+
+Files are in docs/architecture/ (the brief's ERP/… paths don't exist in this repo):
+- FORM_BUILDER_PLATFORM.md
+- reviews/FORM_BUILDER_PHASE_3A_READINESS.md
