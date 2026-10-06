@@ -251,3 +251,28 @@ banner-criteria.ts
 
 TS
 banner-criteria.schema.ts
+
+
+---
+
+## Batch 2 — Closure Gate (2026-10-06)
+
+```text
+Batch 2 Status: HOLD
+```
+
+| Module | Static | E2E | Live READ | Contract | Visual | Status |
+|---|---|---|---|---|---|---|
+| F07 Produk | PASS | PASS | BLOCKED | PASS | PASS | HOLD (live READ) |
+| F08 Kategori Produk | PASS | PASS | BLOCKED | PASS | NEEDS EVIDENCE | HOLD (live READ) |
+| F18 Banner & Iklan | PASS | PASS | BLOCKED | PASS | NEEDS DECISION (Quill) | HOLD (live READ) |
+| F19 Group Story | PASS | PASS | BLOCKED | BLOCKED | PASS | HOLD (contract) |
+| F28 Prinsipal | PASS | PASS | BLOCKED | PASS | NEEDS EVIDENCE | HOLD (live READ) |
+
+**Automated:** vitest 960 / 960 · E2E 132 / 132 · tsc 0 · eslint 0 errors · build PASS · bundle PASS.
+
+**Blockers:**
+- G-01: Live READ not run. Credentials exist only in the owner terminal.
+- G-02: F19 story-group backend contract is not available in the workspace. It lives in content-service, which needs a git fetch or the source from its author.
+
+Details: `BATCH2_CLOSURE_GATE.md`. Batch 3: NOT STARTED.
