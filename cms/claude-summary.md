@@ -1,100 +1,47 @@
-Kelima modul Batch 2 sudah diimplementasi dan lulus gate otomatis. Live READ belum jalan karena credential live hanya ada di terminal kamu, dan live WRITE memang tidak dijalankan.
+Rekomendasi Batch 3 adalah empat modul dengan urutan **F04 → F10 → F09 → F06**. Laporannya ada di `cms/BATCH3_SCOPE_DISCOVERY.md`. Tidak ada kode yang diubah dan tidak ada panggilan live.
 
-Semua modul memakai upload signed-URL yang sudah ada. Kontraknya saya cek langsung di source backend (`content-service/handler/file.go`).
+**1. Modul yang direkomendasikan:**
 
-```text
-F07 Produk
-- Implementation: PASS (list + edit; legacy memang tidak punya create/delete)
-- Tests: 34/34 unit, 4 E2E
-- TypeScript: PASS | Lint: PASS | Build: PASS
-- Live READ: BLOCKED — command di bawah perlu dijalankan dari terminal kamu
-- Live WRITE: NOT RUN
-- Backend issue: GET /{id} yang tidak ada → 500, bukan 404 (step R5 live akan menampilkan Server error);
-  update memaksa is_draft=false dan menimpa seluruh baris
-- Visual: NEEDS SCREENSHOT (label/warna badge)
+| # | Modul | Cakupan | Alasan |
+|---|---|---|---|
+| 1 | **F04 Order Review** | list + detail (read-only) | Kontrak terverifikasi di source order-service, tanpa master data, risiko rendah |
+| 2 | **F10 Personalisasi Katalog** (inti) | CRUD katalog, criteria per katalog, produk homepage katalog | Kontrak terverifikasi di product-service; memakai ulang repository criteria dan 7 picker dari F18 |
+| 3 | **F09 Produk Gpos B2b** | 3 tab: setting, criteria, produk homepage | Pola sama dengan F10; upload signed-URL sudah terverifikasi |
+| 4 | **F06 Inventory/Persediaan** | CRUD inventory + stok | Kontrak penuh terverifikasi; melengkapi menu "Produk & Katalog". Live WRITE tetap tidak diizinkan |
 
-F08 Kategori Produk
-- Implementation: PASS (CRUD + bulk delete + gambar wajib)
-- Tests: 40/40 unit, 4 E2E
-- TypeScript: PASS | Lint: PASS | Build: PASS
-- Live READ: BLOCKED — command di bawah perlu dijalankan dari terminal kamu
-- Live WRITE: NOT RUN
-- Backend issue: sort_by mentah ke ORDER BY (frontend hanya kirim allowlist)
+**2. Alasan urutan:** F04 paling kecil dan read-only, jadi aman sebagai pemanasan. F10 dikerjakan sebelum F09 karena F10 membangun komponen criteria dan produk homepage yang dipakai ulang F09. F06 paling akhir karena permukaan write-nya terbesar: stok mengubah katalog yang dilihat pembeli. Kalau kapasitas terbatas, F06 bisa dipindah ke Batch 4 tanpa memengaruhi modul lain.
 
-F19 Group Story
-- Implementation: PASS — PARTIAL / CONTRACT BLOCKED
-- Tests: 46/46 unit, 4 E2E
-- TypeScript: PASS | Lint: PASS | Build: PASS
-- Live READ: BLOCKED — command di bawah perlu dijalankan dari terminal kamu
-- Live WRITE: NOT RUN
-- Contract gap: BLOCKED — BACKEND CONTRACT REQUIRED. Source service story-group tidak ada di workspace.
-  DTO create/update (create kirim banner_ids/platforms, update kirim banners/platform), kode sukses,
-  bentuk response dan batas panjang field hanya disimpulkan dari kode legacy.
-  Belum diketahui apakah update menyimpan is_active=false.
+**3. Blocker utama:**
+- **Keputusan produk:**
+  - OD-09: drop fitur delete di Order Review, karena tidak ada handler backend-nya.
+  - OD-07: 17 route REVIEW di F10 (layar CCPH dan criteria standalone) tetap di luar scope.
+  - Batas F30 untuk F09: key global configuration mana yang dimiliki tab setting F09.
+- **Bug backend yang memengaruhi kandidat:** kelas bug `Updates(struct)` membuat nilai nol atau kosong tidak tersimpan. Ini ada di repository backend F09 dan F10. Dicatat, tanpa workaround.
+- **Di luar Batch 3:**
+  - F26 BLOCKED, karena source config_service tidak ada.
+  - F14 dan F16 BLOCKED oleh OD-07; F14 juga punya fix GOPH-4102 yang belum di-merge.
+  - F27 dan F31 BLOCKED karena belum ada strategi akun test (approve/reject dan revoke menyentuh user asli).
+  - F03, F05, F12, F13, F17, F21, F22, F23 dan F29 dijadwalkan nanti, karena write-nya berdampak nyata: ERP, pembayaran, poin, voucher, push notification.
 
-F18 Banner & Iklan
-- Implementation: PASS — PARTIAL (upload TIDAK blocked; tab "Katalog Produk" ditunda)
-- Tests: 32/32 unit, 6 E2E
-- TypeScript: PASS | Lint: PASS | Build: PASS
-- Live READ: BLOCKED — command di bawah perlu dijalankan dari terminal kamu
-- Live WRITE: NOT RUN
-- Backend issue: UpdateBanner memakai Updates(struct) (kelas bug D-A6R2-01): sequence=0,
-  link/konten kosong dan story_image=null tidak tersimpan
-- Visual: deskripsi konten di legacy pakai editor Quill, sekarang textarea biasa (perlu keputusan);
-  page size dikembalikan ke legacy 15/20/50/100
+**4. Evidence gap:**
+1. Bentuk respons live untuk F04, F06, F09 dan F10. Ini akan didapat lewat live READ saat Batch 3, seperti di Batch 2.
+2. Keputusan OD-09, OD-07 dan batas F30.
+3. Key `global-configurations` yang dipakai tab setting F09.
+4. Source config_service.
+5. Kesamaan versi lokal dengan `origin/development` untuk loyalty-service (clone lokal tertinggal 6 commit) dan payment-service.
+6. Otorisasi gateway untuk token non-superadmin (A2-U04).
+7. Definisi OD-P1 dan OD-P4, yang dirujuk di dokumen tapi tidak didefinisikan di `A4_OPEN_DECISIONS.md`.
 
-F28 Prinsipal
-- Implementation: PASS (CRUD + bulk delete + logo)
-- Tests: 41/41 unit, 5 E2E
-- TypeScript: PASS | Lint: PASS | Build: PASS
-- Live READ: BLOCKED — command di bawah perlu dijalankan dari terminal kamu
-- Live WRITE: NOT RUN
-- Backend issue: Updates(struct) — set nonaktif dan mengosongkan telepon/fax/website/alamat tidak tersimpan
-- Catatan: legacy menyimpan logo di disk server Adonis (tidak bisa dibuka); sekarang memakai upload
-  signed-URL dengan kategori 'principal'
-```
+Ada tiga dokumen lama yang ternyata keliru, dan sudah saya koreksi di laporan berdasarkan evidence:
+- Upload signed-URL sudah terverifikasi sejak Batch 2. Tulisan "upload BLOCKED" di A7 sudah usang.
+- Path stok F06 sudah jelas, jadi "CONTRACT_UNKNOWN" di A7 bisa dicabut.
+- Keputusan untuk dashboard adalah OD-10, bukan OD-P4.
 
-```text
-BATCH 2 SUMMARY
+**5. File yang berubah:**
+- Baru: `cms/BATCH3_SCOPE_DISCOVERY.md` (194 baris, belum di-commit).
+- `git diff --check` bersih dan tidak ada trailing whitespace.
+- Karena file baru masih untracked, `git diff -- cms/BATCH3_SCOPE_DISCOVERY.md` tidak menampilkan apa-apa.
 
-Module Gate:
-F08: MODULE_GATE_PASS
-F19: MODULE_GATE_PASS — PARTIAL / CONTRACT BLOCKED (kontrak write story-group)
-F18: MODULE_GATE_PASS — PARTIAL (tab Katalog Produk ditunda; Quill perlu keputusan)
-F28: MODULE_GATE_PASS
-F07: MODULE_GATE_PASS
+Di `git status`, empat file Batch 2 (`BATCH2_CLOSURE_GATE.md`, `BATCH2_MIGRATION_REPORT.md`, `summary.md`, `claude-summary.md`) masih berstatus modified. Itu sisa tugas closure Batch 2 sebelumnya yang belum kamu commit, bukan perubahan dari discovery ini.
 
-Gate keseluruhan: vitest 946/946 · E2E 129/130 · tsc 0 · lint 0 error · build OK · bundle PASS
-Satu E2E yang gagal adalah datatable.spec Content (retry setelah 500). Test ini kadang gagal
-juga saat dijalankan sendirian, dan batch ini tidak mengubah kode tabel bersama.
-
-Live READ:
-Belum jalan. Jalankan dari terminal kamu:
-  cd frontend
-  for m in product product-category banner group-story principal; do
-    LIVE_MODULE=$m npx vitest run --config vitest.live.config.js test/live/module-smoke.live.test.ts
-  done
-
-Backend issues:
-- Updates(struct) zero-value: F18 Banner, F28 Prinsipal (dan F19 kemungkinan)
-- F07 detail id yang tidak ada → 500
-- sort_by SQL injection: F07, F08, F18, F28
-- FAQ total_rows (OPEN), F25 customer_ids (OPEN) — tidak diubah
-
-Required input from user:
-1. Jalankan live READ di atas
-2. Kontrak story-group (F19) dari tim backend
-3. Keputusan: bangun tab Katalog Produk F18? Editor Quill atau textarea?
-4. Screenshot legacy untuk F07 dan F19 kalau visual parity harus persis
-5. Tambahkan capability baru ke AUTHZ_INTERIM_GRANTS supaya menu tampil
-
-Recommended next batch:
-Batch 3 (workflow): F31 Manajemen Pengguna, F27 Verifikasi Akun, F22 Voucher Pengiriman,
-F23 GPOS Brand, F17 Push Notification.
-```
-
-Perubahan bersama di batch ini:
-- **Menu:** urutannya sekarang mengikuti urutan legacy.
-- **Test E2E:** network guard mengizinkan GET ke file publik di storage, karena preview gambar memang membaca `file_url` dari sana. Helper aksesibilitas menunggu `<title>` dimuat sebelum mengecek, untuk menghilangkan flake saat suite berjalan penuh.
-
-Laporan lengkap: `docs/architecture/reviews/BATCH2_MIGRATION_REPORT.md`.
+Konfirmasi: tidak ada CREATE, UPDATE, DELETE, upload maupun panggilan API live. F11 W3 tidak dimulai. Kode aplikasi, test dan backend tidak berubah. Implementasi Batch 3 belum dimulai.
