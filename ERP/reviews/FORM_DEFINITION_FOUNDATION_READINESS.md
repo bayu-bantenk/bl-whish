@@ -6,6 +6,8 @@
 **Date:** 2026-10-05
 **Architecture:** `../FORM_DEFINITION_PLATFORM.md`
 
+> **Re-issued 2026-10-06: Phase 3 gate is now GO.** B-1 (HTTP capability discovery) and B-2 (generic runtime view, proven in a real browser on real PostgreSQL) are closed by Phase 2.5. Evidence: [`FORM_BUILDER_PREREQUISITES_READINESS.md`](FORM_BUILDER_PREREQUISITES_READINESS.md). Conditions C-1 to C-5 below remain open and non-blocking. The rest of this report is the unchanged 2026-10-05 record.
+
 ---
 
 ## 1. Executive Summary
