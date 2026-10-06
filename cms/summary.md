@@ -1,70 +1,100 @@
-I couldn't record A6R-2 as VERIFIED. The PUT returned HTTP 200, but read-back shows `is_active` stayed `true` when the update asked for `false`. Name and value did update. I've recorded A6R-2 as **VERIFIED-WITH-RISKS** with a critical finding, and the docs are updated to match.
+Batch 2 can't be closed yet: the decision is **HOLD**. Everything automated is green, but two required inputs are still missing. Live READ hasn't run against the real backend for any of the five modules, because the live credentials only exist in your terminal. And the F19 Group Story backend contract isn't available anywhere in the workspace.
 
 ```text
-A6R-1: VERIFIED
-A6R-2: VERIFIED-WITH-RISKS
+BATCH 2 CLOSURE GATE
 
-CREATE:
-POST /api/v1/cms/contents → 201   (envelope {code:201, status:"OK", data:{message}, message}; no id returned)
+F08 Kategori Produk
+- Module Gate: PASS
+- Automated Tests: unit 40/40 · E2E 4/4
+- Visual Parity: NEEDS EVIDENCE — no legacy screenshots exist for list/edit. Small fixes made: Aksi column moved first, 24px thumbnail, default page size 5
+- Live READ: BLOCKED (credentials/environment)
+- Live WRITE: NOT RUN
+- Issues: sort_by is concatenated into SQL ORDER BY on the backend (BACKEND BUG — OPEN)
 
-UPDATE:
-PUT /api/v1/cms/contents/{id} → 200   (envelope {code:200, status:"OK", data:{message}, message})
+F19 Group Story
+- Module Gate: PASS — PARTIAL / CONTRACT BLOCKED
+- Automated Tests: unit 47/47 · E2E 4/4
+- Visual Parity: PASS — fixed: On/Off text, failure toast, Kembali/Lanjutkan dialog,
+  "Belum ada grup story" empty state, Kembali/Simpan top-right, breadcrumbs.
+  Gradient header and drag-and-drop reorder intentionally not reproduced
+- Live READ: BLOCKED (credentials/environment)
+- Live WRITE: NOT RUN
+- Contract: BACKEND CONTRACT REQUIRED — the story-group source is not in any branch of the 13 backend repos.
+  The gateway confirms the routes (content_service); create/update are based on legacy code only
 
-CREATE attempts: 1
-UPDATE attempts: 1
-DELETE attempts: 0
+F18 Banner & Iklan
+- Module Gate: PASS
+- Automated Tests: unit 45/45 · E2E 8/8
+- Visual Parity: PASS except Deskripsi Konten (legacy Quill editor vs plain textarea) → NEEDS OWNER DECISION
+- Live READ: BLOCKED (credentials/environment)
+- Upload Contract: ESTABLISHED — POST /files/signurl with a JSON body (not multipart), response
+  {url, file_url}, category "images"; the entity stores file_url (content-service file.go/oss.go)
+- Live WRITE: NOT RUN
+- Katalog Produk tab: required legacy behaviour → now implemented. The promo-code lookup is
+  BLOCKED — legacy has no endpoint for it either
 
-Read-back:
-CREATE: verified (1 match by code; detail equals all submitted fields)
-UPDATE: partially verified
-  - id, code unchanged:   ✔
-  - name updated:         ✔
-  - value updated:        ✔
-  - is_active = false:    ✘  persisted value is still true (by ID and by code)
+F28 Prinsipal
+- Module Gate: PASS
+- Automated Tests: unit 41/41 · E2E 5/5
+- Visual Parity: NEEDS EVIDENCE (the legacy edit page returned 500 on mock data, so no screenshot exists)
+- Live READ: BLOCKED (credentials/environment)
+- Live WRITE: NOT RUN
 
-Source changes:
-none (src/, test/, config, .env*, package.json checksums identical before and after)
+F07 Produk
+- Module Gate: PASS
+- Automated Tests: unit 34/34 · E2E 4/4
+- Visual Parity: PASS — legacy showed plain text and raw field names; badges and readable labels
+  are deliberate. Default page size 5 as in legacy
+- Live READ: BLOCKED (credentials/environment)
+- Live WRITE: NOT RUN
 
-Documentation:
-A6_WRITE_CONTRACT_READINESS.md → updated (+86: "A6R-1 / A6R-2 closeout"; earlier sections kept, marked historical)
-claude-summary.md → updated (bl-whish, +44 on top of origin/main; not committed)
-summary.md → updated (A6 row only, +2/−2)
+AUTOMATED VALIDATION
+- Vitest: 960/960 (npm run quality)
+- E2E: 132/132 (full suite). Failures seen while the host was overloaded (load 9–17,
+  antivirus ~77% CPU) were timeouts, and each passed when rerun.
+  The datatable.spec flake is in a Batch 1 module, not Batch 2
+- TypeScript: PASS (0 errors)
+- Lint: PASS (0 errors, 28 pre-existing warnings)
+- Build: PASS
+- Bundle: PASS (no backend paths or wire field names in the client bundle)
 
-A6 overall:
-BLOCKED — D-A6R2-01: setting "Tidak aktif" shows success, but the record stays active
+LIVE READ
+- F08 / F19 / F18 / F28 / F07: BLOCKED — the A55R_* credentials are only in your terminal
+
+BACKEND FINDINGS (BACKEND BUG — OPEN, no frontend workaround)
+- F07 GET /cms/products/{unknown id} → 500 instead of 404
+- F07 PUT forces is_draft=false and overwrites the whole row
+- Updates(struct) silently drops zero values: banner (sequence 0 / empty link / story_image),
+  principal (is_active=false, emptied phone/fax/etc.), custom-criteria (price 0)
+- sort_by concatenated into SQL on the F07/F08/F18/F28 lists
+
+REMAINING BLOCKERS
+- G-01 (all 5): Live READ not run → owner runs the command below
+- G-02 (F19): story-group contract → backend team (git fetch content-service, or the source from its author)
+
+BATCH 2 CLOSURE DECISION
+- HOLD
+- Reason: implementation and every automated gate are green, but live READ evidence (mandatory)
+  doesn't exist yet and the F19 write contract can't be verified. If both are resolved
+  → expected CONDITIONAL GO (remaining: Quill decision, screenshots for F08/F28, backend bugs).
+
+NEXT ACTION
+- Run in your terminal (A55R_CONFIRM_NON_PRODUCTION, A55R_ALLOWED_HOST, A55R_EMAIL, A55R_PASSWORD already set):
+    cd frontend
+    for m in product product-category banner group-story principal; do
+      LIVE_MODULE=$m npx vitest run --config vitest.live.config.js test/live/module-smoke.live.test.ts
+    done
+  Note: the F07 R5 step (unknown id) is expected to show a Server error because of backend bug B2-01.
+- Ask the backend team for the content-service story-group handler/DTO.
+- Batch 3: NOT STARTED
 ```
 
-**The critical finding (D-A6R2-01).** In the A6 edit form, choosing "Tidak aktif" shows the success notice while the item stays active. The app reports success for a change that never happened.
-- **What the app sends:** our code maps the form's `active: false` to `is_active: false`, and the unit test checks that `false` goes over the wire. The harness didn't record request bodies, though, so the real request containing `false` is inferred from code, not observed.
-- **Cause:** unknown. Possibly the backend ignores `false` on update, or status changes go through a different field or endpoint. I didn't investigate with any more requests, as you instructed.
-- **Related:** `is_active: false` on CREATE is also unverified; A6R-1 used `true`.
+During this gate I also found and fixed two real Batch 2 defects:
+- **Table cells reset on every refresh:** the column list was rebuilt on each render, so every cell was recreated whenever the list refreshed. A half-typed inline value was lost and an open delete dialog closed. Fixed in four tables.
+- **Double PUT on inline sequence (F18 and F19):** after pressing Enter, the field lost focus and saved the same value a second time. Fixed with a guard.
 
-**Closed by the evidence:**
-- CREATE returns 201 and UPDATE returns 200, matching what the app expects.
-- The CREATE response has no ID; the app handles that (`id: null`, then redirects to the list).
-- The test account's backend write permission is confirmed.
+Each fix has a regression test that fails without it.
 
-**Still open:**
-- D-A6R2-01 (critical).
-- `is_active: false` on CREATE.
-- Duplicate-`code` behaviour.
-- Whether `value: null` clears the field.
-- Content validation error shape.
-- No `created_at` in the response.
-- Unknown ID returns 403.
-- S6 GET-body support and S7 whether the API key is required.
-- DELETE contract.
-- Production grant model (OD-05/06), and no restricted account to test denial.
-- Multi-instance refresh race (OD-25).
-- 7-day session vs ~30-day token.
-
-**Safety:** 1 CREATE and 1 UPDATE, no DELETE, PATCH, bulk operations or retries. Only the test record was changed (`68b42bae-…` / `A6R-TEST-20261001-062932`), and it stays on the backend as approved. Both evidence files scanned clean for secrets.
-
-**`claude-summary.md`:** your local bl-whish clone is 3 commits behind `origin/main` and still had my earlier uncommitted edit. I built the new file on your latest `origin/main` copy (commit 69bdf65) and replaced the working-tree file. A plain `git pull` will refuse while it's modified, so copy the file aside, `git checkout claude-summary.md`, pull, and put it back.
-
-**Diff check:**
-- `git status --short` in `frontend/` still shows 261 entries; `docs/` and `test/` are untracked, so doc edits don't appear there.
-- `git diff --stat` is unchanged at 82 files, 900 insertions, 1902 deletions.
-- `git diff -- docs` is empty for the same reason; against the snapshot, only the two doc files above changed.
-
-Nothing is committed. I've stopped here: no further live requests and no A6R-3.
+Documents updated:
+- `frontend/docs/architecture/reviews/BATCH2_CLOSURE_GATE.md` (new) and `BATCH2_MIGRATION_REPORT.md`.
+- Both copied to `~/Developments/bl-whish/cms/`, and `claude-summary.md` there has a new Batch 2 section.
