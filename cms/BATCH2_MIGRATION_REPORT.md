@@ -5,6 +5,7 @@
 | Date | 2026-10-06 |
 | Modules | F07 Produk · F08 Kategori Produk · F18 Banner & Iklan · F19 Group Story · F28 Prinsipal |
 | Global | A6 = HOLD · D-A6R2-01 = OPEN · FAQ `total_rows` = BACKEND BUG OPEN · F25 live WRITE blocked · F11 W3 not run |
+| Final status | **BATCH 2 — CONDITIONAL GO** (see `BATCH2_CLOSURE_GATE.md`) |
 
 ## Modules
 
@@ -38,20 +39,21 @@
 - `route-access.test` / `shell.spec` use `payment` as the remaining *planned* example (banner is active now).
 - DAL feature allowlist updated.
 
-## Backend issues (reported, not worked around)
+## Backend issues (reported, not worked around; IDs as in `BATCH2_CLOSURE_GATE.md` §8)
 
 | Module | Issue |
 |---|---|
-| F07 | `GET /cms/products/{unknown id}` → **500** (nil dereference), not 404. Live R5 "unknown id" will show `Server` |
+| F07 | **B2-01:** `GET /cms/products/{unknown id}` → **500** (nil dereference), not 404. Confirmed live: R5 "unknown id" shows `Server` |
 | F07 | Update forces `is_draft=false` and `Save` overwrites the whole row (can undo a concurrent ERP sync); image columns `varchar(256)` |
 | F18 | `UpdateBanner` uses `Updates(struct)` (D-A6R2-01 class): `sequence=0`, empty link / content / image and `story_image=null` are silently not saved (`is_active` / `open_new_tab` are `*bool`: OK) |
 | F28 | `Updates(struct)`: setting **inactive**, or clearing phone / fax / website / address, is not saved (form shows a note) |
-| F19 | **BLOCKED — BACKEND CONTRACT REQUIRED:** story-group create / update DTOs (legacy uses `banner_ids` / `platforms` on create vs `banners` / `platform` on update), success codes, list / detail shapes, field limits (100 / 512 are unconfirmed safety bounds), and whether update keeps `is_active=false` / `shuffle_enabled=false` / `rotation_pool_size=0` |
+| F19 | **B2-07 contract gap:** READ shape **verified live** (2026-10-06). **WRITE CONTRACT UNVERIFIED:** story-group create / update DTOs (legacy uses `banner_ids` / `platforms` on create vs `banners` / `platform` on update), success codes, list / detail shapes, field limits (100 / 512 are unconfirmed safety bounds), and whether update keeps `is_active=false` / `shuffle_enabled=false` / `rotation_pool_size=0` |
 | F08, F18, F28, F07 | `sort_by` concatenated into ORDER BY (SQL injection); the frontend sends allowlisted columns only |
+| F28 (also F07) | **B2-08:** non-deterministic pagination. ORDER BY lacks a unique secondary tie-breaker (default `is_active DESC`, 142 principals, 2 values). Confirmed live: page 1 and page 2 overlap. Same in legacy; the backend accepts one `sort_by`, so the frontend cannot fix it reliably. No workaround |
 
 ## Deferred / needs decision
 
-- **F18 "Katalog Produk" tab** (edit page): a separate custom-criteria feature (`CustomCriteriaController.updateByCustomType('BANNER')`, about 7 more lookups). Not built.
+- ~~**F18 "Katalog Produk" tab**: not built~~. **Superseded:** implemented during the closure gate (required legacy functionality). Its live criteria-mapping defect was **FIXED** and post-fix confirmed live (2026-10-06 08:23 UTC).
 - **F18 Deskripsi Konten:** legacy used the Quill rich-text editor. Now a plain textarea holding HTML. A rich-text editor needs a new dependency: **VISUAL PARITY — NEEDS SCREENSHOT / decision**.
 - **VISUAL PARITY — NEEDS SCREENSHOT:**
   - F07 exact labels / badge colours (legacy showed raw field names);
@@ -82,6 +84,9 @@
 
 ## Quality gate
 
+Initial Batch 2 run (historical; superseded by the final row below):
+
+
 | Check | Result |
 |---|---|
 | tsc | 0 errors |
@@ -90,10 +95,21 @@
 | E2E (full) | **129 / 130 passed**. Remaining failure: `datatable.spec.ts:128` (A5.5 Content retry-after-500), a pre-existing intermittent flake (also seen 1 / 3 in isolation; no shared table code changed in this batch) |
 | `next build` | exit 0 |
 | `check:bundle` | PASS; wire scan (`cms/banners`, `cms/story-groups`, `product-categories`, `products/principals`, `customer-areas`, `image_thumb`, `sort_by`, `restrict_customer`) → 0 |
+| **Final (closure gate)** | vitest **960 / 960** (latest run **961 / 961** after the F18 criteria regression test) · E2E **132 / 132** · tsc 0 · eslint 0 errors · build PASS · bundle PASS. The `datatable.spec.ts:128` flake did not recur in the final full runs |
 
 ## Live READ
 
-PENDING (owner terminal; read-only adapters, no `write`):
+**Done.** Owner terminal, `devb2b-api.gpos.id`, 2026-10-06, READ only. Mutations 0 and secret scan 0 on every run.
+
+| Module | Result |
+|---|---|
+| F08 | PASS. Some categories have an empty name on the dev backend (backend data quality) |
+| F07 | R1–R4 PASS; R5 unknown id → HTTP 500 (**B2-01**, expected backend failure) |
+| F18 | PASS, post-fix confirmed 08:23 UTC: 7 passed / 5 skipped; R1–R6 PASS; criteria options and `custom-criterias/detail` HTTP 200; evidence `banner/evidence-20261006082314.json` (32 observations) |
+| F19 | READ PASS (list, detail, search, banner lookup); R3 asc flag is legacy-compatible (expired groups sink). **WRITE contract unverified** |
+| F28 | PASS except R2 page overlap (**B2-08**: ORDER BY `is_active DESC` with no unique tie-breaker; 142 rows / 2 values; same in legacy; backend accepts a single `sort_by`) |
+
+Command used (historical PENDING instruction):
 
 ```bash
 cd frontend
@@ -111,9 +127,18 @@ Batch 2 Status: CONDITIONAL GO
 Details: `BATCH2_CLOSURE_GATE.md`.
 
 **Gate results:**
-- static and E2E green: vitest 960, E2E 132 / 132, tsc 0, eslint 0 errors, build PASS, bundle PASS;
+- static and E2E green: vitest 960 (961 on the latest run, after the F18 regression test), E2E 132 / 132, tsc 0, eslint 0 errors, build PASS, bundle PASS;
 - live READ passed for all 5 modules (owner run 2026-10-06; F18 criteria mapping defect found live and fixed);
 - remaining conditions: the F19 write contract (backend source unavailable) and backend defects B2-01 … B2-08.
+
+**Final module status:**
+- F08 **GO**
+- F07 **CONDITIONAL GO** (B2-01)
+- F18 **GO** (live READ post-fix confirmed)
+- F19 **CONDITIONAL GO** (LIVE READ PASS; WRITE CONTRACT UNVERIFIED)
+- F28 **CONDITIONAL GO** (B2-08)
+
+**Live WRITE:** not authorized. No Batch 2 CREATE / UPDATE / DELETE / upload was performed, and CRUD write behaviour is not proven live. F11 W3 is not started.
 
 **Fixed during the gate:**
 - remounting table cells (memoized columns);

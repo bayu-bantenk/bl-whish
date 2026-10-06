@@ -5,7 +5,8 @@
 | Date | 2026-10-06 |
 | Scope | F07 Produk · F08 Kategori Produk · F18 Banner & Iklan · F19 Group Story · F28 Prinsipal |
 | Global (unchanged) | A6 = HOLD · D-A6R2-01 = OPEN · FAQ `total_rows` = BACKEND BUG OPEN · F25 live WRITE BLOCKED · F11 W3 not run |
-| Live WRITE | NOT AUTHORIZED: no mutation performed |
+| Live WRITE | NOT AUTHORIZED: no Batch 2 CREATE / UPDATE / DELETE / upload was performed; F11 W3 is not started |
+| Final status | **BATCH 2 — CONDITIONAL GO** (documentation closure 2026-10-06) |
 
 ## 1. Executive summary
 
@@ -24,11 +25,23 @@ All automated gates are green.
 - the F19 story-group **write** contract cannot be verified from backend source;
 - backend defects B2-01 to B2-08.
 
+**Final module status:**
+
+| Module | Final status |
+|---|---|
+| F08 Kategori Produk | **GO** |
+| F07 Produk | **CONDITIONAL GO**: live READ R1–R4 pass; R5 unknown id → HTTP 500 (backend B2-01) |
+| F18 Banner & Iklan | **GO**: live READ PASS, post-fix confirmed (2026-10-06 08:23 UTC run) |
+| F19 Group Story | **CONDITIONAL GO**: LIVE READ PASS; WRITE CONTRACT UNVERIFIED |
+| F28 Prinsipal | **CONDITIONAL GO**: live READ otherwise pass; backend pagination ordering defect B2-08 |
+
+**Live WRITE:** Batch 2 LIVE READ was exercised against the real backend. Batch 2 LIVE WRITE has **not** been authorized, so no CRUD write behaviour is proven live for Batch 2, and F19 WRITE remains contract-unverified.
+
 ## 2. Automated validation (canonical commands, `frontend/`)
 
 | Command | Result |
 |---|---|
-| `npm run quality` (eslint + `tsc --noEmit` + `vitest run`) | exit 0 · eslint **0 errors** (28 pre-existing warnings, none in Batch 2 files) · tsc **0** · vitest **62 files / 961 passed** |
+| `npm run quality` (eslint + `tsc --noEmit` + `vitest run`) | exit 0 · eslint **0 errors** (28 pre-existing warnings, none in Batch 2 files) · tsc **0** · vitest **62 files / 960 passed** at the closure-gate run; **961 / 961** on the latest run, after the F18 criteria fix added one regression test (correction: both figures are correct for their run) |
 | `npm run e2e:build` + `playwright test` (full suite) | **132 / 132 passed** (final run 4.3 min; see §3) |
 | `npm run build` | exit 0 (all Batch 2 routes built) |
 | `npm run check:bundle` + wire scan of `.next/static` | PASS · `cms/banners`, `cms/story-groups`, `custom-criterias`, `product-categories`, `products/principals`, `customer-areas`, `image_thumb`, `sort_by`, `restrict_customer`, `banner_ids`, `file_url`, `customer_ids`, `principal_ids` → **0** client files |
@@ -81,7 +94,7 @@ Test-quality note (not changed, outside Batch 2): its `retry must reach the gate
 
 Each passed when rerun, and the final full suite at lower load passed 132 / 132.
 
-## 4. Live READ (owner terminal, 2026-10-06 07:12–07:19 UTC, READ only)
+## 4. Live READ (owner terminal, 2026-10-06 07:12–08:23 UTC, READ only)
 
 Login: `superadmin@gpos.id` test account (not recorded in evidence). Every run: POST 0 / PUT 0 / DELETE 0. Secret scan of every evidence file (JWT, bearer, token / password / cookie / authorization / api-key keywords, account email): **0**.
 
@@ -89,7 +102,7 @@ Login: `superadmin@gpos.id` test account (not recorded in evidence). Every run: 
 |---|---|---|---|---|---|---|---|---|
 | F08 | ✓ | 5 / 12 | disjoint ✓ | name, sequence, createdAt ✓ | 4 hits ✓ | ✓ / NotFound ✓ | n/a | **PASS** |
 | F07 | ✓ | 5 / 29 987 | disjoint ✓ | code, name, isActive, isDraft ✓ | 1 hit ✓ | ✓ / **Server (500)** | n/a | **PASS except B2-01** |
-| F18 | ✓ | ✓ | disjoint ✓ | ✓ | ✓ | ✓ / NotFound ✓ | channels 55, areas 49, customers 20, 7 criteria options (131 / 20 / 9 / 3 / 10 / 10 / 10), criteria detail ✓ | **PASS** (after fix) |
+| F18 | ✓ | ✓ | disjoint ✓ | ✓ | ✓ | ✓ / NotFound ✓ | channels 55, areas 49, customers 20, 7 criteria options (131 / 20 / 9 / 3 / 10 / 10 / 10), criteria detail ✓ | **PASS** (post-fix confirmed 08:23 UTC) |
 | F19 | ✓ | 5 / 6 | disjoint ✓ (5 + 1) | sequence desc ✓; asc check flags the legacy "expired groups sink to the bottom" rule | 1 hit ✓ | ✓ / NotFound ✓ | story banners 6 | **READ PASS** |
 | F28 | ✓ | 5 / 142 | **pages overlap** (B2-08) | code, name, phone, isActive ✓ | 2 hits ✓ | ✓ / NotFound ✓ | n/a | **PASS except B2-08** |
 
@@ -97,9 +110,23 @@ Login: `superadmin@gpos.id` test account (not recorded in evidence). Every run: 
 - **What happened:** `GET /cms/custom-criterias/detail` returns the full master-data label lists (e.g. 7 639 product classes), some with blank text. The mapper treated a blank label as a contract violation, so the Katalog Produk tab would have failed for every banner.
 - **Fix:** a blank label falls back to the id, while type checks stay strict.
 - **Tests:** a live-shape unit test was added.
-- **Result:** re-run 07:19 UTC → PASS.
+- **Result:** re-run 07:19 UTC → PASS. Final confirmation run **2026-10-06 08:23 UTC** (details below). **Status: FIXED** (not open).
 
-The evidence files are in `$TMPDIR/module-live/<module>/evidence-20261006071*.json`. They are OS-temporary; the results are recorded here.
+**F18 post-fix confirmation (latest run):**
+- **Command:** `LIVE_MODULE=banner npx --no-install vitest run --config vitest.live.config.js test/live/module-smoke.live.test.ts`
+- **Test file:** PASS. **Tests:** 7 passed, 5 skipped (W0–W3: write not authorized).
+- **Steps:** R1 default list, R2 pagination, R3 sorting, R4 search, R5 detail existing + unknown id (NotFound) and R6 dependent lookups are all PASS.
+- **Session:** login HTTP 200, logout HTTP 200.
+- **HTTP 200 responses:** criteria options `products/principals/options`, `products/options`, `product-categories/options`, `products/catalogs/options`, `product-class/options`, `tc/options`, `tc/sub/options`, and `custom-criterias/detail`.
+- **Mutations:** 0 (POST 0 / PUT 0 / DELETE 0). **Secret scan:** 0.
+- **Evidence:** `/var/folders/36/r5rtfzm95ds7s79h1hhb81l40000gp/T/module-live/banner/evidence-20261006082314.json`, 32 observations.
+- The `vite-tsconfig-paths` console message is a tooling notice, not a Batch 2 blocker.
+
+**Interpretation notes (not migration defects):**
+- F08: some categories on the development backend have an **empty name**. This is backend data quality; no frontend workaround.
+- F19: the R3 "asc" flag comes from the **legacy-compatible** rule that sinks expired groups to the bottom.
+
+The evidence files are in `$TMPDIR/module-live/<module>/evidence-20261006071*.json` and `banner/evidence-20261006082314.json`. They are OS-temporary; the results are recorded here.
 
 ## 5. F19 Group Story: contract
 
@@ -202,11 +229,11 @@ Two shared components gained optional props, with unchanged defaults: `ConfirmDe
 
 | Module | Static | E2E | Live READ | Contract | Visual | Status |
 |---|---|---|---|---|---|---|
-| F07 | PASS | PASS | PASS (R5 = backend B2-01) | PASS | PASS | CONDITIONAL GO (backend bugs) |
-| F08 | PASS | PASS | PASS | PASS | NEEDS EVIDENCE (no legacy captures) | GO |
-| F18 | PASS | PASS | PASS | PASS (promo lookup n/a) | NEEDS DECISION (Quill) | CONDITIONAL GO |
-| F19 | PASS | PASS | PASS (READ) | WRITE BLOCKED | PASS | CONDITIONAL GO (write contract) |
-| F28 | PASS | PASS | PASS (R2 = backend B2-08) | PASS | NEEDS EVIDENCE | CONDITIONAL GO (backend bugs) |
+| F07 | PASS | PASS | R1–R4 PASS; R5 expected failure (backend B2-01) | PASS | PASS | **CONDITIONAL GO**: B2-01 |
+| F08 | PASS | PASS | PASS | PASS | NEEDS EVIDENCE (no legacy captures; non-blocking) | **GO** |
+| F18 | PASS | PASS | PASS (post-fix 08:23) | PASS (promo lookup n/a) | PASS (Quill editor: deferred owner decision, non-blocking) | **GO** |
+| F19 | PASS | PASS | PASS (READ) | WRITE UNVERIFIED | PASS | **CONDITIONAL GO**: LIVE READ PASS; WRITE CONTRACT UNVERIFIED |
+| F28 | PASS | PASS | PASS except R2 (backend B2-08) | PASS | NEEDS EVIDENCE | **CONDITIONAL GO**: backend pagination ordering defect B2-08 |
 
 ## 10. Final gate decision
 
@@ -226,11 +253,28 @@ CONDITIONAL GO
 
 Earlier blockers G-01 (live READ) and G-02 are reduced to the F19 write-contract condition.
 
+**Defect classification (final):**
+- **Frontend defects:**
+  - F18 criteria mapping (found live), **FIXED** and post-fix confirmed;
+  - cell remount and duplicate inline PUT, **FIXED** during the gate.
+  - None open.
+- **Backend defects (open, tracked, no frontend workaround):**
+  - B2-01 F07 unknown id → 500;
+  - B2-02 F07 PUT forces `is_draft=false`;
+  - B2-03 / 04 / 05 `Updates(struct)` drops zero / empty values;
+  - B2-06 `sort_by` concatenated into ORDER BY;
+  - B2-08 non-deterministic pagination (no unique tie-breaker).
+- **Contract gap:** B2-07 F19 story-group WRITE contract unverified.
+- **Legacy-compatible behaviour (intentional):**
+  - F19 expired groups sink to the bottom;
+  - F28 / F07 default sorts as in legacy;
+  - F08 empty category names shown as returned.
+
 ## 11. Remaining deferred work
 
 - **F18:** Quill / rich-text decision (DR-21 / OD-11); promo-code lookup (no backend endpoint).
 - **F08, F28:** legacy screenshots for visual evidence.
-- **Backend fixes B2-01 … B2-06.**
+- **Backend fixes B2-01 … B2-06 and B2-08**; F19 write-contract confirmation (B2-07).
 - **Not in Batch 2:** the Batch 1 / F11 / F30 tables build `actionsColumn(...)` per render (same remount class, affects open delete dialogs during a refresh). Recommended as a follow-up fix.
 - **Not in Batch 2:** `datatable.spec.ts` vacuous retry assertion.
 
