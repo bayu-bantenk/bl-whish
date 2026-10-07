@@ -1,3 +1,20 @@
+# CURRENT MIGRATION SNAPSHOT (2026-10-07)
+
+| Batch | State | Canonical record |
+|---|---|---|
+| Batch 1 | completed (CONDITIONAL GO) | `BATCH1_MIGRATION_REPORT.md` |
+| Batch 2 | conditionally closed (CONDITIONAL GO) | `BATCH2_CLOSURE_GATE.md` |
+| Batch 3 | conditionally closed (CONDITIONAL GO; F04 SKIP) | `BATCH3_CLOSURE_GATE.md` |
+| Batch 4 | scope discovery completed; **scope locked** (F27, F31, F03); **implementation NOT STARTED** | `BATCH4_SCOPE_DISCOVERY.md`, `BATCH4_SCOPE_LOCK.md` |
+
+Live WRITE: not authorized. F11 W3: not started.
+
+---
+
+## Historical — Batch 2 closure summary (2026-10-06)
+
+> Kept as written at the time; the "Batch 3: NOT STARTED" line below is historical. See the snapshot above for the current state.
+
 Batch 2 is now **CONDITIONAL GO** (final documentation closure, 2026-10-06). All five modules have LIVE READ evidence; the remaining conditions are backend defects and the unverified F19 write contract. LIVE WRITE was **not authorized**: no Batch 2 CREATE / UPDATE / DELETE / upload was performed, and F11 W3 is not started.
 
 During the run, live READ caught one real frontend bug. The "Katalog Produk" tab on Banner & Iklan would have failed for every banner, because the backend sends some master-data entries with a blank name and the frontend rejected them. Blank names are now shown as the id, and the rerun passed.
