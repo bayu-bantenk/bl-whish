@@ -14,6 +14,7 @@
 - **Not yet proven:** F06 live stock row mapping (sampled inventory had 0 stock rows).
 - **Regression (2026-10-07):** quality 1067 / 1067; full E2E 156 / 161 (5 suite-level timeout observations, isolated rerun 21 / 21).
 - **Boundary:** Conditional GO is not authorization for live WRITE. Batch 4 starts with a new scope-discovery phase; not started.
+- **Batch 4 discovery (2026-10-07, proposal only, not started):** 16 remaining features; recommended F27 Verifikasi Akun, F31 Manajemen Pengguna, F03 Order / Pesanan (READ-ready, writes mock-only). See `BATCH4_SCOPE_DISCOVERY.md`.
 
 ---
 
