@@ -19,7 +19,7 @@ Source: A4 route matrix, F06 rows (13 MIGRATE). Only what the legacy UI exposes 
 | #293, #294 | create / store | create page |
 | #296, #297 | edit / update (`hna_price` only) | edit page, HNA price form |
 | #298 | delete | row delete with confirm |
-| #300 | stock multidelete | stock bulk delete (route existed, legacy screen had no trigger; selection added — see §13) |
+| #300 | stock multidelete | stock bulk delete via selection. **Confirmed present in the legacy Inventory UI** (owner manual verification, 2026-10-07; supersedes the earlier discovery note that no trigger existed) → KEEP / IN SCOPE |
 | #303, #306 | stock store / update (modal on edit page) | stock add / edit in a shadcn Dialog |
 | #307 | stock delete | stock row delete with confirm |
 
@@ -152,7 +152,8 @@ CONDITIONAL GO — LIVE READ R1–R6 PASS; WRITE PATH CARRIES OPEN BACKEND DEFEC
 ## 13. Remaining risks
 
 - B3-15 / B3-16 / B3-21 need backend confirmation before CMS inventory writes are used in production.
-- Stock bulk delete (#300) has a UI trigger that the legacy screen did not have (the route existed) — confirm product intent.
+- Stock bulk delete (#300): resolved — owner confirmed the button exists in the legacy UI; kept in scope.
+- **Live stock row mapping: NOT YET PROVEN** (see below).
 - Visual parity NEEDS EVIDENCE (no A3.2 capture): Save / Back sit under the HNA price field with the stock table below (legacy: stock table inside the form before the buttons); HNA price shown as a plain number (as legacy); legacy English labels with Indonesian buttons.
 - E2E load sensitivity at load average > 15 (T-01 / T-02 class); not F06-specific.
 - Live R6 stock list returned 0 rows for the sampled inventory, so stock row mapping is verified by mocks and contract only.
