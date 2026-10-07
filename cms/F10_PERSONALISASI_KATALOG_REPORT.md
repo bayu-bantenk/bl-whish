@@ -6,7 +6,7 @@
 | Scope | Catalog list / create / edit with the 3 edit-page tabs (Custom Catalog · Custom Product Homepage · Product Criteria) |
 | Routes | `/dashboard/custom-catalog`, `/create`, `/update/[id]` (legacy `/custom-catalog`, `/custom-catalog/create`, `/custom-catalog/:id/edit`) |
 | Capabilities | `custom-catalog.read / create / update / delete` (homepage-product and criteria changes require `custom-catalog.update`) |
-| Status | **MODULE GATE: PASS (automated) · LIVE READ: PENDING (owner terminal) · CONDITIONAL GO** |
+| Status | **MODULE GATE: PASS (automated) · LIVE READ: PASS except R4 total (backend B3-04, confirmed) · CONDITIONAL GO** |
 
 ## 1. Scope decision (evidence)
 
@@ -74,22 +74,40 @@
 
 **Note:** `tsc` initially reported 2 errors in the stale generated file `.next/dev/types/validator.ts`, left by a dev-server run while the E2E route shims existed. The dev server was not running, so that single generated file was removed; it is regenerated on the next `next dev`.
 
-## 6. Live READ
+## 6. Live READ (owner terminal, 2026-10-06 15:09 UTC, devb2b-api.gpos.id, READ only)
 
-**PENDING:** run from `frontend/` with the `A55R_*` variables set (READ only; the adapter has no `write`):
+**Command:**
 
 ```bash
 LIVE_MODULE=custom-catalog npx --no-install vitest run --config vitest.live.config.js test/live/module-smoke.live.test.ts
 ```
 
-Live WRITE is **not authorized** (no catalog, homepage-product or criteria mutation).
+**Run summary:**
+- **Evidence:** `$TMPDIR/module-live/custom-catalog/evidence-20261006150937.json` (25 observations).
+- **Mutations:** POST 0 / PUT 0 / DELETE 0.
+- **Secret scan:** 0.
+- **Harness result:** 6 passed, 1 failed (R4, backend), 5 skipped (W0–W3).
+
+| Step | Result |
+|---|---|
+| Login / logout | PASS (200 / 200; session cleared) |
+| R1 default list | PASS: 6 catalogs, rows mapped |
+| R2 pagination | PASS (page 2 empty, disjoint; out of range empty) |
+| R3 sort name / sequence / active / updatedAt asc / desc | PASS (all sorted, values present) |
+| R4 search | rows PASS (2 hits, all match); **`total_rows` wrong: hit total 6, no-match total 6** → backend **B3-04 confirmed** |
+| R5 detail existing / unknown id | PASS / 404 → `NotFound` |
+| R6 tab lookups | homepage products by catalog PASS (0 rows for the sample catalog), criteria detail (`CUSTOM_CATALOG`) PASS, product options PASS (20) |
+
+**Earlier attempt (14:43 UTC):** the gateway / nginx answered a **non-JSON 403** to the harness login. An empty-body login probe then returned a normal JSON 400 (KrakenD 2.13.9 behind nginx). After the owner re-entered the credentials, login succeeded (15:09). The 403 is classified as an **environment / credential-input** issue, not a module or backend defect.
+
+**Live WRITE:** not authorized (no catalog, homepage-product or criteria mutation).
 
 ## 7. Findings
 
 | ID | Type | Finding |
 |---|---|---|
 | B3-03 | Backend defect | GORM `Updates(struct)` drops zero values (`repository/custom_catalog.go:94`, `custom_catalog_product_homepage.go:101`, `custom_criteria.go:125`): deactivating a catalog (`is_active=false`), homepage sequence 0, clearing a price → silently not saved. No workaround |
-| B3-04 | Backend defect (source) | Catalog list: the second `Count` runs without the keyword filter → `total_rows` likely ignores the search (`custom_catalog.go:71`). To confirm in live READ R4 |
+| B3-04 | Backend defect (**confirmed live**) | Catalog list: the second `Count` runs without the keyword filter → `total_rows` ignores the search (`custom_catalog.go:71`); live R4: hit 2 rows / total 6, no-match 0 rows / total 6. UI shows "… dari 6 data" and empty extra pages for a search. **No workaround** (same class as FAQ `total_rows`) |
 | B3-05 | Backend behaviour | Deleting a catalog leaves its homepage rows and criteria (no cascade) |
 | B3-06 | Backend defect | `sort_by` concatenated into ORDER BY (B2-06 class); allowlist only |
 | T-02 | Test flake (Batch 1 spec, not F10) | `faq.spec.ts:44` failed in the full run and 2 / 12 in an isolated run at load average 7–12, then 4 / 4 on rerun. F10 changes no FAQ code, mock or shared component; the custom-catalog mock is path-scoped. Recorded, not changed |
@@ -109,6 +127,6 @@ Live WRITE is **not authorized** (no catalog, homepage-product or criteria mutat
 CONDITIONAL GO
 ```
 
-- **Why conditional:** live READ is pending (owner terminal), and backend defects B3-03 / B3-04 / B3-05 are open.
+- **Why conditional:** backend defects B3-03 / B3-04 (confirmed live) / B3-05 are open. Live READ otherwise PASS.
 - **Why not BLOCKED:** all automated gates are green and the frontend is complete for the verified scope.
 - **No live mutation.** F11 W3 not started; F04, F09 and F06 not started in this phase.
