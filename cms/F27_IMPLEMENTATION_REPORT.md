@@ -5,7 +5,7 @@
 | Date | 2026-10-07 |
 | Phase | Batch 4 · Phase 1 · Implementation |
 | Authority | `BATCH4_SCOPE_LOCK.md` §C, `F27_CONTRACT_AUDIT.md`, `F27_ARCHITECTURE_READINESS.md` (READY FOR IMPLEMENTATION) |
-| Result | **Implementation: PASS** (READ only). Owner gate run in progress — see §18 |
+| Result | **Implementation: PASS** (READ only) · **Live READ: PASS** (12 GET, 0 writes, secret scan 0) · owner build / bundle / full E2E pending — see §18 |
 
 ## 1. Scope
 
@@ -123,21 +123,36 @@ Shared test touches: `dal.test.ts` (allowlist), `e2e/specs/authorization.spec.ts
 
 | Gate | Result | Evidence |
 |---|---|---|
-| `npm run quality` | **PASS** | coordinator run 2026-10-07 23:05: eslint 0 errors (28 pre-existing warnings, none in F27 files), tsc clean, vitest **73 files / 1099 passed** |
+| `npm run quality` | **PASS** | coordinator run 2026-10-07 23:05: 73 files, **1099 / 1099** tests, 0 TypeScript errors, 0 ESLint errors, 28 pre-existing warnings (none in F27 files) |
 | `e2e:build` | **PASS** | coordinator run 23:05 (exit 0) |
-| Full E2E | **171 / 172** (coordinator run, 12.7 min, load avg ≈ 30, concurrent vitest) — sole failure `banner.spec.ts:36` (Batch 2 inline toggle; expected row order not reached in 8 s). Not F27; not rerun to avoid port conflicts with the owner's run. **Owner result: PENDING OWNER RESULT** |
+| Full E2E | **171 / 172** (provisional) | coordinator run, 12.7 min, load avg ≈ 30, concurrent vitest. Sole failure `banner.spec.ts:36` (Batch 2 inline toggle; expected row order not reached in 8 s) — classified as unrelated to F27 on current evidence; not suppressed, not modified, not rerun to manufacture a green result. **Owner full E2E: PENDING OWNER RESULT** (replaces this row when supplied) |
 | F27 E2E | **11 / 11 PASS** | same run |
-| `npm run build` | **PENDING OWNER RESULT** | coordinator chain stopped before build to avoid overwriting `.next` during the owner's run; implementation agent reported PASS before the host reboot (not re-verified) |
+| `npm run build` | **PENDING OWNER RESULT** | coordinator chain stopped before build to avoid overwriting `.next` during the owner's run; the implementation agent's pre-reboot PASS is not used as evidence |
 | `check:bundle` | **PENDING OWNER RESULT** | same as build |
+| Live READ | **PASS** | owner terminal, 2026-10-07 16:49 UTC, GET-only script (§21); 12 GET, POST 0, PUT 0, PATCH 0, DELETE 0; secret scan 0; evidence `$TMPDIR/f27-live/evidence-20261007164914.json` |
+| R8 CSV (browser) | **PENDING MANUAL BROWSER CHECK** | — |
 
 ## 19. Known Backend Findings
 
-F27-CA-01 (list 404 — compatibility rule in place), F27-CA-02 (customer-id 500), F27-CA-03 (customer-id search returns all users for a buyer-less customer), F27-CA-08 (no proven backend role enforcement), R-09 (detail has no decision date), R-10 (backend order not verifiable from response). None fixed or worked around in the frontend.
+| Finding | Status |
+|---|---|
+| F27-CA-01 | OPEN — frontend compatibility rule verified |
+| F27-CA-02 | LIVE CONFIRMED |
+| F27-CA-03 | OPEN — not reproduced |
+| F27-CA-08 | OPEN — backend/gateway role enforcement unproven |
+| F27-CA-04 | OPEN — empty-ID not observed |
+| R-09 | LIVE CONFIRMED |
+| R-10 | OPEN — ordering not independently verifiable |
+| R-11 | CLOSED |
+
+None is fixed or worked around in the frontend.
 
 ## 20. Scope Integrity
 
-approve / reject / update / create / delete implemented: **NO**. XLSX or new dependency: **NO** (`package.json` / `package-lock.json` last modified 2026-09-30). Backend modified: **NO**. F04 modified: **NO**. F11 W3: **NOT STARTED**. Batch 1–3 reopened: **NO**. Live calls: **0**.
+approve / reject / update / create / delete implemented: **NO**. XLSX or new dependency: **NO** (`package.json` / `package-lock.json` last modified 2026-09-30). Backend modified: **NO**. F04 modified: **NO**. F11 W3: **NOT STARTED**. Batch 1–3 reopened: **NO**. Live calls: **12 GET** (owner live READ only); live writes: **0**.
 
-## 21. Next Step — Live READ
+## 21. Live READ Result and Next Step
 
-`OWNER-AUTHORIZED F27 LIVE READ` — GET / HEAD only, procedure and script in `F27_MODULE_GATE.md` §13. Not executed.
+**Live READ: PASS** — executed by the owner (2026-10-07 16:49 UTC) with the GET/HEAD-only script from `F27_MODULE_GATE.md` §13; the existing access token was supplied through `F27_LIVE_ACCESS_TOKEN` (value not recorded). 12 GET · POST 0 · PUT 0 · PATCH 0 · DELETE 0 · secret scan 0. Per-case results: `F27_MODULE_GATE.md` §12.
+
+Remaining before the final gate: owner results for `npm run build`, `check:bundle`, full E2E; R8 manual browser check.

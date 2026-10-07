@@ -10,9 +10,9 @@
 
 **CONDITIONAL GO — PROVISIONAL.**
 
-The implementation is sound and inside the locked READ scope. Open backend findings F27-CA-03, F27-CA-08, R-09 and R-10 keep the gate conditional.
+The implementation is sound and inside the locked READ scope. **Live READ: PASS** (12 GET, 0 writes, secret scan 0; §12). Open backend / contract findings F27-CA-01, F27-CA-02, F27-CA-03, F27-CA-08, R-09 and R-10 keep the gate conditional.
 
-The decision is **not final**: `npm run build`, `check:bundle` and the owner's full E2E are **PENDING OWNER RESULT**, and live READ has not been performed. It becomes final once the owner's gate results are recorded.
+The decision is **not final**: `npm run build`, `check:bundle` and the owner's full E2E are **PENDING OWNER RESULT**, and R8 (CSV) is pending a manual browser check. The final decision is made only after those results are recorded.
 
 **Downgrade to HOLD if:**
 - `build` or `check:bundle` fails, or
@@ -78,10 +78,10 @@ All four are accepted implementation constraints. The shared toolbar is not rede
 
 | Gate | Result | Evidence |
 |---|---|---|
-| npm run quality | **PASS** | coordinator 23:05: exit 0, vitest 73 files / 1099 passed |
+| npm run quality | **PASS** | coordinator 23:05: 73 files, 1099 / 1099 tests, 0 TypeScript errors, 0 ESLint errors, 28 pre-existing warnings |
 | e2e:build | **PASS** | coordinator 23:05: exit 0 |
-| Full E2E | **171 / 172** (coordinator) · **PENDING OWNER RESULT** | the one failure is unrelated: `banner.spec.ts:36` (see §6) |
-| npm run build | **PENDING OWNER RESULT** | coordinator chain stopped before build so it would not overwrite `.next` during the owner's run |
+| Full E2E | **171 / 172** (provisional, coordinator) · **PENDING OWNER RESULT** | all 11 F27 tests pass; the one failure, `banner.spec.ts:36`, is unrelated on current evidence (see §6). Replaced by the owner's actual result when supplied |
+| npm run build | **PENDING OWNER RESULT** | coordinator chain stopped before build so it would not overwrite `.next` during the owner's run; no PASS is inferred from the implementation agent's pre-reboot run |
 | check:bundle | **PENDING OWNER RESULT** | as above |
 | F27 focused tests | **PASS** | 32 / 32: contract 16, pages 10, CSV 6 (inside the 1099) |
 | F27 E2E | **PASS** | 11 / 11 (coordinator full run) |
@@ -113,11 +113,11 @@ The authorization spec, including the updated menu, passed in the same run.
 
 ## 7. Build Evidence
 
-**PENDING OWNER RESULT.** The implementation agent reported `npm run build` PASS, with both F27 routes built, on the code before the host reboot. That result was not re-verified by the coordinator.
+**PENDING OWNER RESULT.** The implementation agent's pre-reboot `npm run build` PASS is historical and is **not** used as gate evidence.
 
 ## 8. Bundle Evidence
 
-**PENDING OWNER RESULT.** The implementation agent reported `check:bundle` PASS before the reboot (no wire paths and no `total_rows` in the client bundle). Not re-verified.
+**PENDING OWNER RESULT.** The implementation agent's pre-reboot `check:bundle` PASS is historical and is **not** used as gate evidence.
 
 ## 9. Security Evidence
 
@@ -129,19 +129,32 @@ The authorization spec, including the updated menu, passed in the same run.
 | CSV formula injection | guard `^[=+\-@\t\r]` → leading `'`, covered by a unit test |
 | Fail-closed authorization | three layers (§4) |
 | Unauthorized backend access | Forbidden → 0 repository calls (unit + E2E) |
-| Live writes | 0 |
+| Live writes | 0 (live READ: 12 GET, POST 0, PUT 0, PATCH 0, DELETE 0) |
+| Live evidence secret scan | 0 hits; the token value, emails, phones, names and ids are not recorded |
 
 ## 10. Backend Findings
 
-| ID | Status | Frontend treatment |
-|---|---|---|
-| F27-CA-01 list 404 when empty | open | named compatibility rule `listNotFoundMeansEmpty` (list only) |
-| F27-CA-02 Cust. ID search → 500 | open | digits-only ≤ 18 validation; a 500 stays an error |
-| **F27-CA-03** buyer-less customer → all users | **open** | no workaround; live R4 checks for it |
-| **F27-CA-08** backend role enforcement unproven | **open** | frontend fail-closed |
-| **R-09** detail has no decision date | **open** | not shown, not fabricated |
-| **R-10** backend order not verifiable (`updated_at` not returned) | **open** | no ordering claim |
-| F27-CA-04 / R-05 empty-id rows | open (existence unproven) | row kept, `userId: null`, "Tinjauan tidak tersedia" |
+| Finding | Status |
+|---|---|
+| F27-CA-01 | OPEN — frontend compatibility rule verified |
+| F27-CA-02 | LIVE CONFIRMED |
+| F27-CA-03 | OPEN — not reproduced |
+| F27-CA-08 | OPEN — backend/gateway role enforcement unproven |
+| F27-CA-04 | OPEN — empty-ID not observed |
+| R-09 | LIVE CONFIRMED |
+| R-10 | OPEN — ordering not independently verifiable |
+| R-11 | CLOSED |
+
+Frontend treatment (unchanged):
+- F27-CA-01: named rule `listNotFoundMeansEmpty`, list use case only.
+- F27-CA-02: digits-only (≤ 18) validation; a backend 500 stays an error, never an empty result.
+- F27-CA-03: no workaround.
+- F27-CA-08: frontend fail-closed at three layers.
+- F27-CA-04: row kept, `userId: null`, "Tinjauan tidak tersedia".
+- R-09: no decision date shown on review, none fabricated.
+- R-10: no ordering claim.
+
+None of these is fixed in the frontend.
 
 ## 11. Known Limitations
 
@@ -151,14 +164,63 @@ The authorization spec, including the updated menu, passed in the same run.
 - CSV replaces the legacy `.xlsx`. Phone numbers starting with `+` are exported with a leading `'` by the formula guard.
 - The review page has no decision date (R-09).
 
-## 12. Live READ Readiness
+## 12. Live READ Result
 
 ```text
-Live READ execution: NOT PERFORMED IN THIS TASK
-Live WRITE execution: 0
+Live READ: PASS
+Requests: 12 GET
+POST: 0
+PUT: 0
+PATCH: 0
+DELETE: 0
+Secret scan: 0
 ```
 
-Ready to run once the owner authorizes it, using the GET/HEAD-only procedure in §13.
+- **Run:** owner terminal, 2026-10-07 16:49 UTC, devb2b-api.gpos.id, using the GET/HEAD-only script from §13.
+- **Token:** an existing access token, supplied through `F27_LIVE_ACCESS_TOKEN`. Its value is not recorded anywhere.
+- **Evidence:** `$TMPDIR/f27-live/evidence-20261007164914.json`, which holds shapes and counts only. No payload values are copied into this report.
+
+**R1 — Authentication / session: PASS.** HTTP 200, no 401, token accepted.
+
+**R2 — Default list: PASS.**
+- HTTP 200, envelope `{code, status, data, message}`.
+- 5 rows; `total_rows` 186.
+- Row shape: `id, status, aam_customer_id, customer_name, branch_name, approval_request_date, email, phone, verified_by, approved_at`.
+- **R-10 remains OPEN:** `updated_at` is not in the response, so backend ordering cannot be independently verified from live data.
+
+**R3 — Status filter: PASS.**
+
+| Status | HTTP | Total | Result |
+|---|---:|---:|---|
+| PENDING | 200 | 66 | PASS |
+| APPROVED | 200 | 98 | PASS |
+| REJECTED | 200 | 22 | PASS |
+
+Every returned row had the requested status. 66 + 98 + 22 = 186, so live status filtering and `total_rows` are internally consistent.
+
+**R4 — Customer ID search.**
+- **Valid customer id** (taken from a list row, not printed): HTTP 200, 95 rows, `total_rows` 95, and every returned row belongs to the tested customer. **PASS.**
+  - **F27-CA-03 remains OPEN:** the tested customer had buyers. The defect concerns a customer with **no** buyers, and that case was not available in the live data.
+  - Status: NOT REPRODUCED · NOT CLOSED · NOT DISPROVED.
+- **Nonexistent customer id:** HTTP 500. PASS as contract-defect evidence, so **F27-CA-02 is LIVE CONFIRMED**. The frontend keeps this as an error and never converts it to an empty result.
+- **Non-numeric input:** client-side validation blocked it and no backend request was sent. **PASS.**
+
+**R5 — Pagination: PASS.** Page 1 had 5 rows and page 2 had 5 rows, with no overlap. Page 39 (beyond the last page) returned HTTP 200 with 0 rows. No further pagination guarantee is claimed.
+
+**R6 — Detail.**
+- **Existing id:** HTTP 200, and the returned id matches the requested id. **PASS.** This closes **R-11**.
+- **Random UUID:** HTTP 404. **PASS.**
+- **Decision date:** `approved_at` is absent from the detail response, so **R-09 is LIVE CONFIRMED / OPEN**. The frontend shows no decision date on review and does not fabricate one.
+
+**R7 — Empty-id rows:** a sample of 100 of the 186 rows contained 0 empty-id rows. **F27-CA-04 = NOT OBSERVED, NOT CLOSED.** The approved empty-id handling is unchanged, and no data was created to force this case.
+
+**R8 — CSV: PENDING MANUAL BROWSER CHECK.** The owner verifies this in the browser:
+1. Open the F27 list.
+2. Let the list load.
+3. Open DevTools → Network.
+4. Click "Unduh Data".
+5. Confirm the CSV download occurs.
+6. Confirm the export caused **zero** new API or network requests.
 
 ## 13. Live READ Safety Plan
 
@@ -319,9 +381,20 @@ The existing harness command `LIVE_MODULE=account-verification npx --no-install 
 ## 14. Final Decision
 
 ```text
-F27 MODULE GATE: CONDITIONAL GO — PROVISIONAL
-Final once the owner records: npm run build, check:bundle, full E2E
-Open: F27-CA-03, F27-CA-08, R-09, R-10 (+ F27-CA-01 / F27-CA-02 with frontend rules in place)
-Live READ: NOT PERFORMED · Live WRITE: 0 · F11 W3: NOT STARTED
-Next: OWNER-AUTHORIZED F27 LIVE READ (GET/HEAD only)
+F27 MODULE GATE: CONDITIONAL GO — pending owner build/bundle/full E2E results
+Live READ: PASS (12 GET · POST 0 · PUT 0 · PATCH 0 · DELETE 0 · secret scan 0)
+R1 PASS · R2 PASS · R3 PASS · R4 PASS (F27-CA-02 confirmed / F27-CA-03 open) · R5 PASS
+R6 PASS (R-09 confirmed / R-11 closed) · R7 NOT OBSERVED · R8 PENDING MANUAL CHECK
+Open: F27-CA-01, F27-CA-02, F27-CA-03, F27-CA-04, F27-CA-08, R-09, R-10
+Live WRITE: 0 · F11 W3: NOT STARTED
 ```
+
+**Final gate rule**, applied once the owner results are recorded:
+
+| Decision | Conditions |
+|---|---|
+| **GO** | build PASS, bundle PASS, no F27 automated test failure, no material F27 regression, and R8 PASS (or explicitly accepted as a non-blocking manual check) |
+| **CONDITIONAL GO** | implementation is safe and functional, but documented backend / contract limitations remain (F27-CA-01, F27-CA-02, F27-CA-03, F27-CA-08, R-09, R-10) |
+| **HOLD** | only an actual material F27 implementation, build, security or regression failure |
+
+If build or bundle fails, the gate is not GO.
