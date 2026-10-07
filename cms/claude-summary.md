@@ -1,4 +1,26 @@
-### F04 Order Review
+## Current snapshot — Batch 3 final state (2026-10-07)
+
+**Batch 3 is CONDITIONALLY CLOSED — CONDITIONAL GO.** Canonical record: `BATCH3_CLOSURE_GATE.md`.
+
+| Feature | Final gate | Live READ | Open findings |
+|---|---|---|---|
+| F04 Order Review | **SKIP / inactive** (owner: not used; earlier code left untouched, no grant) | N/A | inactive |
+| F10 Personalisasi Katalog | **CONDITIONAL GO** | R1–R6 PASS; `total_rows` ignores search | B3-04 |
+| F09 Produk GPOS B2B | **CONDITIONAL GO** | R1–R5 PASS; R6 PARTIAL (`global-configurations` HTTP 500) | B3-13 |
+| F06 Inventory | **CONDITIONAL GO** | R1–R6 PASS | B3-14 – B3-22 (write-path risks; B3-15, B3-21, B3-22 NEEDS EVIDENCE) |
+
+- **Live safety:** Batch 3 business mutations 0 (only login / logout POSTs). F06 / F09 / F10 live WRITE not authorized, not run. **F11 W3 not started.** No cleanup, no live test data.
+- **F06 stock bulk delete:** owner verified it exists in the legacy UI → KEEP / IN SCOPE.
+- **Not yet proven:** F06 live stock row mapping (sampled inventory had 0 stock rows).
+- **Regression (2026-10-07):** quality 1067 / 1067; full E2E 156 / 161 (5 suite-level timeout observations, isolated rerun 21 / 21).
+- **Boundary:** Conditional GO is not authorization for live WRITE. Batch 4 starts with a new scope-discovery phase; not started.
+
+---
+
+## Historical — F04 implementation snapshot (2026-10-06, superseded)
+
+> Kept as written at the time. F04 was later set to SKIP / inactive by the owner, and F10, F09 and F06 were completed afterwards; see the current snapshot above and `BATCH3_CLOSURE_GATE.md`.
+
 
 F04 is implemented as a read-only list and detail slice, and every automated check passes. The one thing left is the live READ run, which you need to do from your terminal (command below).
 
