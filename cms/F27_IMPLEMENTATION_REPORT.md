@@ -2,10 +2,10 @@
 
 | Field | Value |
 |---|---|
-| Date | 2026-10-07 |
+| Date | 2026-10-07 (final closure 2026-10-08) |
 | Phase | Batch 4 · Phase 1 · Implementation |
 | Authority | `BATCH4_SCOPE_LOCK.md` §C, `F27_CONTRACT_AUDIT.md`, `F27_ARCHITECTURE_READINESS.md` (READY FOR IMPLEMENTATION) |
-| Result | **Implementation: PASS** (READ only) · **Live READ: PASS** (12 GET, 0 writes, secret scan 0) · build PASS · bundle PASS · owner full E2E and R8 pending — see §18 |
+| Result | **Implementation: READY / VERIFIED** (READ only) · **Module gate: CONDITIONAL GO** · quality, build, bundle, full E2E 172/172, live READ and R8 all PASS — see §18, §22 |
 
 ## 1. Scope
 
@@ -125,12 +125,12 @@ Shared test touches: `dal.test.ts` (allowlist), `e2e/specs/authorization.spec.ts
 |---|---|---|
 | `npm run quality` | **PASS** | coordinator run 2026-10-07 23:05: 73 files, **1099 / 1099** tests, 0 TypeScript errors, 0 ESLint errors, 28 pre-existing warnings (none in F27 files) |
 | `e2e:build` | **PASS** | coordinator run 23:05 (exit 0) |
-| Full E2E | **171 / 172** (provisional) | coordinator run, 12.7 min, load avg ≈ 30, concurrent vitest. Sole failure `banner.spec.ts:36` (Batch 2 inline toggle; expected row order not reached in 8 s) — classified as unrelated to F27 on current evidence; not suppressed, not modified, not rerun to manufacture a green result. **Owner full E2E: PENDING OWNER RESULT** (replaces this row when supplied) |
-| F27 E2E | **11 / 11 PASS** | same run |
-| `npm run build` | **PASS** | owner run 2026-10-08 00:33: compiled successfully, TypeScript finished, 39/39 static pages; both F27 routes built (`/dashboard/account-verification`, `/dashboard/account-verification/detail/[id]`). Warnings only (inferred workspace root / multiple lockfiles, stale browserslist data) — pre-existing, not F27 |
+| Full E2E | **PASS — 172 / 172** | owner full E2E run on the E2E build, 2026-10-08 15:18 WIB (HTML report: total 172, expected 172, unexpected 0, flaky 0; 293 s ≈ 4.9 min). Supersedes the provisional 171 / 172 (coordinator, 2026-10-07) and the invalid 149 / 172 owner run of 2026-10-08 13:18 WIB, which used the production build without the E2E shim routes. No current failure |
+| F27 E2E | **11 / 11 PASS** | owner final run (also 11 / 11 in both earlier runs) |
+| `npm run build` | **PASS** | owner run 2026-10-08 00:33: compiled successfully, TypeScript finished, 39/39 static pages; both F27 routes built (`/dashboard/account-verification`, `/dashboard/account-verification/detail/[id]`). Warnings only (inferred workspace root / multiple lockfiles, stale browserslist data, `mise` missing node@22.16.0) — pre-existing, classified as warnings, not proven to affect F27; not changed in this closure |
 | `check:bundle` | **PASS** | coordinator, on the owner's build (BUILD_ID 00:33): 75 files scanned, no server-only markers or values; F27 wire scan of `.next/static` (`need-approvals`, `total_rows`, `aam_customer_id`, `approval_request_date`, `search_by`) → 0 files |
 | Live READ | **PASS** | owner terminal, 2026-10-07 16:49 UTC, GET-only script (§21); 12 GET, POST 0, PUT 0, PATCH 0, DELETE 0; secret scan 0; evidence `$TMPDIR/f27-live/evidence-20261007164914.json` |
-| R8 CSV (browser) | **PENDING MANUAL BROWSER CHECK** | — |
+| R8 CSV | **PASS** | owner manual browser check (download correct); E2E confirms current page only, UTF-8 BOM, CRLF, formula-injection guard and no extra request |
 
 ## 19. Known Backend Findings
 
@@ -144,15 +144,26 @@ Shared test touches: `dal.test.ts` (allowlist), `e2e/specs/authorization.spec.ts
 | R-09 | LIVE CONFIRMED |
 | R-10 | OPEN — ordering not independently verifiable |
 | R-11 | CLOSED |
+| R8 | PASS |
 
-None is fixed or worked around in the frontend.
+None of the open findings is fixed or worked around in the frontend. Frontend authorization does not replace backend / gateway authorization (F27-CA-08).
 
 ## 20. Scope Integrity
 
 approve / reject / update / create / delete implemented: **NO**. XLSX or new dependency: **NO** (`package.json` / `package-lock.json` last modified 2026-09-30). Backend modified: **NO**. F04 modified: **NO**. F11 W3: **NOT STARTED**. Batch 1–3 reopened: **NO**. Live calls: **12 GET** (owner live READ only); live writes: **0**.
 
-## 21. Live READ Result and Next Step
+## 21. Live READ Result
 
-**Live READ: PASS** — executed by the owner (2026-10-07 16:49 UTC) with the GET/HEAD-only script from `F27_MODULE_GATE.md` §13; the existing access token was supplied through `F27_LIVE_ACCESS_TOKEN` (value not recorded). 12 GET · POST 0 · PUT 0 · PATCH 0 · DELETE 0 · secret scan 0. Per-case results: `F27_MODULE_GATE.md` §12.
+**Live READ: PASS** — executed by the owner (2026-10-07 16:49 UTC) with the GET/HEAD-only script from `F27_MODULE_GATE.md` §13; the existing access token was supplied through `F27_LIVE_ACCESS_TOKEN` (value not recorded). 12 GET · POST 0 · PUT 0 · PATCH 0 · DELETE 0 · secret scan 0. Evidence `$TMPDIR/f27-live/evidence-20261007164914.json` (shapes and counts only). Per-case results R1–R8: `F27_MODULE_GATE.md` §12.
 
-Remaining before the final gate: owner full E2E result; R8 manual browser check. (`npm run build` and `check:bundle`: PASS, §18.)
+## 22. Final Implementation Status
+
+```text
+Implementation: READY / VERIFIED (READ-ONLY)
+Module gate:    CONDITIONAL GO
+```
+
+- **Read-only boundary:** list, status filter, search, pagination, read-only review, current-page CSV. Approve, reject, update, create, delete, bulk mutation and every other account-verification write are **not implemented** in any layer; no write capability exists (only `account-verification.read`).
+- **Authorization:** `account-verification.read`, fail-closed in navigation, at the route boundary (`guardRoute`) and in the use case before any backend call.
+- **All frontend gates green:** quality 1099 / 1099, build PASS, client bundle PASS, full E2E 172 / 172 (F27 11 / 11), live READ PASS, R8 PASS, live WRITE 0, secret scan 0.
+- **Conditional because** backend / contract findings remain open (F27-CA-01, F27-CA-03, F27-CA-04, F27-CA-08, R-10) or are live-confirmed defects (F27-CA-02, R-09). These are not frontend implementation blockers.

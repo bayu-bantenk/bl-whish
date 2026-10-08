@@ -2,21 +2,26 @@
 
 | Field | Value |
 |---|---|
-| Date | 2026-10-07 |
+| Date | 2026-10-07 (final closure 2026-10-08) |
 | Inputs | `F27_IMPLEMENTATION_REPORT.md`, coordinator gate logs (2026-10-07 23:05–23:18), source inspection |
-| Owner gate run | **in progress** (quality → e2e:build → full E2E → build → check:bundle); results not yet supplied |
+| Owner gate run | **complete**: quality PASS, build PASS, check:bundle PASS, full E2E 172 / 172 PASS, R8 PASS |
 
 ## 1. Gate Decision
 
-**CONDITIONAL GO — PROVISIONAL.**
+```text
+Decision: CONDITIONAL GO (final)
+```
 
-The implementation is sound and inside the locked READ scope. **Live READ: PASS** (12 GET, 0 writes, secret scan 0; §12). Open backend / contract findings F27-CA-01, F27-CA-02, F27-CA-03, F27-CA-08, R-09 and R-10 keep the gate conditional.
+- **Implementation status: READY / VERIFIED.** F27 is read-only and inside the locked scope; every frontend gate is green (§5–§9, §12).
+- **Why conditional:** documented backend / contract findings remain open or are live-confirmed defects (§10). They are not frontend implementation blockers, and none is closed by this gate.
 
-`npm run build` and `check:bundle` are **PASS** (§7, §8). The decision is **not final**: the owner's full E2E is **PENDING OWNER RESULT** and R8 (CSV) is pending a manual browser check. The final decision is made only after those results are recorded.
+**Passed gates:** quality, build, client bundle, full E2E 172 / 172 (F27 11 / 11), live READ (R1–R7), R8 CSV, live WRITE 0, secret scan 0.
 
-**Downgrade to HOLD if:**
-- `build` or `check:bundle` fails, or
-- an F27 test fails in the owner's run.
+**Open findings:** F27-CA-01, F27-CA-02 (live confirmed), F27-CA-03, F27-CA-04, F27-CA-08, R-09 (live confirmed), R-10.
+
+**Security limitation:** backend / gateway role enforcement is unproven (F27-CA-08). Frontend authorization is fail-closed but does not replace backend authorization.
+
+**Deferred scope:** approve, reject and update remain CONTRACT ONLY; any of them needs a separate WRITE gate.
 
 ## 2. Scope Verification
 
@@ -80,11 +85,11 @@ All four are accepted implementation constraints. The shared toolbar is not rede
 |---|---|---|
 | npm run quality | **PASS** | coordinator 23:05: 73 files, 1099 / 1099 tests, 0 TypeScript errors, 0 ESLint errors, 28 pre-existing warnings |
 | e2e:build | **PASS** | coordinator 23:05: exit 0 |
-| Full E2E | **171 / 172** (provisional, coordinator) · **PENDING OWNER RESULT** | all 11 F27 tests pass; the one failure, `banner.spec.ts:36`, is unrelated on current evidence (see §6). Replaced by the owner's actual result when supplied |
+| Full E2E | **PASS — 172 / 172** | owner full E2E run on the E2E build, 2026-10-08 15:18 WIB (HTML report: total 172, expected 172, unexpected 0, flaky 0; 293 s ≈ 4.9 min). Supersedes the provisional 171 / 172 (coordinator, 2026-10-07) and the invalid 149 / 172 owner run of 2026-10-08 13:18 WIB, which used the production build without the E2E shim routes. No current failure |
 | npm run build | **PASS** | owner run 2026-10-08 00:33: compiled, TypeScript finished, 39/39 static pages, both F27 routes built; warnings only (workspace-root / lockfile inference, stale browserslist), pre-existing |
-| check:bundle | **PASS** | coordinator on the owner's build: 75 files scanned, no server-only markers or values; F27 wire scan → 0 files |
+| check:bundle | **PASS** | `check-client-bundle: scanned 75 files` · `PASS (no server-only markers or values)`; F27 wire scan → 0 files |
 | F27 focused tests | **PASS** | 32 / 32: contract 16, pages 10, CSV 6 (inside the 1099) |
-| F27 E2E | **PASS** | 11 / 11 (coordinator full run) |
+| F27 E2E | **PASS** | 11 / 11 (owner final run; also 11 / 11 in both earlier runs) |
 | TypeScript | **PASS** | `tsc` in quality |
 | ESLint | **PASS** | 0 errors; 28 pre-existing warnings, none in F27 files |
 
@@ -103,17 +108,13 @@ All four are accepted implementation constraints. The shared toolbar is not rede
 - 404 → empty state (F27-CA-01)
 - reader instance without the capability → blocked
 
-The authorization spec, including the updated menu, passed in the same run.
+The suite also verified: the CSV export issues no additional backend request; unauthorized `account-verification` access is blocked (menu hidden, direct URL → 403 AccessDenied); no mutation controls are exposed; accessibility (axe) checks pass. The authorization spec, including the updated menu, passed.
 
-**Unrelated failure:** `banner.spec.ts:36` (Batch 2, "inline: Active toggle and Sequence save immediately"). The last row did not show "Banner Uji 1" within 8 s.
-- **Conditions:** load average ≈ 30, with another vitest process running at the same time.
-- **Relation to F27:** F27 touches no banner code, mock route or shared component used by that path.
-- **Classification:** suite-level / load observation, in the same class as T-01.
-- **Not rerun:** the owner's E2E run would conflict on ports.
+**Final full run:** 172 / 172 passed, 0 failures (owner, 2026-10-08 15:18 WIB, 4.9 min). The earlier `banner.spec.ts:36` failure (coordinator run, 2026-10-07, load average ≈ 30) is **superseded** and is not a current failure.
 
 ## 7. Build Evidence
 
-**PASS** — owner run `npm run build`, 2026-10-08 00:33 (Next.js 16.2.3, Turbopack): compiled successfully, TypeScript finished, 39/39 static pages generated. Route table includes `ƒ /dashboard/account-verification` and `ƒ /dashboard/account-verification/detail/[id]`. Only warnings: workspace root inferred from multiple lockfiles, and stale browserslist data — both pre-existing and unrelated to F27.
+**PASS** — owner run `npm run build`, 2026-10-08 00:33 (Next.js 16.2.3, Turbopack): compiled successfully, TypeScript finished, 39/39 static pages generated. Route table includes `ƒ /dashboard/account-verification` and `ƒ /dashboard/account-verification/detail/[id]`. Only warnings: workspace root inferred from multiple lockfiles, stale browserslist data, and `mise` reporting node@22.16.0 missing — pre-existing, classified as warnings, not proven to affect F27 correctness, and not changed in this closure.
 
 ## 8. Bundle Evidence
 
@@ -146,6 +147,7 @@ Note: the owner's first attempt ran `check:bundle` as a shell command (`zsh: com
 | R-09 | LIVE CONFIRMED |
 | R-10 | OPEN — ordering not independently verifiable |
 | R-11 | CLOSED |
+| R8 | PASS |
 
 Frontend treatment (unchanged):
 - F27-CA-01: named rule `listNotFoundMeansEmpty`, list use case only.
@@ -216,13 +218,7 @@ Every returned row had the requested status. 66 + 98 + 22 = 186, so live status 
 
 **R7 — Empty-id rows:** a sample of 100 of the 186 rows contained 0 empty-id rows. **F27-CA-04 = NOT OBSERVED, NOT CLOSED.** The approved empty-id handling is unchanged, and no data was created to force this case.
 
-**R8 — CSV: PENDING MANUAL BROWSER CHECK.** The owner verifies this in the browser:
-1. Open the F27 list.
-2. Let the list load.
-3. Open DevTools → Network.
-4. Click "Unduh Data".
-5. Confirm the CSV download occurs.
-6. Confirm the export caused **zero** new API or network requests.
+**R8 — CSV: PASS.** The owner verified the CSV download manually in the browser. E2E additionally confirms: current page only, UTF-8 BOM, CRLF, formula-injection guard, and no extra request. CSV stays the locked format; no spreadsheet dependency.
 
 ## 13. Live READ Safety Plan
 
@@ -383,20 +379,21 @@ The existing harness command `LIVE_MODULE=account-verification npx --no-install 
 ## 14. Final Decision
 
 ```text
-F27 MODULE GATE: CONDITIONAL GO — build PASS, bundle PASS; pending owner full E2E result and R8 manual check
-Live READ: PASS (12 GET · POST 0 · PUT 0 · PATCH 0 · DELETE 0 · secret scan 0)
-R1 PASS · R2 PASS · R3 PASS · R4 PASS (F27-CA-02 confirmed / F27-CA-03 open) · R5 PASS
-R6 PASS (R-09 confirmed / R-11 closed) · R7 NOT OBSERVED · R8 PENDING MANUAL CHECK
-Open: F27-CA-01, F27-CA-02, F27-CA-03, F27-CA-04, F27-CA-08, R-09, R-10
+F27 MODULE GATE: CONDITIONAL GO (final)
+Implementation: READY / VERIFIED (READ-ONLY)
+Quality PASS (1099/1099) · Build PASS · Client bundle PASS · Full E2E 172/172 · F27 E2E 11/11
+Live READ PASS (12 GET · POST 0 · PUT 0 · PATCH 0 · DELETE 0) · R8 PASS · Secret scan 0
+Open: F27-CA-01, F27-CA-02 (live confirmed), F27-CA-03, F27-CA-04, F27-CA-08, R-09 (live confirmed), R-10
+Closed: R-11
 Live WRITE: 0 · F11 W3: NOT STARTED
 ```
 
-**Final gate rule**, applied once the owner results are recorded:
+**Remaining risks (backend / contract, not frontend blockers):**
+- nonexistent customer-id search returns HTTP 500 (F27-CA-02);
+- customer-without-buyers filtering defect not reproduced (F27-CA-03);
+- backend / gateway role enforcement unproven (F27-CA-08);
+- empty user ids not observed in the live sample (F27-CA-04);
+- backend ordering not independently verifiable from the response (R-10);
+- detail returns no decision date (R-09).
 
-| Decision | Conditions |
-|---|---|
-| **GO** | build PASS, bundle PASS, no F27 automated test failure, no material F27 regression, and R8 PASS (or explicitly accepted as a non-blocking manual check) |
-| **CONDITIONAL GO** | implementation is safe and functional, but documented backend / contract limitations remain (F27-CA-01, F27-CA-02, F27-CA-03, F27-CA-08, R-09, R-10) |
-| **HOLD** | only an actual material F27 implementation, build, security or regression failure |
-
-If build or bundle fails, the gate is not GO.
+**Handoff recommendation:** next module **F31 — Manajemen Pengguna** (Batch 4 order). Recommendation only; F31 is not started by this gate.

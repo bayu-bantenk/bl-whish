@@ -39,3 +39,10 @@ re-reads. No client-derived state is introduced. Recorded so it is not mistaken 
 ├──────────────────────────────────────────────────────────────┼──────────────────────────────┤
 │ Lint status honestly reported                                │ ✅ not runnable              │                                           ─────────────────────────────────────────────────────────────┼──────────────────────────────┤                                              No backend production changes                                │ ✅                           │                                          ─────────────────────────────────────────────────────────────┼──────────────────────────────┤
 │ No Phase 3A condition silently hidden                        │ ✅ §11                       │                                          ──────────────────────────────────────────────────────────────────┤
+
+## Capability Expansion — `sales.customer.create:v1` (final status, 2026-10-08)
+
+- **`sales.customer.create:v1`: GO / READY.** Readiness report: `docs/architecture/reviews/SALES_CUSTOMER_CAPABILITY_READINESS.md`. Entry conditions E-1, E-2 and E-3 pass.
+- **D-1: APPROVED.** A duplicate customer code on `POST /sales/customers` returns **409 Conflict** (previously an unhandled 500). The scope is limited to duplicate customer-code conflicts; other database and service errors are unchanged.
+- **Non-blocking:** Workflow Studio Vitest tests are flaky under full-suite load (they pass in isolation; not caused by this phase).
+- **Deferred, not conditions:** N-2 (tenant-less HTTP global rows; the capability refuses tenant-less callers), N-3 (unchecked cross-tenant references in other modules; this capability has none), H-1 (contract integrity relies on per-capability snapshots only).
