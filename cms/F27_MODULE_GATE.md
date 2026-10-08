@@ -12,7 +12,7 @@
 
 The implementation is sound and inside the locked READ scope. **Live READ: PASS** (12 GET, 0 writes, secret scan 0; §12). Open backend / contract findings F27-CA-01, F27-CA-02, F27-CA-03, F27-CA-08, R-09 and R-10 keep the gate conditional.
 
-The decision is **not final**: `npm run build`, `check:bundle` and the owner's full E2E are **PENDING OWNER RESULT**, and R8 (CSV) is pending a manual browser check. The final decision is made only after those results are recorded.
+`npm run build` and `check:bundle` are **PASS** (§7, §8). The decision is **not final**: the owner's full E2E is **PENDING OWNER RESULT** and R8 (CSV) is pending a manual browser check. The final decision is made only after those results are recorded.
 
 **Downgrade to HOLD if:**
 - `build` or `check:bundle` fails, or
@@ -81,8 +81,8 @@ All four are accepted implementation constraints. The shared toolbar is not rede
 | npm run quality | **PASS** | coordinator 23:05: 73 files, 1099 / 1099 tests, 0 TypeScript errors, 0 ESLint errors, 28 pre-existing warnings |
 | e2e:build | **PASS** | coordinator 23:05: exit 0 |
 | Full E2E | **171 / 172** (provisional, coordinator) · **PENDING OWNER RESULT** | all 11 F27 tests pass; the one failure, `banner.spec.ts:36`, is unrelated on current evidence (see §6). Replaced by the owner's actual result when supplied |
-| npm run build | **PENDING OWNER RESULT** | coordinator chain stopped before build so it would not overwrite `.next` during the owner's run; no PASS is inferred from the implementation agent's pre-reboot run |
-| check:bundle | **PENDING OWNER RESULT** | as above |
+| npm run build | **PASS** | owner run 2026-10-08 00:33: compiled, TypeScript finished, 39/39 static pages, both F27 routes built; warnings only (workspace-root / lockfile inference, stale browserslist), pre-existing |
+| check:bundle | **PASS** | coordinator on the owner's build: 75 files scanned, no server-only markers or values; F27 wire scan → 0 files |
 | F27 focused tests | **PASS** | 32 / 32: contract 16, pages 10, CSV 6 (inside the 1099) |
 | F27 E2E | **PASS** | 11 / 11 (coordinator full run) |
 | TypeScript | **PASS** | `tsc` in quality |
@@ -113,11 +113,13 @@ The authorization spec, including the updated menu, passed in the same run.
 
 ## 7. Build Evidence
 
-**PENDING OWNER RESULT.** The implementation agent's pre-reboot `npm run build` PASS is historical and is **not** used as gate evidence.
+**PASS** — owner run `npm run build`, 2026-10-08 00:33 (Next.js 16.2.3, Turbopack): compiled successfully, TypeScript finished, 39/39 static pages generated. Route table includes `ƒ /dashboard/account-verification` and `ƒ /dashboard/account-verification/detail/[id]`. Only warnings: workspace root inferred from multiple lockfiles, and stale browserslist data — both pre-existing and unrelated to F27.
 
 ## 8. Bundle Evidence
 
-**PENDING OWNER RESULT.** The implementation agent's pre-reboot `check:bundle` PASS is historical and is **not** used as gate evidence.
+**PASS** — `npm run check:bundle` on the owner's build (BUILD_ID 00:33): 75 files scanned, no server-only markers or values. F27 client wire scan of `.next/static` for `need-approvals`, `total_rows`, `aam_customer_id`, `approval_request_date`, `search_by` → **0 files**.
+
+Note: the owner's first attempt ran `check:bundle` as a shell command (`zsh: command not found`); the correct command is `npm run check:bundle`.
 
 ## 9. Security Evidence
 
@@ -381,7 +383,7 @@ The existing harness command `LIVE_MODULE=account-verification npx --no-install 
 ## 14. Final Decision
 
 ```text
-F27 MODULE GATE: CONDITIONAL GO — pending owner build/bundle/full E2E results
+F27 MODULE GATE: CONDITIONAL GO — build PASS, bundle PASS; pending owner full E2E result and R8 manual check
 Live READ: PASS (12 GET · POST 0 · PUT 0 · PATCH 0 · DELETE 0 · secret scan 0)
 R1 PASS · R2 PASS · R3 PASS · R4 PASS (F27-CA-02 confirmed / F27-CA-03 open) · R5 PASS
 R6 PASS (R-09 confirmed / R-11 closed) · R7 NOT OBSERVED · R8 PENDING MANUAL CHECK

@@ -5,7 +5,7 @@
 | Date | 2026-10-07 |
 | Phase | Batch 4 · Phase 1 · Implementation |
 | Authority | `BATCH4_SCOPE_LOCK.md` §C, `F27_CONTRACT_AUDIT.md`, `F27_ARCHITECTURE_READINESS.md` (READY FOR IMPLEMENTATION) |
-| Result | **Implementation: PASS** (READ only) · **Live READ: PASS** (12 GET, 0 writes, secret scan 0) · owner build / bundle / full E2E pending — see §18 |
+| Result | **Implementation: PASS** (READ only) · **Live READ: PASS** (12 GET, 0 writes, secret scan 0) · build PASS · bundle PASS · owner full E2E and R8 pending — see §18 |
 
 ## 1. Scope
 
@@ -127,8 +127,8 @@ Shared test touches: `dal.test.ts` (allowlist), `e2e/specs/authorization.spec.ts
 | `e2e:build` | **PASS** | coordinator run 23:05 (exit 0) |
 | Full E2E | **171 / 172** (provisional) | coordinator run, 12.7 min, load avg ≈ 30, concurrent vitest. Sole failure `banner.spec.ts:36` (Batch 2 inline toggle; expected row order not reached in 8 s) — classified as unrelated to F27 on current evidence; not suppressed, not modified, not rerun to manufacture a green result. **Owner full E2E: PENDING OWNER RESULT** (replaces this row when supplied) |
 | F27 E2E | **11 / 11 PASS** | same run |
-| `npm run build` | **PENDING OWNER RESULT** | coordinator chain stopped before build to avoid overwriting `.next` during the owner's run; the implementation agent's pre-reboot PASS is not used as evidence |
-| `check:bundle` | **PENDING OWNER RESULT** | same as build |
+| `npm run build` | **PASS** | owner run 2026-10-08 00:33: compiled successfully, TypeScript finished, 39/39 static pages; both F27 routes built (`/dashboard/account-verification`, `/dashboard/account-verification/detail/[id]`). Warnings only (inferred workspace root / multiple lockfiles, stale browserslist data) — pre-existing, not F27 |
+| `check:bundle` | **PASS** | coordinator, on the owner's build (BUILD_ID 00:33): 75 files scanned, no server-only markers or values; F27 wire scan of `.next/static` (`need-approvals`, `total_rows`, `aam_customer_id`, `approval_request_date`, `search_by`) → 0 files |
 | Live READ | **PASS** | owner terminal, 2026-10-07 16:49 UTC, GET-only script (§21); 12 GET, POST 0, PUT 0, PATCH 0, DELETE 0; secret scan 0; evidence `$TMPDIR/f27-live/evidence-20261007164914.json` |
 | R8 CSV (browser) | **PENDING MANUAL BROWSER CHECK** | — |
 
@@ -155,4 +155,4 @@ approve / reject / update / create / delete implemented: **NO**. XLSX or new dep
 
 **Live READ: PASS** — executed by the owner (2026-10-07 16:49 UTC) with the GET/HEAD-only script from `F27_MODULE_GATE.md` §13; the existing access token was supplied through `F27_LIVE_ACCESS_TOKEN` (value not recorded). 12 GET · POST 0 · PUT 0 · PATCH 0 · DELETE 0 · secret scan 0. Per-case results: `F27_MODULE_GATE.md` §12.
 
-Remaining before the final gate: owner results for `npm run build`, `check:bundle`, full E2E; R8 manual browser check.
+Remaining before the final gate: owner full E2E result; R8 manual browser check. (`npm run build` and `check:bundle`: PASS, §18.)
