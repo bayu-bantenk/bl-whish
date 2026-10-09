@@ -67,3 +67,24 @@ Added after the F31 frontend implementation (`F31_IMPLEMENTATION_REPORT.md`). **
 | G-13 | not called by F31; separate follow-up | — |
 
 **Test-coverage note:** the shared `url-codec.ts` change (array filters as repeated params) is covered at unit level **indirectly** by `user-management.contract.test.ts:154` (via `userManagementSearchParams` → `toTableSearchParams`) and by E2E (`user-management.spec.ts:78`); there is no dedicated case in `url-codec.test.ts`. Classification `TEST_COVERAGE`, LOW, `DOCUMENT_ONLY` (optional: add a dedicated `url-codec.test.ts` case).
+
+
+## Live READ Update (2026-10-09 10:16 WIB, owner run, GET only; `F31_MODULE_GATE.md` §10)
+
+| ID | Previous | New status | Evidence |
+|---|---|---|---|
+| **G-10** | NOT VERIFIED, LOW | **LIVE CONFIRMED backend defect. Severity raised to HIGH (FUNCTIONAL)**: every non-empty keyword → 500 for `customer.name` and `user.email`. Cause: lower-case aliases vs GORM `Customer` / `User` (case-sensitive on MySQL / Linux). Same in legacy. Handling: `BACKEND_FOLLOW_UP`; the frontend shows the error state. **The remediation branch keeps the lower-case values, so it does not fix this** | R2 / R3 / R9 = 500; `mapper/cms_customer.go` search clause; `repository/buyer.go` `Joins("Customer").Joins("User")` |
+| G-04 | NOT VERIFIED | **VERIFIED for devb2b**: inactive users are returned (31 / 100 sample). Other environments' flags still unknown | R10 |
+| G-03 | OPEN | OPEN: one run showed no page 1 / 2 overlap and the same order on repeat; this does not prove determinism (no tiebreaker) | R7 |
+| G-02 | source-derived | **VERIFIED (live)**: `total_rows` 588 consistent across 15 / 25 / 50 / 100; page beyond the last → 200 with empty rows | R7 |
+| G-05 | source-derived | **NOT VERIFIED live**: an empty-search result could not be produced because search returns 500. The empty list remains mock-verified only | R9 |
+| G-14 | NOT VERIFIED | **PARTIALLY RESOLVED**: live READ performed; search cases blocked by G-10 | §10 |
+| F31-CA-01 / CA-02 / CA-04 / G-13 | open | **unchanged**: a successful GET does not prove backend safety or authorization (the token's role grants were not exported) | — |
+
+
+## Decision Note (2026-10-09, `F31_MODULE_GATE.md` §11)
+
+| Item | Note |
+|---|---|
+| G-10 | **Accepted as a temporary NON-PRODUCTION functional limitation** (CONDITIONAL GO). It **remains OPEN, HIGH** until the backend alias fix, backend regression tests and the R2 / R3 / R9 live rerun pass. Cause: source-supported diagnosis, pending backend regression verification |
+| F31-CA-01, CA-02, CA-04, G-13 | **Not accepted, waived or downgraded** by this decision; status unchanged |

@@ -132,7 +132,7 @@ These are not SQL injection, but each is a backend behaviour that differs from w
 | F31 | G-03 | ORDER BY `aam_customer_id` has no tiebreaker | OPEN |
 | F31 | G-08 | legacy column "Pembaruan No. Telepon" actually shows the user record update time; `user_last_order` always null | handled (relabelled) |
 | F31 | G-09 | legacy "All" branch option sends `IN ("ALL")` → 0 rows | not migrated |
-| F31 | G-10 | `search_by` aliases (`customer.name`, `user.email`) vs GORM join alias case | NOT VERIFIED |
+| F31 | G-10 | `search_by` aliases (`customer.name`, `user.email`) vs GORM join aliases `Customer` / `User`: **every non-empty search → 500** (same in legacy; not fixed by the SQL remediation branch) | **LIVE CONFIRMED** (2026-10-09); OPEN. Accepted only as a non-production limitation in the F31 CONDITIONAL GO |
 
 ### Cross-cutting (authorization)
 

@@ -6,6 +6,7 @@
 | Phase | Batch 4 · Phase 2 · Frontend implementation (READ-only) |
 | Authority | `F31_PRAGMATIC_MIGRATION_READINESS.md` (READY WITH DOCUMENTED GAPS), `F31_ARCHITECTURE_READINESS.md` §5–§14 (design), `F31_BACKEND_COMPATIBILITY_GAPS.md` |
 | Re-confirmed | 2026-10-09 10:04 WIB: no application file changed since the gate runs (09:18–09:21); the results below remain current |
+| Gate decision | **CONDITIONAL GO — NON-PRODUCTION ONLY** (2026-10-09, `F31_MODULE_GATE.md` §11): name / email search unavailable (G-10, owner-accepted non-security limitation). Production release **NOT APPROVED** |
 | Result | **Implementation: PASS (READ-only)**: quality, build, client bundle PASS; F31 E2E 10 / 10 (isolated run). **Live READ: NOT PERFORMED.** Module gate: see `F31_MODULE_GATE.md` |
 | Backend | `origin/development` `c712ba6`. The SQL-injection remediation is **not merged**; backend findings F31-CA-01 / CA-02 / CA-04 remain **open** |
 
@@ -183,7 +184,15 @@ See `F31_BACKEND_COMPATIBILITY_GAPS.md` (implementation-handling section added).
 
 ## 10. Live READ
 
-**NOT PERFORMED** by this implementation task. The READ-only adapter `LIVE_MODULE=user-management` exists for the owner-run gate. Its `get` looks the id up in list page 1 (100 rows), because there is no detail endpoint, and the sort is fixed (`sortFields: []`).
+**Performed by the owner, 2026-10-09 10:16 WIB, GET only** (16 GET, 0 writes, scan 0). Details: `F31_MODULE_GATE.md` §10.
+
+| Area | Live result |
+|---|---|
+| List, branch filter (1 and 2 branches), page sizes, page 1 / 2 (no overlap in one run), page beyond the last, branch options | **PASS** |
+| Status | inactive users returned (31 / 100 sample) |
+| Search (both types) | **backend 500** for any non-empty keyword: alias case `customer.name` / `user.email` vs `Customer` / `User` (G-10 confirmed; same in legacy) |
+
+**Frontend behaviour on search:** the typed error state with retry, as designed. No frontend change was made. Changing `search_by` would alter the backend contract and would not be a frontend fix.
 
 ## 11. Production Release
 
