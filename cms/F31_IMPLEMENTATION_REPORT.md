@@ -5,6 +5,7 @@
 | Date | 2026-10-09 |
 | Phase | Batch 4 · Phase 2 · Frontend implementation (READ-only) |
 | Authority | `F31_PRAGMATIC_MIGRATION_READINESS.md` (READY WITH DOCUMENTED GAPS), `F31_ARCHITECTURE_READINESS.md` §5–§14 (design), `F31_BACKEND_COMPATIBILITY_GAPS.md` |
+| Re-confirmed | 2026-10-09 10:04 WIB: no application file changed since the gate runs (09:18–09:21); the results below remain current |
 | Result | **Implementation: PASS (READ-only)**: quality, build, client bundle PASS; F31 E2E 10 / 10 (isolated run). **Live READ: NOT PERFORMED.** Module gate: see `F31_MODULE_GATE.md` |
 | Backend | `origin/development` `c712ba6`. The SQL-injection remediation is **not merged**; backend findings F31-CA-01 / CA-02 / CA-04 remain **open** |
 
@@ -42,7 +43,7 @@
 - **Change:** array filters are now written as repeated params (2 lines). Without it, any page, page-size or search change dropped the branch selection.
 - **Other modules unaffected:** every other module only produces string filters, so their URLs are unchanged.
 - **Evidence:** F31 E2E (`user-management.spec.ts:78`, lines 92-95) shows both branches persist across a page change.
-- **Gap:** no unit test in `url-codec.test.ts` covers array serialization.
+- **Test coverage:** covered at unit level **indirectly** by `user-management.contract.test.ts:154` (via `userManagementSearchParams` → `toTableSearchParams`) and by E2E (`user-management.spec.ts:78`); there is no dedicated case in `url-codec.test.ts` (correction of an earlier "no unit test" statement).
 
 `package.json` and `package-lock.json` are unchanged (last modified 2026-09-30). No backend file was touched.
 
@@ -177,7 +178,7 @@ See `F31_BACKEND_COMPATIBILITY_GAPS.md` (implementation-handling section added).
   - inactive-row visibility (G-04);
   - ordering overlap (G-03);
   - the real `filters[0]` behaviour.
-- **Test coverage:** the `url-codec` array serialization has no unit test.
+- **Test coverage:** `url-codec` array serialization is covered at unit level **indirectly** by `user-management.contract.test.ts:154` (via `userManagementSearchParams` → `toTableSearchParams`) and by E2E (`user-management.spec.ts:78`); there is no dedicated case in `url-codec.test.ts`.
 - **Separate follow-up:** G-13, `cms_customer_channel.go` (not called by F31).
 
 ## 10. Live READ

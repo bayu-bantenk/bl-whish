@@ -41,7 +41,7 @@ Automated tests alone cannot make this GO.
   - `guardRoute('user-management.list')`;
   - `authorization.require` first in **both** `list` and `branchOptions` (0 backend calls when denied: unit + E2E).
 - **Frontend gating is not backend authorization:** CA-04 is open.
-- **Shared change outside the touch-point list:** `url-codec.ts` array-filter serialization. Justified, E2E-covered, no unit test. Recorded in implementation report §2.
+- **Shared change outside the touch-point list:** `url-codec.ts` array-filter serialization. Justified; covered at unit level **indirectly** by `user-management.contract.test.ts:154` (via `userManagementSearchParams` → `toTableSearchParams`) and by E2E (`user-management.spec.ts:78`); there is no dedicated case in `url-codec.test.ts`. Recorded in implementation report §2.
 
 ## 4. Automated Evidence
 

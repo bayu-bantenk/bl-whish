@@ -66,4 +66,4 @@ Added after the F31 frontend implementation (`F31_IMPLEMENTATION_REPORT.md`). **
 | G-03, G-10, G-14 | open; to be checked in the owner live READ | — |
 | G-13 | not called by F31; separate follow-up | — |
 
-**New test-coverage note:** the shared `url-codec.ts` change (array filters as repeated params) is covered by E2E only, with no unit test. Classification `TEST_COVERAGE`, LOW, `DOCUMENT_ONLY`.
+**Test-coverage note:** the shared `url-codec.ts` change (array filters as repeated params) is covered at unit level **indirectly** by `user-management.contract.test.ts:154` (via `userManagementSearchParams` → `toTableSearchParams`) and by E2E (`user-management.spec.ts:78`); there is no dedicated case in `url-codec.test.ts`. Classification `TEST_COVERAGE`, LOW, `DOCUMENT_ONLY` (optional: add a dedicated `url-codec.test.ts` case).
