@@ -44,3 +44,26 @@
 | (covered by F31-CA-02, HIGH) | G-12 |
 
 **No item was downgraded.** The status of each item is unchanged from the latest gate evidence, except G-01, which records the observed non-merge.
+
+## Implementation Handling Status (2026-10-09)
+
+Added after the F31 frontend implementation (`F31_IMPLEMENTATION_REPORT.md`). **No severity or verification status above was changed.** This section only records how the implemented frontend handles each item. All evidence is from mocked tests and source; none is live.
+
+| ID | Implemented handling | Evidence |
+|---|---|---|
+| F31-CA-01 | branch column / operator constants; only UUID-validated, double-quoted ids; max 50; hostile URL ids dropped before any request. **Backend still vulnerable** | contract tests; E2E `user-management.spec.ts:78, :105` |
+| F31-CA-02 | `search_by` from a constant map (`customer.name` / `user.email`); `sort_by=aam_customer_id`, `asc_desc=desc`; areas `sort_by=name`, `asc_desc=asc` | contract tests; E2E |
+| F31-CA-13 | no `filters` keys at all without a valid selection | contract tests; E2E clear case |
+| F31-CA-04 | `user-management.read` fail-closed in registry, `guardRoute` and both use cases (0 calls when denied). Backend grants still unverified | unit + E2E reader instance |
+| G-01 | unchanged: fix **not merged** | `F31_POST_MERGE_VERIFICATION_REPORT.md` |
+| G-02 | page sizes 15 / 25 / 50 / 100; `total_rows` must be an int; `total_rows < rows.length` or rows > pageSize → `Contract` | contract tests |
+| G-04 | status badge from `user_activation`; completeness note shown | page tests; E2E |
+| G-05 / G-06 | empty 200 → empty state; errors stay typed errors (no 404 → empty rule) | contract, page, E2E |
+| G-07 | no detail route or links | E2E (no links) |
+| G-08 | label "Terakhir Diperbarui"; `user_last_order` not mapped | page tests |
+| G-09 | no "All" option; no-selection omits `filters` | E2E |
+| G-11 | strict DTO; excluded fields asserted absent | contract tests |
+| G-03, G-10, G-14 | open; to be checked in the owner live READ | — |
+| G-13 | not called by F31; separate follow-up | — |
+
+**New test-coverage note:** the shared `url-codec.ts` change (array filters as repeated params) is covered by E2E only, with no unit test. Classification `TEST_COVERAGE`, LOW, `DOCUMENT_ONLY`.
