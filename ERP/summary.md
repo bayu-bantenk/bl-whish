@@ -1,118 +1,90 @@
-Phase 1 readiness gate: no implementation task may begin today
+S2.2 is finished: three reports, one per workstream.
+- Workstream A (route classification): CONDITIONAL GO. I found and fixed three critical security holes, but seven design decisions are still open for you.
+- Workstream B (auth contract fix): GO.
+- Workstream C (permission migration): GO for the plan only. Nothing was migrated.
 
-No written implementation authorization exists and no approver has been named. The PRD is still DRAFT — NOT APPROVED FOR IMPLEMENTATION with all six gates not passed. The plan was consistent except for two problems, which I corrected in PHASE1_BACKLOG.md. The full assessment is in its new §10.
+Workstream A — route classification
 
-What may begin now (preparation only, no application changes):
-- Draft architecture decision records, kept outside the app repo until accepted (P1-F01).
-- The test strategy and the mapping from acceptance criteria to tests (P1-F10).
-- The environment-config design: names only, no values (P1-F07).
-- A list of every route marked ON or OFF for Phase 1, which navigation work (P1-F06) needs first.
-- The legacy design-token mapping table (P1-F11).
-- Sending the owner requests listed below.
+I raised all three critical findings with you before fixing them:
+1. Workflow Registry (/workflow-registry). A tenant user with only the normal workflow permissions could read, update and delete another tenant's workflow definitions, and create one inside another tenant. The table has no RLS (row-level security), so nothing else stopped it. Reproduced on PostgreSQL.
+   - Now: tenants can change only their own definitions, new definitions always go into the caller's tenant, and platform principals are refused.
+2. Audit logs (/audit). A tenant user with core.audit.read could read every tenant's audit trail, including the old and new values of business records. Reproduced on PostgreSQL.
+   - Now: tenant users see only their own tenant. The cross-tenant view is kept for the signed platform principal only.
+3. Scheduler (/scheduler). A job's handler_path came from the caller and was loaded by dynamic import. Any tenant superuser could therefore make the server run arbitrary code. I identified this from the code and deliberately did not demonstrate it.
+   - Now: only explicitly registered handlers can run, and the whole scheduler is platform-only.
 
-What needs a limited written authorization first:
-- The engineering foundation: service wiring (F02), API client (F03), app state (F05), navigation (F06), CI and tests (F10) and template clean-up (F14).
-- Then session handling with interim secure storage (F04), config structure for an internal variant only (F07), log redaction (F09) and the design system (F11).
-- The authorization has to be written by the authorizer, not by me, and stored as decisions/AUTH-P1-FOUNDATION.md. It should state the authorizer's name and role, the tasks and branch covered, and the exclusions: no business features, no production identity or config, no secrets in the repo, no cart, payment or regulated code. It should also say it approves no PRD decision.
+Other fixes:
+- Metadata: platform principals are refused, and a create that names another tenant is rejected.
+- Now platform-only: /system/status, /system/services, the detailed /health/ report and widget-type registration.
+- Still public: /health/live and /health/ready, which is what Kubernetes, Docker and nginx use.
 
-Blockers by owner role
+Visible behaviour changes:
+- Tenants can no longer modify Studio-published workflows through /workflow-registry. Studio's own publish and archive routes still work.
+- Tests that read other tenants' audit rows now do so as the platform principal.
+- Several test fixtures used MagicMock users that passed every permission check by accident. They now use real users.
 
-┌────────────────────────────────────────────────────────────────────────────────────────────────────────────────┬────────────────────────────────────┐
-│                                                    Blocker                                                     │             Owner role             │
-├────────────────────────────────────────────────────────────────────────────────────────────────────────────────┼────────────────────────────────────┤
-│ Possibly exposed API keys (P1-F08)                                                                             │ Security + Backend                 │
-├────────────────────────────────────────────────────────────────────────────────────────────────────────────────┼────────────────────────────────────┤
-│ Staging, test accounts, internal distribution (P1-F13)                                                         │ Backend + QA + Release/DevOps      │
-├────────────────────────────────────────────────────────────────────────────────────────────────────────────────┼────────────────────────────────────┤
-│ Internal app identity and internal signing                                                                     │ Release/DevOps                     │
-├────────────────────────────────────────────────────────────────────────────────────────────────────────────────┼────────────────────────────────────┤
-│ Push and deep-link registrations; web-viewer policy (PRD-D17)                                                  │ Release/DevOps; Security + Product │
-├────────────────────────────────────────────────────────────────────────────────────────────────────────────────┼────────────────────────────────────┤
-│ Home compliance pop-ups (P1-H03, PH-03)                                                                        │ Compliance                         │
-├────────────────────────────────────────────────────────────────────────────────────────────────────────────────┼────────────────────────────────────┤
-│ All feature tasks: need Phase 1 PRD approval or a feature-level authorization, plus the foundation and staging │ Product owner + Tech lead          │
-├────────────────────────────────────────────────────────────────────────────────────────────────────────────────┼────────────────────────────────────┤
-│ Registration beyond internal testing (T&C, PRD-D24)                                                            │ Legal                              │
-└────────────────────────────────────────────────────────────────────────────────────────────────────────────────┴────────────────────────────────────┘
+Seven decisions are left open (D-1 to D-7 in the report). The most important is D-2: Studio publishes every tenant's workflows into one shared bucket keyed by workflow code. Two tenants using the same code end up sharing one definition. That is a design problem, tied to the Workflow-engine risk, and I did not change it.
 
-The two corrections
-1. In-scope acceptance criteria: 287 → 248. 39 criteria expected things Phase 1 must not have, which contradicted the exit criteria that keep cart and blocked screens off:
+Workstream B — auth contract fix
 
-| Reason                                      | Count |
-|---------------------------------------------|-------|
-| Cart or transaction behavior                | 9     |
-| Links that open Orders, Invoices or Loyalty | 10    |
-| APJ/SIPA badges and regulated behavior      | 12    |
-| Update overlays                             | 5     |
-| Four tabs including Pesanan and Pembayaran  | 2     |
-| Home loading the cart                       | 1     |
-   They are reclassified, not deleted, and exit criterion E5 now says 248.
-2. "Proceed now?" column renamed to "Eligible once authorized?" The old name read like permission to start.
+- Fix: the shared user lookup, permission loading and platform-scope rule now live in one place, app/core/auth/issuance.py. HTTP login, HTTP refresh and the contract all use it.
+- HTTP login and refresh are unchanged: the tokens carry the same claims as before.
+- Contract behaviour:
+  - unknown, inactive or deleted users are rejected;
+  - refresh re-reads the account from the database and copies nothing from the presented token;
+  - the optional tenant argument only narrows the check; it never selects a tenant;
+  - the tokens pass the normal validation.
+- Bug fixed along the way: the old contract lookup could not see tenant users under RLS.
+- Pins moved: the S2 rule that platform scope is minted in exactly one function now points at the new module. The S2.1 tests that pinned the old crash were updated.
 
-The six acceptance criteria needing owner action (backlog §10.3)
+Workstream C — permission migration plan
 
-┌──────────────┬───────────────────────────────────────────────────────────────────────────────────┬───────────────────────────────────┐
-│      AC      │                                   Action needed                                   │            Owner role             │
-├──────────────┼───────────────────────────────────────────────────────────────────────────────────┼───────────────────────────────────┤
-│ AC-HOME-039  │ Rewrite as an observable result, or move it to Phase 2/3                          │ Requirements lead + Compliance    │
-├──────────────┼───────────────────────────────────────────────────────────────────────────────────┼───────────────────────────────────┤
-│ AC-SHAPI-001 │ Define the expected error per module                                              │ Requirements lead + Product owner │
-├──────────────┼───────────────────────────────────────────────────────────────────────────────────┼───────────────────────────────────┤
-│ AC-SHAPI-002 │ Define the generic error and retry behavior                                       │ Requirements lead + Product owner │
-├──────────────┼───────────────────────────────────────────────────────────────────────────────────┼───────────────────────────────────┤
-│ AC-SHOBS-001 │ Decide which analytics events to keep (DEC-025), then split it per event          │ Product owner + Requirements lead │
-├──────────────┼───────────────────────────────────────────────────────────────────────────────────┼───────────────────────────────────┤
-│ AC-SHVER-004 │ Reword after the OTA-update decision (PRD-D29); not needed for Phase 1            │ Tech lead + Release/DevOps        │
-├──────────────┼───────────────────────────────────────────────────────────────────────────────────┼───────────────────────────────────┤
-│ AC-SHVER-006 │ Add the missing requirement link and decide the effect of a version-check failure │ Product owner                     │
-└──────────────┴───────────────────────────────────────────────────────────────────────────────────┴───────────────────────────────────┘
+- The problem: the database treats a permission as (resource, action, scope) and ignores the module. A second module's permission with the same name can't be stored at all. A permission with no module acts as a wildcard across every module.
+- The plan:
+  - pre-flight checks that block the migration on any problem row (all pass locally);
+  - safe ordering: the new constraint goes in before the old one is dropped;
+  - existing grants preserved;
+  - no automatic deletes, because deleting a permission row automatically deletes the grants linked to it;
+  - rollback limits documented.
+- Your decisions before implementation: whether module_name becomes NOT NULL; whether scope stays in the key; and splitting the release so the old constraint is dropped later.
 
-Cart, checkout and screen check. The plan defers 41 cart requirements, keeps the 33 inactive screens, Stories and Phase 2/3 routes switched off, and contains no checkout, payment or cart-write calls. Two conflicts remain open:
-- Home loads the cart on startup (FR-HOME-007).
-- Deep links and push messages point to Phase 2/3 screens, so a "not available" fallback would be new behavior.
+Test results
 
-App identity. No confusion found. The production ID com.dexagroup.gposb2b (with the legacy key) must not be used for internal builds, because it would collide with the live app on testers' phones. The RN app still uses the template ID, and the internal ID is undecided. Deep-link files for an internal app should go only on devb2b.gpos.id, never on b2b.gpos.id.
+┌───────────────────────────────────────────────┬───────────────────────────────────────────────────────────────────────────────────────┐
+│                     Suite                     │                                        Result                                         │
+├───────────────────────────────────────────────┼───────────────────────────────────────────────────────────────────────────────────────┤
+│ Unit (excluding test_engine_execution.py)     │ 3,881 passed                                                                          │
+├───────────────────────────────────────────────┼───────────────────────────────────────────────────────────────────────────────────────┤
+│ Top-level integration                         │ 21 passed                                                                             │
+├───────────────────────────────────────────────┼───────────────────────────────────────────────────────────────────────────────────────┤
+│ SQLite workflow tier                          │ 172 passed, 5 skipped (pre-existing)                                                  │
+├───────────────────────────────────────────────┼───────────────────────────────────────────────────────────────────────────────────────┤
+│ PostgreSQL, 30 files in one run               │ 334 passed, 1 expected failure (the deferred database-level case from N-2, not a fix) │
+├───────────────────────────────────────────────┼───────────────────────────────────────────────────────────────────────────────────────┤
+│ PostgreSQL Sales/Accounting, one file per run │ 38 passed                                                                             │
+├───────────────────────────────────────────────┼───────────────────────────────────────────────────────────────────────────────────────┤
+│ Playwright                                    │ 137 passed                                                                            │
+├───────────────────────────────────────────────┼───────────────────────────────────────────────────────────────────────────────────────┤
+│ Mutation checks                               │ 17 of 17 caught                                                                       │
+└───────────────────────────────────────────────┴───────────────────────────────────────────────────────────────────────────────────────┘
 
-Conflicts with the PRD, recorded but not resolved (C1–C7):
-- C1: the original "Proceed now" wording. Fixed.
-- C2: hiding two of the four tabs.
-- C3: Home's cart read.
-- C4: Phase 2/3 link targets.
-- C5: APJ/SIPA badges on Profile.
-- C6: update overlays left out of the internal test.
-- C7: Registration in Phase 1 while the T&C decision is open.
+- Playwright, first run: 1 timeout in a Form Builder test while the unit suite was running at the same time. It passed when re-run alone, and a full idle re-run passed 137/137.
+- Changed after the Playwright runs: widget-type registration. No spec or frontend code calls it, so I didn't re-run Playwright for it; the final unit run covers it.
+- Not run: test_engine_execution.py, the whole PostgreSQL directory in one run, Vitest, any non-test database, and a demonstration of the scheduler issue.
 
-Proposed sequence (all dates uncommitted).
-- Wed 14 Oct: preparation and owner requests.
-- Thu 15: decision records accepted, service wiring, template clean-up (needs the authorization and a named Tech lead).
-- Fri 16: API client and app state.
-- Mon 19: navigation and CI (needs the route list and a CI host).
-- Tue 20: session handling and config (needs the refresh contract or staging).
-- Wed 21: design tokens; Auth only with a feature authorization and staging access.
-- Thu 22: shell, Home and Search (needs the tab and cart-read decisions).
-- Fri 23: Catalog, product detail, and a first internal build candidate (needs internal identity, signing, distribution, and the keys resolved).
-- From Mon 26 Oct: Profile, Content, Notifications, Registration, then running the 248 criteria.
+S1 ownership enforcement and S2 principal separation still pass all their tests.
 
-Realistically, next week can deliver the foundation plus Auth and read-only Home, Search, Catalog and product detail. Full Phase 1 internal-test readiness is unlikely by the 23rd, and any late dependency pushes every later day back.
+Environment
 
-Evidence needed for the first internal test build:
-- The keys question resolved by its owner.
-- Internal app ID, signing and distribution channel set up.
-- Staging and test accounts available, with no production endpoints in the build.
-- CI green and the foundation tests passing.
-- Log redaction verified.
-- Every route's ON/OFF flag confirmed against the agreed list.
-- A feature-level authorization for whatever the build contains.
-- If push or deep links will be tested: internal push/analytics registrations and deep-link files on the dev domain.
+- I worked only on the local test DB.
+- Leave and the probe module were activated for the run and restored to inactive.
+- Global Studio rows are unchanged at 596 / 592 / 0.
+- The runs left tenant-owned test rows behind; nothing was cleaned up.
 
-Files changed: only migration/approval/PHASE1_BACKLOG.md (two corrections plus the new §10). No other approval file, decision record, PRD, evidence or application file was touched.
+Reports
 
-Validation:
-- All links resolve.
-- All 525 IDs cited in the backlog exist in the PRD, requirements or audit documents.
-- The corrected in-scope list contains exactly 248 criteria.
-- No protected document was modified today.
-- The React Native project shows only your 2 earlier edits, and the legacy repo is clean.
-- No decisions/ folder exists, so no approval or approver identity was invented.
+- docs/architecture/reviews/N2B_S2_2_ROUTE_CLASSIFICATION_AND_PRINCIPAL_BOUNDARIES.md
+- docs/architecture/reviews/N2B_AUTH_CONTRACT_TOKEN_MINTING_FIX_REPORT.md
+- docs/architecture/reviews/N2B_PERMISSION_IDENTITY_MIGRATION_PLAN.md
 
-I haven't started any implementation.
+S3 was not started and the migration was not executed.
