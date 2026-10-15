@@ -1,90 +1,87 @@
-S2.2 is finished: three reports, one per workstream.
-- Workstream A (route classification): CONDITIONAL GO. I found and fixed three critical security holes, but seven design decisions are still open for you.
-- Workstream B (auth contract fix): GO.
-- Workstream C (permission migration): GO for the plan only. Nothing was migrated.
+Verdict: the S2.3 plan is a CONDITIONAL GO, and S3 is NO-GO. It isn't a plain GO because several decisions still need an owner, and S3 itself hasn't been authorized. I also found one serious new problem in how Studio publishes workflows.
 
-Workstream A — route classification
+New finding W-1, high and possibly critical (found by reading the code; not reproduced, because reproducing it would write data, which this phase forbids):
+- When a tenant publishes a workflow from Studio, it goes into one shared bucket keyed by the workflow code the user chose, not into that tenant's own space.
+- That shared definition then becomes global, so any tenant can start it.
+- If tenant B publishes a draft using tenant A's workflow code, B adds and activates a new version of the workflow tenant A actually runs.
+- Plan: reproduce it first, then fix it in a dedicated Workflow Boundary phase (stage WB-1).
 
-I raised all three critical findings with you before fixing them:
-1. Workflow Registry (/workflow-registry). A tenant user with only the normal workflow permissions could read, update and delete another tenant's workflow definitions, and create one inside another tenant. The table has no RLS (row-level security), so nothing else stopped it. Reproduced on PostgreSQL.
-   - Now: tenants can change only their own definitions, new definitions always go into the caller's tenant, and platform principals are refused.
-2. Audit logs (/audit). A tenant user with core.audit.read could read every tenant's audit trail, including the old and new values of business records. Reproduced on PostgreSQL.
-   - Now: tenant users see only their own tenant. The cross-tenant view is kept for the signed platform principal only.
-3. Scheduler (/scheduler). A job's handler_path came from the caller and was loaded by dynamic import. Any tenant superuser could therefore make the server run arbitrary code. I identified this from the code and deliberately did not demonstrate it.
-   - Now: only explicitly registered handlers can run, and the whole scheduler is platform-only.
+Decisions closed
 
-Other fixes:
-- Metadata: platform principals are refused, and a create that names another tenant is rejected.
-- Now platform-only: /system/status, /system/services, the detailed /health/ report and widget-type registration.
-- Still public: /health/live and /health/ready, which is what Kubernetes, Docker and nginx use.
+┌─────────────────────┬──────────────────────────────────────────────────────────────────────────────────────────┬─────────────────────────────────────────────────────────────────────────────────┐
+│        Item         │                                 What the evidence shows                                  │                                    Decision                                     │
+├─────────────────────┼──────────────────────────────────────────────────────────────────────────────────────────┼─────────────────────────────────────────────────────────────────────────────────┤
+│ D-4 Permission      │ No route can change permissions over HTTP                                                │ Leave reading as is; any future write path is platform-only                     │
+│ catalog             │                                                                                          │                                                                                 │
+├─────────────────────┼──────────────────────────────────────────────────────────────────────────────────────────┼─────────────────────────────────────────────────────────────────────────────────┤
+│ D-5 Gateway metrics │ All 40,953 local metric rows have no tenant, and the summary returns raw request paths   │ Platform-only                                                                   │
+│                     │ across all tenants                                                                       │                                                                                 │
+├─────────────────────┼──────────────────────────────────────────────────────────────────────────────────────────┼─────────────────────────────────────────────────────────────────────────────────┤
+│ D-6 /ws/stats       │ Unauthenticated, shows how many tenants and users are connected, and nothing consumes it │ Platform-only                                                                   │
+├─────────────────────┼──────────────────────────────────────────────────────────────────────────────────────────┼─────────────────────────────────────────────────────────────────────────────────┤
+│ C-D1                │ No permission rows lack a module; a missing module silently grants across all modules    │ Make module_name NOT NULL; a deliberate cross-module grant can still be written │
+│                     │                                                                                          │  as '*'                                                                         │
+├─────────────────────┼──────────────────────────────────────────────────────────────────────────────────────────┼─────────────────────────────────────────────────────────────────────────────────┤
+│ C-D3                │ —                                                                                        │ Migration order confirmed: add the new index first, drop the old constraint in  │
+│                     │                                                                                          │ a later release                                                                 │
+└─────────────────────┴──────────────────────────────────────────────────────────────────────────────────────────┴─────────────────────────────────────────────────────────────────────────────────┘
 
-Visible behaviour changes:
-- Tenants can no longer modify Studio-published workflows through /workflow-registry. Studio's own publish and archive routes still work.
-- Tests that read other tenants' audit rows now do so as the platform principal.
-- Several test fixtures used MagicMock users that passed every permission check by accident. They now use real users.
+D-5 and D-6 are settled as policy, but the code changes still need an implementation phase.
 
-Seven decisions are left open (D-1 to D-7 in the report). The most important is D-2: Studio publishes every tenant's workflows into one shared bucket keyed by workflow code. Two tenants using the same code end up sharing one definition. That is a design problem, tied to the Workflow-engine risk, and I did not change it.
+Deferred: D-7, the scheduler's tenant context. No scheduler handler is registered anywhere, so nothing can run today.
 
-Workstream B — auth contract fix
+Still open (need an owner decision)
 
-- Fix: the shared user lookup, permission loading and platform-scope rule now live in one place, app/core/auth/issuance.py. HTTP login, HTTP refresh and the contract all use it.
-- HTTP login and refresh are unchanged: the tokens carry the same claims as before.
-- Contract behaviour:
-  - unknown, inactive or deleted users are rejected;
-  - refresh re-reads the account from the database and copies nothing from the presented token;
-  - the optional tenant argument only narrows the check; it never selects a tenant;
-  - the tokens pass the normal validation.
-- Bug fixed along the way: the old contract lookup could not see tenant users under RLS.
-- Pins moved: the S2 rule that platform scope is minted in exactly one function now points at the new module. The S2.1 tests that pinned the old crash were updated.
+┌──────┬───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
+│ Item │                                                         Question                                                          │
+├──────┼───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┤
+│ D-1  │ Should tenants be able to create global metadata?                                                                         │
+├──────┼───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┤
+│ D-2  │ Who owns Studio publications? This is W-1                                                                                 │
+├──────┼───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┤
+│ D-3  │ What should a platform user's home dashboard be?                                                                          │
+├──────┼───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┤
+│ B-3  │ Studio templates: tenant-owned or platform-owned?                                                                         │
+├──────┼───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┤
+│ C-D2 │ Does the permission scope column have a planned meaning? It is never read, so I recommend dropping it from the unique key │
+└──────┴───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
 
-Workstream C — permission migration plan
+Workflow remediation plan:
+- WB-1: give each Studio publication its owning tenant (fixes W-1).
+- WB-2: stop any tenant from advancing or deciding global instances and approvals (117 each locally).
+- WB-3: stop Foundation's instance lookup from showing everything to a caller with no tenant.
+- WB-4: templates, once B-3 is decided.
+- WB-5: refuse platform principals on /workflow.
 
-- The problem: the database treats a permission as (resource, action, scope) and ignores the module. A second module's permission with the same name can't be stored at all. A permission with no module acts as a wildcard across every module.
-- The plan:
-  - pre-flight checks that block the migration on any problem row (all pass locally);
-  - safe ordering: the new constraint goes in before the old one is dropped;
-  - existing grants preserved;
-  - no automatic deletes, because deleting a permission row automatically deletes the grants linked to it;
-  - rollback limits documented.
-- Your decisions before implementation: whether module_name becomes NOT NULL; whether scope stays in the key; and splitting the release so the old constraint is dropped later.
+Only WB-4 interacts with S3. WB-1 is recommended before or alongside S3.
 
-Test results
+S3 readiness: NO-GO. S1 and S2, the technical prerequisites, are in place. The blockers are:
+1. S3 hasn't been explicitly authorized.
+2. B-3 decides how S3 handles template creation, unless templates are taken out of S3.
+3. D-3 matters if S3 covers /dashboard, unless /dashboard is taken out.
+4. The S3 scope needs confirming, including whether metadata (D-1) is in or out.
 
-┌───────────────────────────────────────────────┬───────────────────────────────────────────────────────────────────────────────────────┐
-│                     Suite                     │                                        Result                                         │
-├───────────────────────────────────────────────┼───────────────────────────────────────────────────────────────────────────────────────┤
-│ Unit (excluding test_engine_execution.py)     │ 3,881 passed                                                                          │
-├───────────────────────────────────────────────┼───────────────────────────────────────────────────────────────────────────────────────┤
-│ Top-level integration                         │ 21 passed                                                                             │
-├───────────────────────────────────────────────┼───────────────────────────────────────────────────────────────────────────────────────┤
-│ SQLite workflow tier                          │ 172 passed, 5 skipped (pre-existing)                                                  │
-├───────────────────────────────────────────────┼───────────────────────────────────────────────────────────────────────────────────────┤
-│ PostgreSQL, 30 files in one run               │ 334 passed, 1 expected failure (the deferred database-level case from N-2, not a fix) │
-├───────────────────────────────────────────────┼───────────────────────────────────────────────────────────────────────────────────────┤
-│ PostgreSQL Sales/Accounting, one file per run │ 38 passed                                                                             │
-├───────────────────────────────────────────────┼───────────────────────────────────────────────────────────────────────────────────────┤
-│ Playwright                                    │ 137 passed                                                                            │
-├───────────────────────────────────────────────┼───────────────────────────────────────────────────────────────────────────────────────┤
-│ Mutation checks                               │ 17 of 17 caught                                                                       │
-└───────────────────────────────────────────────┴───────────────────────────────────────────────────────────────────────────────────────┘
+Tests:
+- I ran only the unit pins (they use an in-memory database): 137 passed.
+- Not run:
+  - the full unit suite;
+  - the integration tiers;
+  - all PostgreSQL tests (they insert rows, which this phase forbids);
+  - Playwright (it needs the servers started);
+  - Vitest.
+- The last full results are from S2.2 and weren't re-checked here.
 
-- Playwright, first run: 1 timeout in a Form Builder test while the unit suite was running at the same time. It passed when re-run alone, and a full idle re-run passed 137/137.
-- Changed after the Playwright runs: widget-type registration. No spec or frontend code calls it, so I didn't re-run Playwright for it; the final unit run covers it.
-- Not run: test_engine_execution.py, the whole PostgreSQL directory in one run, Vitest, any non-test database, and a demonstration of the scheduler issue.
+Report: docs/architecture/reviews/N2B_S2_3_DECISION_CLOSURE_AND_WORKFLOW_BOUNDARY_PLAN.md
 
-S1 ownership enforcement and S2 principal separation still pass all their tests.
+Changes made: only that report, plus my memory notes. The local test DB was only read, with SELECT queries.
 
-Environment
+Not done, as required:
+- no change to code, tests, schema, migrations, seeds, configuration or data;
+- no service started or stopped;
+- no non-test database inspected;
+- no cleanup, backfill or module activation;
+- no tests weakened or marked as expected failures;
+- no S3 work;
+- no commit or push.
 
-- I worked only on the local test DB.
-- Leave and the probe module were activated for the run and restored to inactive.
-- Global Studio rows are unchanged at 596 / 592 / 0.
-- The runs left tenant-owned test rows behind; nothing was cleaned up.
-
-Reports
-
-- docs/architecture/reviews/N2B_S2_2_ROUTE_CLASSIFICATION_AND_PRINCIPAL_BOUNDARIES.md
-- docs/architecture/reviews/N2B_AUTH_CONTRACT_TOKEN_MINTING_FIX_REPORT.md
-- docs/architecture/reviews/N2B_PERMISSION_IDENTITY_MIGRATION_PLAN.md
-
-S3 was not started and the migration was not executed.
+I've stopped here.
