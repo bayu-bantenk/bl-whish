@@ -6,7 +6,7 @@
 
 **Verdict:** **CONDITIONAL GO** for WB-2 (§6).
 - Workstream A (test count): **closed.** The gap was an arithmetic error in the WB-2 report, not a test change.
-- Workstream B (Playwright): **blocked by environment.** Needs an authorised browser download.
+- Workstream B (Playwright): **closed for the specs WB-2 affects.** After an authorised browser install, 90/138 passed, including every Sales, Accounting and Studio spec. The other 48 need the dormant `leave_management` / `external_boundary_probe` modules (§2.5).
 - Workstream C (tenant-less list reads): **policy recommended, not implemented.**
 
 **WB-3 and S3:** **not started, not authorised by this phase** (§7).
@@ -20,7 +20,7 @@
   - The WB-2 report labelled that 39-file first-loop figure (374) as the 40-file total, then subtracted the 9 new WB-2 tests again to get 365.
   - A fresh per-file run today confirms it: **39 shared files: 377 passed, 1 xfailed. All 40 files: 386 passed, 1 xfailed, 387 collected, 0 failed, 0 skipped, 0 deselected.**
   - It also matches S2.2's two recorded subtotals exactly (§1.4).
-- **Playwright:** the repository pins `@playwright/test` 1.62.1, and its only project is `chromium`. No Playwright browser is installed on this machine. The supported command is `cd frontend/shell && npx playwright install chromium`. It downloads about 3 archives from `cdn.playwright.dev`; I did not run it. No spec was executed in this phase.
+- **Playwright:** the repository pins `@playwright/test` 1.62.1, and its only project is `chromium`. No Playwright browser is installed on this machine. The supported command is `cd frontend/shell && npx playwright install chromium`. It downloads 3 archives from `cdn.playwright.dev`. It was run after the user authorised it; the results are in §2.5.
 - **Tenant-less list reads:**
   - `GET /workflow/instances` and `GET /workflow/approvals/pending` still answer a caller with no tenant, returning NULL-tenant rows.
   - A third route has the same pattern and is wider: `GET /workflow/definitions` applies **no tenant filter at all** when the caller has no tenant. Every tenant's active definitions are returned. This is found by code reading and **not reproduced** (§4.2, finding V-1).
@@ -192,6 +192,51 @@ done
 4. **Specs:** run the WB-2 affected specs: `npx playwright test e2e/tests/sales-order-approval-actions.spec.ts e2e/tests/accounting-journal-entry-actions.spec.ts e2e/tests/studio-execute.spec.ts`. Then run the full `npx playwright test`.
 5. **Expectation:** `studio-execute` has a documented, pre-existing WebSocket-timing flake (`playwright.config.ts` header). A failure there must be triaged and not assumed to be WB-2.
 
+### 2.5 Addendum — browser run after authorisation (2026-10-28)
+
+After reviewing this report, the user authorised steps 1–4.
+
+**Steps taken:**
+
+| Step | What happened |
+|---|---|
+| Install | `npx playwright install chromium` installed `chromium-1234`, `chromium_headless_shell-1234` and `ffmpeg-1011`. The cache was later deleted while disk space was freed (the volume reached `ENOSPC` during a first full run), so it was reinstalled with the same command. |
+| Module state | The platform principal's `GET /modules/` showed `accounting: inactive`, `sales: active`; no other module is installed. `accounting` was re-activated by the user's explicit authorisation (`POST /modules/accounting/activate` as `phase_s2_platform_admin` → `success`). It was **left active**, which is its pre-PG-run state (WB-1 R-8). No other module was touched. |
+| Backend | `RATE_LIMIT_REQUESTS=5000 WORKFLOW_FOUNDATION_DEFINITION_CODES=e2e_p30a_execute_demo .venv/bin/uvicorn app.main:app --port 8000`, with the test DB from `.env` |
+| Frontend | `npm run dev` |
+
+**Configuration finding E-1 (environment, not a WB-2 regression):**
+- `studio-execute` first failed with `POST /workflow/instances` → 400 `Workflow definition 'workflow_studio.e2e_p30a_execute_demo' not found or not active`.
+- The cause: the backend had been started **without** `WORKFLOW_FOUNDATION_DEFINITION_CODES=e2e_p30a_execute_demo`. The spec's own header (`studio-execute.spec.ts:13–24`) requires this setting.
+- Without it, the instance routes to Legacy, which has no row for a Studio-published definition.
+- With the setting, the spec passes. §2.4 step 3 must include this variable; `playwright.config.ts`'s header does not mention it.
+
+**Targeted WB-2 specs:**
+
+| Spec | Result |
+|---|---|
+| `sales-order-approval-actions` | **8/8 passed** (browser, both runs) |
+| `accounting-journal-entry-actions` | **8/8 passed** (`accounting` active) |
+| `studio-execute` | **1/1 passed** (with E-1 applied) |
+
+**Full suite (`npx playwright test`, 138 tests, 7.9 min): 90 passed, 41 failed, 7 did not run.**
+
+| Group | Tests | Cause |
+|---|---:|---|
+| Every Sales, Accounting and Studio spec, plus `auth`. Includes `sales-order-*` (30), `accounting-journal-entry-*` (22), `studio-execute`, `studio-publication-tenancy`, `studio-collaboration`, `studio-editor-basics`, `studio-history-version`, `studio-simulation`, `studio-ux`, `studio-validate-publish` | 90 passed | — |
+| `leave-request-management` (12), `worklist-proof` (5), `schema-to-form-proof` SF2, `multi-module-runtime` A/B/C + D/E | 19 failed | `404 /api/v1/leave-management/…` or `/application-flow/leave_management_real_approval_proof/…`; `leave_management appears exactly once — Received: 0`. `leave_management` is not installed or active. |
+| `form-builder-proof`, `form-lifecycle-proof`, `form-runtime-proof` | 3 failed, 7 did not run (serial) | `Capability 'leave_management.leave_request.create:v1' is not registered (… owning module inactive)`. FB1 times out waiting for that capability's Select button. |
+| `declarative-flow-*` (13), `dynamic-module` (3), `multi-module-runtime` E | 17 failed | `getByTestId('flow-screen')` / `probe-module-page` / the `Boundary Probe` link not found. These specs require `external_boundary_probe` (and, for some, `leave_management`) to be activated (`declarative-flow-proof.spec.ts:13–25`, `dynamic-module.spec.ts:11–26`). |
+| `studio-tenant-ownership` "platform principal is refused by business routers" | 1 failed | It expects 403 on `/leave-management/requests` and gets **404**, because the route does not exist while `leave_management` is inactive. The other three routes in the same loop are unaffected. This is the same module precondition, not a principal-boundary regression. |
+
+- All 41 failures and 7 non-runs are explained by `leave_management` and `external_boundary_probe` being dormant. Activating them is forbidden by this programme's constraints, so they stay unrun here.
+- WB-1's 138/138 was recorded while both modules were active in this DB.
+- **No failure touches a WB-2 path.** Every Legacy-workflow consumer that runs without the dormant modules passes in a real browser: Sales approvals, Accounting approvals, Studio execute and publication, and tenancy.
+- After the run, both servers were stopped (ports 8000 and 5173 verified free) and the untracked `frontend/shell/test-results/` was removed.
+
+**R-9 status: closed for every WB-2-affected spec.**
+- **Still open:** the 48 `leave_management` / `external_boundary_probe` tests remain unverified in this phase. Closing them needs a separate, authorised module activation.
+
 ---
 
 ## 3. Workstream C — current tenant-less list reads (audit)
@@ -281,7 +326,7 @@ done
 | ID | Limitation | Effect | Closure |
 |---|---|---|---|
 | L-1 | WB-1 has no per-file PG counts | WB-1 is matched in total, and through S2.2's subtotals, but not file by file | none possible; §1.3 is the new baseline |
-| L-2 | No Playwright browser installed | **No browser-level evidence for WB-2** (R-9 stays open) | authorise §2.4 |
+| L-2 | 48 browser tests need dormant modules | `leave_management` / `external_boundary_probe` flows unverified in a browser this phase (WB-2-affected specs pass, §2.5) | authorised module activation in a later phase |
 | L-3 | `leave_management` / `external_boundary_probe` / `accounting` runtime state not inspected | Some browser specs may need module re-activation before they can pass | inspect with authorisation; activation needs its own approval |
 | L-4 | V-1 is code-read, not reproduced | Severity is an estimate | reproduce in the implementing phase before the fix |
 | L-5 | Malformed-`tid` behaviour on the list routes (500 vs 403) is inferred | Unknown status code | test in the implementing phase |
@@ -297,10 +342,10 @@ done
 |---|---|
 | Accept or revert the `start()` tenant requirement (WB-2 D-1 / R-8) | **Closed: accepted** by the architecture decision. The behaviour is kept, and its coverage is retained, unchanged in this phase: unit `tests/unit/test_n2b_wb2_legacy_instance_ownership.py` (AST guard that `start` calls `require_tenant`, plus missing/malformed-tenant refusal with zero DB statements); PG `test_n2b_wb2_legacy_instance_ownership.py` (tenant-less / malformed / platform `start` → 403, counts unchanged), 9/9 passing in §1.3; module provisioning starts with a tenant (`test_workflow_definition_provisioning.py`, `test_sales_accounting_workflow_definition_provisioning.py`), 11/11 and 4/4 |
 | PG count discrepancy | **Closed:** arithmetic error; fresh baseline 377/39 = WB-1, 386/40 |
-| Browser Playwright evidence (R-9) | **Open:** blocked on authorisation (§2.4) |
+| Browser Playwright evidence (R-9) | **Closed for WB-2-affected specs** after authorisation (§2.5): 90/138 passed, including all Sales, Accounting and Studio specs. The 48 remaining tests need the dormant `leave_management` / `external_boundary_probe` modules. |
 | Tenant-less list reads (R-4) | **Policy decided as a recommendation (§4); implementation open.** V-1 added. |
 
-- **Why not GO:** browser-level evidence is still missing, and V-1 / R-4 are open read exposures.
+- **Why not GO:** V-1 / R-4 are open read exposures, and the dormant-module browser specs are unverified.
 - **Why not NO-GO:** every WB-2 guarantee is re-proven on PostgreSQL today (386 passed, 0 failed). The remaining items are an evidence gap and read-only list exposures outside WB-2's mutation scope, not regressions.
 
 ---
@@ -318,8 +363,8 @@ done
 - **Changes:** none to application code, tests, test config, schema, migrations, RLS, grants or permissions. The only file created is this report. The WB-2 report was not edited.
 - **Database:** only the local Homebrew PostgreSQL 14 test database (`localhost:5432/erp_platform`, from `backend/.env`) was used, through the PG test suite. No other database was accessed.
 - **No cleanup:** existing and newly created test rows were left in place.
-- **No activation:** no module was activated or deactivated. No server was started.
-- **No external downloads:** no browser installation. `--dry-run` and `--list` only.
+- **Module state:** during the audit itself, no module was activated or deactivated and no server was started. After review, with explicit authorisation, `accounting` was re-activated (it had been left inactive by the PG run) and left active. No dormant module was activated (§2.5).
+- **External downloads:** none during the audit itself (`--dry-run` and `--list` only). After review, the user authorised `npx playwright install chromium`; it was run twice because the cache was deleted while disk space was freed (§2.5).
 - **No Git commit or push.**
 
 ## Files changed
