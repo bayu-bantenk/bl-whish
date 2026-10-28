@@ -269,6 +269,7 @@ After reviewing this report, the user authorised steps 1–4.
 | R-4 pending approvals | NULL-tenant approvals assigned to the caller's own user id; not decidable since WB-2 | LOW |
 | **V-1 definitions list** | **Tenant-owned** private definitions of **every** tenant (names, modules, step data in `WfDefinitionResponse`) | **MEDIUM–HIGH** (cross-tenant read disclosure). Bounded to tenant-less principals. Not reproduced. |
 
+- **Follow-up:** V-1 was subsequently probed on PostgreSQL. The cross-tenant disclosure is **not reproduced**: fail-closed RLS limits tenant-less and platform callers to NULL-tenant rows. A malformed `tid` returns 500. See `N2B_V1_WORKFLOW_DEFINITIONS_TENANTLESS_READ_ISOLATION_REPORT.md`.
 - **V-1 is new.** WB-2 R-4 named only the two instance/approval list routes.
 - **Earlier coverage:** the 5N7 audit row "List definitions: own + global only" (`Workflow_Phase_2_0B_5N7_Security_Tenant_Audit.md:67`) covers a **tenant** caller only.
 - **Why it wasn't stopped for:** it was found by code reading in an audit-only phase and not reproduced, and the brief forbids changing code here. It is therefore reported, not fixed, and not treated as a stop-the-line live CRITICAL.
