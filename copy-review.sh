@@ -22,3 +22,9 @@ for name in "$@"; do
   cp "$src" "$DEST_DIR/"
   echo "Copied: $name -> $DEST_DIR/"
 done
+
+git status
+git add .
+git commit -m "ERP"
+git push
+
