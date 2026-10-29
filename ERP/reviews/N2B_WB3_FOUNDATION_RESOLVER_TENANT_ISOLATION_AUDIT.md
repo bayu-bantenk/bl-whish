@@ -259,7 +259,7 @@
 
 ## 9. Proposed next phase (requires separate approval)
 
-**WB-3.1 — Foundation instance strict ownership.**
+**WB-3.1 — Foundation instance strict ownership.** (Implemented: `N2B_WB3_1_FOUNDATION_RESOLVER_TENANT_ISOLATION_FIX_REPORT.md`.)
 
 1. **R1:** a strict `FoundationRuntimeStrategy.query`, plus unconditional ownership pre-checks in `_dispatch` and `history`, reusing `require_tenant`. Update the S1 guard to expect **no** NULL-admitting functions.
 2. **R2 (optional, same phase or separate):** a correct `tenant_id` in Foundation instance responses.
