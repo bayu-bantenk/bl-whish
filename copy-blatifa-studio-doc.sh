@@ -3,7 +3,7 @@
 # Usage: ./copy-blatifa-studio.sh <filename> [<filename> ...]
 set -euo pipefail
 
-SRC_DIR="$HOME/Developments/My Project/blatifa-studio/docs"
+SRC_DIR="$HOME/Developments/My\ Project/blatifa-studio/docs"
 DEST_DIR="$(cd "$(dirname "$0")" && pwd)/blatifa-studio"
 
 if [ "$#" -eq 0 ]; then
