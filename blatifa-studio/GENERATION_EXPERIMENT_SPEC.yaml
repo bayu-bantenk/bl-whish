@@ -1,0 +1,71 @@
+# Controlled generation experiment (Phase 5.2 specification). NOT EXECUTED.
+# Purpose: find which DOM / media signals distinguish an UNFINISHED video tile from a FINISHED one, and prove that a
+# result can be tied to the scene that produced it. Machine-checked by tests/unit/test_phase5_2_live_evidence.py.
+
+status: PROPOSED                      # becomes READY_TO_RUN only after the user's written authorization (below)
+max_generations: 1
+blatifa_performs_flow_actions: false  # the USER types/submits the prompt and answers the cost confirmation in Flow;
+                                      # Blatifa only observes (read-only probes, user-approved URL navigation)
+authorization:
+  required_before: submit
+  must_state: [experiment_id, account_fingerprint, max_credits, prompt_text, nonce]
+  max_credits: null                   # the user sets it; the cost is NOT assumed (10 credits was seen once, E-FLOW-12)
+  approve_only_if:
+    - quote_parsed
+    - single_video
+    - cost_le_max_credits
+    - model_named_in_quote
+  otherwise: user_rejects_or_leaves_unanswered
+project_url_is_the_phase5_project: true
+prompt:
+  nonce_format: "[blatifa-exp-<8 hex>]"   # unique token appended to the prompt; ties the stored prompt to the scene
+  must_contain_octopus_lock_verbatim: true
+pointer_rule: away_from_all_tiles        # hover swaps the thumbnail for a playing <video> (Phase 5.2 live)
+observation:
+  interval_s: 10
+  min_observations_per_phase: 3
+  discard_if_any_tile_hovered: true
+  per_observation: [grid_titles_multiset, new_tile_structure, tile_texts_redacted, video_properties, thumbnail_present,
+                    hovered_tiles, dialogs, confirmation_state, identity_fingerprint]
+phases:
+  P0_before:
+    who_acts: none
+    capture: [credit_balance_user_read, identity_fingerprint, grid_baseline_titles, all_tile_structures, data_media_ids,
+              hover_state, disk_free, swap_used]
+  P1_confirmation:
+    who_acts: user_submits_prompt
+    capture: [confirmation_state, quote_text_redacted, parsed_cost, parsed_video_count, parsed_model]
+    stop_if: [cost_unparsed, cost_ambiguous, video_count_not_one, cost_over_max, unexpected_dialog, several_open]
+  P2_generating:
+    who_acts: user_approved_once
+    capture: [new_tile_by_set_difference, structure, texts, video_properties, thumbnail_present, progress_text]
+    until: structure_changes_or_timeout
+    timeout_s: 900
+  P3_completed:
+    who_acts: none
+    capture: [structure, video_properties, thumbnail_present, texts]
+    stable_after_identical_observations: 3
+    then:
+      - step: user_hovers_new_tile_once      # loads the <video>: media properties
+        capture: [video_properties]
+      - step: user_opens_new_tile_detail      # the USER clicks the tile (route id appears in the URL)
+        capture: [route_id_from_url, stored_prompt_text]
+  P4_after:
+    who_acts: none
+    capture: [credit_balance_user_read, identity_fingerprint, grid_titles_multiset]
+signal_rules:
+  independent_groups: [dom_structure, media_metadata, tile_text]
+  verified_if: present_in_every_P3_observation_and_absent_in_every_P2_observation
+  sample_size_note: "one generation: a VERIFIED result is n=1 and must be re-confirmed on the first production use"
+  conflicting_observation: VIDEO_UNKNOWN
+association:
+  method: [exactly_one_new_tile_by_set_difference, stored_prompt_contains_nonce, stored_prompt_contains_lock_verbatim]
+  never: [grid_order, creation_time, tile_title, src_token]
+abort_if:
+  - more_than_one_new_tile
+  - pre_existing_tile_disappeared
+  - identity_changes
+  - credit_change_differs_from_quote
+  - unexpected_dialog
+  - disk_free_below_5_gib
+  - any_blatifa_click_or_input
