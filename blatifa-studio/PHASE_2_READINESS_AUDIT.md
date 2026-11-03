@@ -90,3 +90,64 @@ Paths are relative to `docs/phase-2/evidence/`.
 |---|---|
 | Further non-credit development (P2-2 read-only adapter parts, using the same read-only rules as Phase 1) | **GO** |
 | Controlled live testing that spends credits (P2-6 … P2-9) | **NO-GO now**. It becomes **CONDITIONAL GO** when (1) free disk is ≥ 30 GiB (at minimum the enforced 2 GiB) and the leak is stopped, (2) you authorize the specific steps and a credit budget (proposed ≤ 160), (3) the Octopus key phrases are approved |
+
+---
+
+## 7. Update — 2026-11-03 (Phase 2 continuation, no-credit only)
+
+> **Ringkasan (ID):**
+> - Adapter Flow (baca saja) selesai, dengan kategori hasil dan tingkat keyakinan locator. Semua aksi yang mengubah sesuatu **BLOCKED**.
+> - Runner diuji dengan sapu crash menyeluruh. **Satu bug pencatatan kredit ditemukan dan diperbaiki.**
+> - Kebocoran postcss dianalisis: bukan proses yatim, siklus start/stop bersih, tapi pemicunya belum bisa direproduksi.
+> - Rencana pembersihan disk per path sudah dibuat. Disk kini **18 GiB** kosong.
+> - Putusan **tidak berubah**: GO untuk pengembangan tanpa kredit, NO-GO untuk uji live yang memakai kredit.
+
+Deliverables: `PHASE_2_ADAPTER_PROGRESS.md`, `SINGLE_SCENE_RUNNER_AUDIT.md`, `POSTCSS_PROCESS_LEAK_ANALYSIS.md`, `STORAGE_CLEANUP_PLAN.md`.
+
+### 7.1 Tests executed (`evidence/logs/pytest_full_continuation.log`, `ruff_continuation.log`)
+
+**178 passed, 7 skipped (live, opt-in), 0 failed**; ruff clean (src, tests, tools).
+
+| Group | Files | Passed | Kind |
+|---|---|---|---|
+| Unit (core, production, media, readers, harness) | `test_core`, `test_production`, `test_media`, `test_flow_readers`, `test_devserver_tool` | 39 + 36 + 5 + 29 + 2 | unit; readers run on **recorded live snapshots offline** |
+| Mock-adapter integration + crash recovery | `test_runner_simulation`, `test_scene_and_crash_sweep` | 17 + 21 | **SIMULATED** Flow, real SQLite/ffmpeg/files |
+| Browser (local fixtures, headless Chrome) | `test_flow_adapter`, `test_account_and_capture`, `test_validator_and_health`, `test_engine_recovery` | 5 + 7 + 14 + 4 | **SIMULATED** UI (fixture pages), incl. Phase 1 regression |
+| Security / privacy | forbidden-API static scan over all new code, redaction, leak check, profile isolation, click guard (now also requires `confidence: high`) | included above | unit / fixture |
+| Live Flow | `test_flow_live` | 0 (7 skipped) | **not run**: no Flow session was opened in this round |
+
+Phase 1 tests changed in this round (both caused by the new confidence rule, intent unchanged):
+- `test_core._entry` now declares `confidence: high` for a clickable entry.
+- `test_unverified_locator_is_untrusted_and_never_clicked` downgrades to `UNVERIFIED` **and** `confidence: low`, because the schema no longer allows high without VERIFIED.
+
+### 7.2 Status summary
+
+| Item | Status |
+|---|---|
+| Read methods of the Flow adapter (grid, confirmation, stored prompt) | PARTIALLY VERIFIED (recorded live evidence, parsed offline) + SIMULATED (fixture) |
+| Write/credit methods of the adapter (attach, upload, submit, approve, reject, download) | **BLOCKED** (raise before touching the page) |
+| Media-id resolution of a finished tile | PROPOSED |
+| Locator confidence + outcome classes | VERIFIED (unit) |
+| Single-scene runner incl. crash sweep, uncertain outcomes, manual confirmation | SIMULATED |
+| Ledger accounting after a crash past the Approve click | bug found and fixed; SIMULATED regression |
+| Octopus lock unchanged | VERIFIED |
+| PostCSS leak: mechanism (Turbopack pool, not orphans), clean lifecycle | VERIFIED (live observation + clone) |
+| PostCSS leak: trigger | **UNVERIFIED** (not reproduced in 6 scenarios) |
+| Storage cleanup plan | PROPOSED (nothing deleted) |
+
+### 7.3 Updated verdict
+
+| Activity | Verdict |
+|---|---|
+| Non-credit development | **GO** |
+| Read-only live validation of the new medium-confidence locators (no clicks; open project + an existing video page) | **CONDITIONAL GO**: needs your explicit OK, because this round's brief said not to use real Flow for the adapter |
+| Live credit-consuming testing | **NO-GO** (unchanged) |
+
+### 7.4 Exact remaining blockers before credit-consuming testing
+
+1. **Authorization** for each state-changing step (attach/Animate or upload, submit, Approve, Reject, download) and a **credit budget** (proposed ≤ 160).
+2. **Live read-only validation** of `grid.*`, `media_detail.history_*`, `reuse_prompt`, `expand_prompt` (A1). Approve and Reject must reach `confidence: high` through a live health check of an *open* confirmation before they can ever be clicked (A2).
+3. **Media-id resolution** for a finished tile (A3, PROPOSED; requires a click).
+4. **Disk**: 18 GiB free now, target ≥ 30 GiB. `STORAGE_CLEANUP_PLAN.md` category A alone gives about 38 GiB.
+5. **Decisions**: Octopus key phrases for drift QC; U-02 (credit strategy); U-06 (Blatifa/style locks are DRAFT, so `prepare_scene` refuses S01 in production mode); U-04a (Animate as start frame); P1-U02/U03.
+6. **U-01 prompt fidelity**: still unknown; needs the credit-consuming experiment.
