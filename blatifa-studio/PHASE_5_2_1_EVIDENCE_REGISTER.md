@@ -21,6 +21,14 @@ Kinds: **LIVE-5.2** (recorded 2026-11-03, Phase 5.2) · **LIVE-5** (historical) 
 | E-P521-13 | Pre-existing temp folders (sentinel, kept failed runs) untouched | before/after listings in `evidence/pytest_light.log` | CLI | VERIFIED |
 | E-P521-14 | Generating vs completed, video identity, scene association | no new evidence | — | unchanged: NOT READY / UNRESOLVED / NOT READY |
 
+## Post-restart regression attempt (2026-11-04 16:24 WIB), appended
+
+| ID | Claim | Evidence | Kind | Label |
+|---|---|---|---|---|
+| E-P521-15 | No restart happened: boot time Nov 3 15:38, uptime 1 day 46 min | `evidence/preflight_post_restart.log` | CLI | VERIFIED |
+| E-P521-16 | Preflight: disk 18 GiB free (pass), swap 7716→7762 of 8192 MB (fail) → full regression not run | `evidence/preflight_post_restart.log`; `PHASE_5_2_1_POST_RESTART_REGRESSION.md` | CLI | VERIFIED |
+| E-P521-17 | 369 tests collected; the 134 deferred tests are still not run after the change | `evidence/preflight_post_restart.log` | CLI | **NOT RUN** (E-P521-12 still open) |
+
 ## Actions not performed
 
 - No Chrome, no live session, no Flow action, no credits.
