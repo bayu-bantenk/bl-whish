@@ -29,6 +29,17 @@ Kinds: **LIVE-5.2** (recorded 2026-11-03, Phase 5.2) · **LIVE-5** (historical) 
 | E-P521-16 | Preflight: disk 18 GiB free (pass), swap 7716→7762 of 8192 MB (fail) → full regression not run | `evidence/preflight_post_restart.log`; `PHASE_5_2_1_POST_RESTART_REGRESSION.md` | CLI | VERIFIED |
 | E-P521-17 | 369 tests collected; the 134 deferred tests are still not run after the change | `evidence/preflight_post_restart.log` | CLI | **NOT RUN** (E-P521-12 still open) |
 
+## Post-restart regression, attempt 2 (2026-11-05), appended
+
+| ID | Claim | Evidence | Kind | Label |
+|---|---|---|---|---|
+| E-P521-18 | Restart confirmed (boot Nov 5 15:25); preflight passed: disk 13 GiB, swap 0 MB | `evidence/preflight_post_restart.log` (2nd section) | CLI | VERIFIED |
+| E-P521-19 | Full suite: 362 passed, 0 failed, 7 skipped (opt-in live) | `evidence/pytest_full_post_restart.log` | CLI | VERIFIED |
+| E-P521-20 | The 134 deferred tests: 127 passed, 7 live skipped (closes E-P521-12 and E-P521-17) | `evidence/pytest_full_post_restart.log` | CLI | VERIFIED |
+| E-P521-21 | Compat note renamed `LEGACY_VIDEO_LOCATOR_BROKEN` → `LEGACY_VIDEO_LOCATOR_NOT_VERIFIED` (adapter + 2 browser tests; exact assertions kept; `legacy_ok` logic unchanged) | `PHASE_5_2_1_POST_RESTART_REGRESSION.md` STEP 3 | STATIC | VERIFIED |
+| E-P521-22 | Affected tests after the rename: 89 passed; ruff clean | `evidence/pytest_rename_rerun.log` | CLI | VERIFIED |
+| E-P521-23 | Old temp folders gone after the restart: cleared by macOS, not by this task | `evidence/preflight_post_restart.log` (2nd section) | CLI | OBSERVED |
+
 ## Actions not performed
 
 - No Chrome, no live session, no Flow action, no credits.
