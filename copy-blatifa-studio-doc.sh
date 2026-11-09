@@ -5,6 +5,7 @@ set -euo pipefail
 
 SRC_DIR="$HOME/Developments/My\ Project/blatifa-studio/docs"
 DEST_DIR="$(cd "$(dirname "$0")" && pwd)/blatifa-studio"
+REPO_URL="https://github.com/bayu-bantenk/bl-whish/blob/main"
 
 #if [ "$#" -eq 0 ]; then
 #  echo "Usage: $0 <filename> [<filename> ...]" >&2
