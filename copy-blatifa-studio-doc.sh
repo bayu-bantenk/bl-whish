@@ -25,8 +25,39 @@ DEST_DIR="$(cd "$(dirname "$0")" && pwd)/blatifa-studio"
 
 cp /Users/bayu.rieswanto_mdp/Developments/My\ Project/blatifa-studio/docs/phase-5.*/*.md blatifa-studio
 
+echo "========================================"
+echo "GIT STATUS"
+echo "========================================"
+
 git status
+
+echo ""
+echo "========================================"
+echo "FILE LIST WITH GITHUB URL"
+echo "========================================"
+
 git add .
 git commit -m "BLatifa"
 git push
 
+git status --porcelain=v1 -uall | while IFS= read -r line; do
+    status="${line:0:2}"
+    file="${line:3}"
+
+    # Handle renamed files
+    if [[ "$file" == *" -> "* ]]; then
+        file="${file##* -> }"
+    fi
+
+    # Remove surrounding quotes if Git quotes the filename
+    file="${file#\"}"
+    file="${file%\"}"
+
+    echo "${REPO_URL}/${file}"
+done
+
+
+echo ""
+echo "========================================"
+echo "DONE"
+echo "========================================"
