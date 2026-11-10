@@ -1,0 +1,25 @@
+{
+ "identity": {
+  "status": "VERIFIED",
+  "fingerprint": "d6c9f4583fa6",
+  "read_at": "2026-11-06T01:52:07+00:00",
+  "detail": ""
+ },
+ "dialogs": [],
+ "hovered": [],
+ "textboxes": 1,
+ "chips": 0,
+ "character_chips": 0,
+ "composer_chars": 0,
+ "composer_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+ "nonce_count": 0,
+ "octopus_lock_verbatim": false,
+ "equals_prompt_exact": false,
+ "equals_prompt_whitespace_collapsed": false,
+ "start_generation": [
+  [
+   "disabled"
+  ]
+ ],
+ "gate": "STOP"
+}

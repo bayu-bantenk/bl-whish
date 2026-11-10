@@ -1,0 +1,97 @@
+--- a/tests/browser/test_account_and_capture.py
++++ b/tests/browser/test_account_and_capture.py
+@@ -66,7 +66,10 @@
+     page = open_fixture()
+     fp = read_identity(page, registry).fingerprint
+     rep = run_preflight(page, registry, tmp_path, fp, SpendingPolicy(min_free_disk_bytes=0))
+-    assert rep.gate.allowed, rep.gate.blocks
++    # Phase 5.3g.4 (F-1): the click-read balance (VERIFIED, 40) is diagnostic only and never credit evidence, so the
++    # credit gate blocks; every other preflight gate (identity, disk, UI, confirmation policy) still passes.
++    assert rep.gate.blocks == [Block.CREDIT_UNKNOWN], rep.gate.blocks
++    assert rep.credits.status == "VERIFIED" and rep.credits.balance == 40 and "diagnostic only" in rep.credit_authorization
+     assert set(rep.states.values()) == {"HEALTHY"}
+     assert not {c for c in clicks(page)} & {"Start generation", "Approve", "Always approve", "Upload media"}
+     wrong = run_preflight(open_fixture("confirmnever"), registry, tmp_path, "000000000000", SpendingPolicy(min_free_disk_bytes=0))
+--- a/tests/unit/protected_hashes.py (5.3g.3, sha bdfb8808…)
++++ b/tests/unit/protected_hashes.py
+@@ -1,8 +1,15 @@
+-"""Protected-hash check shared by the 5.3g, 5.3g.1 and 5.3g.2 invariant tests (introduced in Phase 5.3g.3).
++"""Protected-hash check shared by the 5.3g … 5.3g.4 invariant tests (introduced in 5.3g.3, hardened in 5.3g.4).
+ 
+-A protected file passes when its SHA-256 equals its historical baseline digest, or when (path, baseline digest,
+-current digest) is listed exactly in `docs/phase-5.3g3/evidence/approved_changes.txt`. That list names only the files
+-Phase 5.3g.3 was authorized to change (F-2 / F-3). Any other change, or any other content of a listed file, fails.
++A protected file passes when its SHA-256 equals its historical baseline digest, or when the approved-change manifests
++contain an exact chain `baseline digest → … → current digest` for that path. Each manifest row names the only files
++a phase was authorized to change, with the exact old and new digest. Any other change fails.
++
++Integrity (Phase 5.3g.4):
++- every manifest is pinned here by its own SHA-256 (`MANIFESTS`); a manifest whose content differs is refused;
++- a manifest may never approve a change to a manifest, to this helper, or to any baseline-hash file;
++- two rows that move the same (path, old digest) to different new digests are refused;
++- `tests/unit/test_phase5_3g4_credit_paths.py` independently pins this helper's and each manifest's SHA-256, so
++  approving a new change needs edits in two separate places that are both reviewed.
+ The historical baseline files themselves are never edited.
+ """
+ 
+@@ -12,18 +19,51 @@
+ from pathlib import Path
+ 
+ ROOT = Path(__file__).resolve().parents[2]
+-APPROVED = ROOT / "docs/phase-5.3g3/evidence/approved_changes.txt"
++MANIFESTS = {
++    "docs/phase-5.3g3/evidence/approved_changes.txt": "decd8d3b246bb23131169221e3413751cd3942f91b4ab9677cc07647b9e51dcc",
++    "docs/phase-5.3g4/evidence/approved_changes.txt": "2be3994045fc56b6eb0c0f38179310ce3516e4de119bf8ba854697303d9c4b67",
++}
++SELF = "tests/unit/protected_hashes.py"
+ 
+ 
+-def approved_changes() -> set[tuple[str, str, str]]:
+-    rows = set()
+-    for line in APPROVED.read_text().splitlines():
+-        if line.strip() and not line.startswith("#"):
++class ManifestIntegrityError(AssertionError):
++    pass
++
++
++def sha256(path: str) -> str:
++    return hashlib.sha256((ROOT / path).read_bytes()).hexdigest()
++
++
++def _never_approvable(path: str) -> bool:
++    return path == SELF or path in MANIFESTS or path.endswith("approved_changes.txt") or "hashes" in Path(path).name
++
++
++def approved_changes() -> dict[tuple[str, str], str]:
++    """(path, old digest) → new digest, from every pinned manifest, after the integrity checks."""
++    edges: dict[tuple[str, str], str] = {}
++    for manifest, pin in MANIFESTS.items():
++        if sha256(manifest) != pin:
++            raise ManifestIntegrityError(f"{manifest}: content does not match its pinned sha256")
++        for line in (ROOT / manifest).read_text().splitlines():
++            if not line.strip() or line.startswith("#"):
++                continue
+             path, old, new = line.split()
+-            rows.add((path, old, new))
+-    return rows
++            if _never_approvable(path):
++                raise ManifestIntegrityError(f"{manifest}: may not approve a change to {path}")
++            if edges.get((path, old), new) != new:
++                raise ManifestIntegrityError(f"{manifest}: conflicting transitions for {path} {old[:12]}")
++            edges[(path, old)] = new
++    return edges
+ 
+ 
+ def matches(path: str, baseline_digest: str) -> bool:
+-    actual = hashlib.sha256((ROOT / path).read_bytes()).hexdigest()
+-    return actual == baseline_digest or (path, baseline_digest, actual) in approved_changes()
++    actual = sha256(path)
++    if actual == baseline_digest:
++        return True
++    edges, current, seen = approved_changes(), baseline_digest, set()
++    while (path, current) in edges and current not in seen:
++        seen.add(current)
++        current = edges[(path, current)]
++        if current == actual:
++            return True
++    return False

@@ -1,0 +1,19 @@
+{
+ "identity": "VERIFIED",
+ "dialogs": [],
+ "confirmation": {
+  "problem": "OK",
+  "state": "ANSWERED",
+  "cost": null,
+  "cost_status": "NOT_APPLICABLE",
+  "blocking": false
+ },
+ "last_quote": "Would you like me to kick off this 1 video generation, costing 10 credits?",
+ "quotes_on_page": 3,
+ "markers": {
+  "[blatifa-exp-12ef8b99]": [
+   "text"
+  ]
+ },
+ "gate": "STOP"
+}

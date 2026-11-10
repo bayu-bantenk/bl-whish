@@ -1,0 +1,25 @@
+# Phase 5.2.1 post-restart regression — STEP 1 preflight (read-only commands only)
+recorded_at: 2026-11-04T16:24:26+0700
+boot_time: Tue Nov  3 15:38:04 2026   (uptime 1 day 46 min -> NO restart since before Phase 5.2)
+load_averages: 16.89 14.38 15.04
+disk_free (/System/Volumes/Data): 18 GiB (df -h), 19 GB (df -H)         -> disk gate PASS (>= 10 GiB)
+swap: total 8192.00M used 7716.62M free 475.38M; 2nd read 7762.31M used  -> ~94-95 % used, rising  -> FAIL
+memory: 8 GiB physical; pages free 3781 (~59 MB); memory_pressure "free percentage" 27 %; pageouts 824604
+git: not a git repository
+pytest config: testpaths=tests, addopts "-ra --strict-markers", retention policy failed, retention count 1000000,
+               per-run basetemp via tests/pytest_safety.py
+test count: 369 collected (pytest --collect-only, 0.46 s)
+temp dirs present (untouched): blatifa-pytest-runs/ (6 kept run-* folders), pytest-of-*/pytest-sentinel-p51
+decision: STOP before STEP 2 — swap unusually high (same as the Phase 5.2.1 blocker, 7.85 GiB) and no restart happened.
+          No full suite, no Chrome, no deletion, no file changes outside this log and the docs.
+
+# --- second preflight, after the user's restart ---
+recorded_at: 2026-11-05T15:50:14+0700
+boot_time: Thu Nov  5 15:25:12 2026 (uptime 25 min) -> restart confirmed
+load_averages: 2.18 2.99 6.26
+disk_free (/System/Volumes/Data): 13 GiB                                  -> PASS (>= 10 GiB)
+swap: total 0.00M used 0.00M                                                -> PASS
+memory_pressure free percentage: 36 %
+temp dirs: blatifa-pytest-runs/ and pytest-sentinel-p51 no longer in $TMPDIR — cleared by macOS at restart
+           (known behaviour, Phase 5 finding); not deleted by Blatifa or by this task
+decision: PROCEED to STEP 2

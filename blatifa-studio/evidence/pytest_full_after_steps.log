@@ -1,0 +1,4 @@
+=========================== short test summary info ============================
+SKIPPED [1] tests/live/test_flow_live.py:36: live Flow checks are opt-in (BLATIFA_LIVE=1)
+SKIPPED [6] tests/live/test_flow_live.py:43: live Flow checks are opt-in (BLATIFA_LIVE=1)
+383 passed, 7 skipped in 399.12s (0:06:39)

@@ -1,0 +1,39 @@
+{
+ "manifest": {
+  "experiment_id": "EXP-P53D-20261106-12EF",
+  "scene_id": "EXP-P53D-S01",
+  "nonce": "[blatifa-exp-12ef8b99]",
+  "status": "EXECUTED",
+  "account": {
+   "identity_fingerprint": "d6c9f4583fa6",
+   "project": "562eec3d-9c48-4802-b152-3ed1d8c91ebd",
+   "profile": "main"
+  },
+  "route_id": "a25e3913-9eec-40e9-aafa-cf6c76961965",
+  "nonce_retired": true
+ },
+ "prompt": {
+  "sha256_matches_manifest": true,
+  "nonces": [
+   "[blatifa-exp-12ef8b99]"
+  ],
+  "is_append_nonce_layout": true
+ },
+ "databases": [
+  {
+   "db": "/Users/bayu.rieswanto_mdp/BlatifaStudio/simulation/simulation.db",
+   "attempts": 0,
+   "attempt_binding": {
+    "rows": 0,
+    "with_5_3d_nonce": 0
+   },
+   "attempt_preparation": "table absent",
+   "identity_handoff": {
+    "rows": 0,
+    "with_5_3d_nonce": 0
+   }
+  }
+ ],
+ "strict_preparation_record_exists": false,
+ "verdict": "BLOCKED: no pre-submission attempt_preparation + attempt_binding exists for the 5.3d nonce; the video was submitted by the user from PROMPT.txt, outside the Store"
+}

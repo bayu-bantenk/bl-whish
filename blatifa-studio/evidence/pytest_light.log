@@ -1,0 +1,14 @@
+## before 2026-11-04 08:19:44 WIB
+/dev/disk3s1s1   460Gi    12Gi   7.1Gi    63%    459k   75M    1%   /
+vm.swapusage: total = 8192.00M  used = 7494.00M  free = 698.00M  (encrypted)
+<TMPDIR>/blatifa-pytest-runs: run-20261103T085341-8599-e4727f9b run-20261103T090024-16541-bd3a1c20 run-20261103T090107-17137-885c63d8 run-20261103T093704-51716-359f4547 run-20261103T093726-52041-eddb2a58 run-20261103T144142-363-3ba9cb7d  <TMPDIR>/pytest-of-bayu.rieswanto_mdp: pytest-sentinel-p51 
+## run (light subset; no browser, no large simulations)
+........................................................................ [ 61%]
+........................................................................ [ 91%]
+...................                                                      [100%]
+235 passed in 7.87s
+## after 2026-11-04 08:19:52 WIB
+/dev/disk3s1s1   460Gi    12Gi   7.1Gi    63%    459k   75M    1%   /
+vm.swapusage: total = 8192.00M  used = 7478.00M  free = 714.00M  (encrypted)
+<TMPDIR>/blatifa-pytest-runs: run-20261103T085341-8599-e4727f9b run-20261103T090024-16541-bd3a1c20 run-20261103T090107-17137-885c63d8 run-20261103T093704-51716-359f4547 run-20261103T093726-52041-eddb2a58 run-20261103T144142-363-3ba9cb7d  <TMPDIR>/pytest-of-bayu.rieswanto_mdp: pytest-sentinel-p51 
+keep

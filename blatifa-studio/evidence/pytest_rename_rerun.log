@@ -1,0 +1,9 @@
+# 2026-11-05 15:57:35 rerun after rename
+tests/unit/test_phase5_1_runner_compat.py ........                       [ 67%]
+tests/unit/test_phase5_1_recognition.py .............................    [100%]
+
+======================== 89 passed in 79.00s (0:01:19) =========================
+# ruff
+All checks passed!
+/dev/disk3s5   460Gi   423Gi    11Gi    98%    5.6M  117M    5%   /System/Volumes/Data
+vm.swapusage: total = 2048.00M  used = 844.25M  free = 1203.75M  (encrypted)

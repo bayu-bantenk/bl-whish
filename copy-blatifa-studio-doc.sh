@@ -25,6 +25,7 @@ REPO_URL="https://github.com/bayu-bantenk/bl-whish/blob/main"
 #done
 
 cp /Users/bayu.rieswanto_mdp/Developments/My\ Project/blatifa-studio/docs/phase-5.*/*.md blatifa-studio
+cp /Users/bayu.rieswanto_mdp/Developments/My\ Project/blatifa-studio/docs/phase-5.*/evidence/*.diff blatifa-studio/evidence
 
 echo "========================================"
 echo "GIT STATUS"

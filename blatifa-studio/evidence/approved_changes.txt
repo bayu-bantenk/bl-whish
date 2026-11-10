@@ -1,0 +1,8 @@
+# Phase 5.3g.4 approved changes: <path> <5.3g.4 baseline sha256> <post-change sha256>.
+# Pinned by sha256 in tests/unit/protected_hashes.py and tests/unit/test_phase5_3g4_credit_paths.py.
+# Integrity roots (this file, the 5.3g.3 manifest, protected_hashes.py) and baseline files can never be listed.
+src/blatifa/cli.py 7835344bd94b1f4b95281307057adae2addc5fa89ee5167ad9b5f2d8a520f888 dac6da57ada5cd2247829c40d455d2149dce50fd61fc7235203099c8901b264a
+src/blatifa/production/gates.py 1613a62561149469565ac05a1edcf03cee3b08db235c2b39bcfec1328462c03c 05a81f24dbdb1d76187c152a6038cb77ebcc51f82068ec48af2f6d46ffa050ed
+src/blatifa/production/preflight.py 752ad121260a61d296cfc08d6aecda18c45f53b7c14b64a0bf08631066d06778 3ea6729c471e5292bfa1b38f74080e4844d5608f3b44c94c501694552d3ef24b
+src/blatifa/production/runner.py 1fbc5e5166b6cc09c0311463c511f575b8b8c1ebef0e17dcb72d67ea9a6ca5f8 761c36bef4895c35780064bccdbb141a30da71140df562b8c8d08d82eca1eeb6
+tests/browser/test_account_and_capture.py 26f7204b9a26af0aecdb1aa0bb9140199efadf2d780c664b9b870fbbc7ffaa91 c8b3845e82a205b307ab365ee8fbc4b927d6f188acad09b054b6eda05928d778

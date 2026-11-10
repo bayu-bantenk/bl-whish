@@ -1,0 +1,9 @@
+2026-11-10T06:51:20Z
+/dev/disk3s5   460Gi   419Gi    12Gi    98%    5.6M  124M    4%   /System/Volumes/Data
+total = 5120.00M  used = 4412.19M  free = 707.81M  (encrypted)
+System-wide memory free percentage: 40%
+--- after
+2026-11-10T07:09:08Z
+/dev/disk3s5   460Gi   418Gi    12Gi    98%    5.6M  125M    4%   /System/Volumes/Data
+total = 6144.00M  used = 5033.94M  free = 1110.06M  (encrypted)
+System-wide memory free percentage: 42%
