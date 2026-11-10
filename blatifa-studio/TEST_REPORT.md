@@ -1,48 +1,71 @@
-# Phase 5.3g.2 — Test report
+# Phase 5.3g.3 — Test report
 
-> **Ringkasan (ID):** 20 tes baru: 18 lulus, 2 `xfail` yang sengaja mendokumentasikan temuan F-2. Regresi penuh:
-> 615 passed, 7 skipped, 2 xfailed, 0 gagal. Kode produksi tidak berubah.
+> **Ringkasan (ID):**
+> - 132 tes baru, semuanya lulus.
+> - Regresi penuh: **749 passed, 7 skipped, 0 failed, 0 xfailed**. 749 = 615 (5.3g.2) + 2 (bekas xfail F-2 yang
+>   kini lulus) + 132 baru.
+> - Semua tes lama yang relevan lulus. Assertion yang dikunci hash tidak diubah.
 
 ## Preflight
 
 | Item | Value |
 |---|---|
-| Git status | not a git repository (no `.git`), so uncommitted changes cannot be listed. All 5.3g.1 baseline and post-change hashes were checked instead: **all OK** before starting. That includes `test_phase5_3f_nonce_binding.py`, which matches its recorded 5.3f.1 post-change hash (`a70ca8d7…`). |
-| Protected baseline | `evidence/baseline_hashes.txt`, 80 files: the 5.3g.1 baseline (54), all `docs/phase-5.3g1` files, `cli.py`, `handoff.py`, `manual_submission.py`, `live_probe.py`, `account/reader.py`, `browser/engine.py`, `inspector/validator.py` |
-| Resources (`evidence/resource_gate.txt`) | before: disk 14.58 GiB, swap 2079/3072 MB, memory free 34 %. After: 14.51 GiB, 2636/3072 MB, 40 %. Disk ≥ 10 GiB → full suite allowed, run **once**. |
+| Git | not a git repository → hashes instead (`evidence/baseline_hashes.txt`, 97 files, all OK before the change; all earlier phase baselines OK) |
+| Resources (`evidence/resource_gate.txt`) | before: disk 13 GiB, swap 3342/4096 MB, memory free 37 %. After: 12 GiB, 4449/5120 MB, 44 %. Disk ≥ 10 GiB → full suite allowed, run **once** |
 
 ## Results
 
 | Run | Result |
 |---|---|
-| `tests/unit/test_phase5_3g2_credit_discovery.py` (new) | 18 passed, 2 xfailed (strict) |
-| **Full regression** `pytest tests` (`evidence/pytest_full.log`) | **615 passed, 7 skipped, 2 xfailed, 0 failed**, 414 s, exit 0. 615 = 597 (5.3g.1) + 18. |
-| Skipped | 7 × `tests/live/test_flow_live.py` (opt-in `BLATIFA_LIVE=1`) |
-| `ruff check` (new test + tool) | all checks passed |
-| Protected hashes after the run | 80/80 unchanged |
+| `tests/unit/test_phase5_3g3_credit_contract.py` (new) | 132 passed |
+| Targeted: 5.3g.3, 5.3g.2, 5.3g.1, 5.3g, 5.3f, 5.3f.1, 5.3e, `test_core`, `test_phase5_probe`, `test_production`, `test_phase5_live_evidence`, `tests/browser/test_live_probe_fixture.py` | 459 passed |
+| **Full regression** `pytest tests` (`evidence/pytest_full.log`) | **749 passed, 7 skipped, 0 failed**, 420 s, exit 0 |
+| Skipped | 7 × `tests/live/test_flow_live.py` (opt-in `BLATIFA_LIVE=1`, not set) |
+| `ruff check src` + new or changed tests | all checks passed |
 
-No existing test was changed. No test drives a browser: all fixtures are parsed ARIA text, and the guard test uses
-a fake page.
+## Coverage (brief §8)
 
-## Coverage (brief §6)
-
-| Requirement | Test |
+| Requirement | Test(s) in `test_phase5_3g3_credit_contract.py` |
 |---|---|
-| Missing balance stays unavailable | `test_closed_account_panel_gives_no_balance` |
-| Malformed balance stays unavailable | `test_unrelated_or_malformed_text_is_never_a_balance` (10 cases pass). **Exception:** `test_malformed_digit_grouping_should_be_unavailable` (2 cases) is `xfail(strict=True)` and documents F-2. It will turn into a failure once the parser is fixed, so the mark must then be removed. |
-| Unrelated numeric text is never a balance | same parametrized test ("50 credits", "Costing 10 credits", "12 tiles", "50", …) |
-| A user-reported balance is never verified | `test_user_reported_balance_has_no_entry_point` |
-| No previous balance reused | `test_no_previous_balance_is_reused` |
-| No fallback guess | `test_two_different_balances_are_ambiguous_not_guessed` |
-| No browser interaction | `test_read_only_page_refuses_the_account_panel_click`, `test_discovery_tool_uses_only_read_operations` |
-| Identity verification unchanged | baseline hashes (`live_probe.py`, `account/reader.py`, `validator.py`) in `test_stop_reason_and_identity_reader_unchanged` |
-| Stop reason unchanged | same test (source of `cmd_live_probe`) |
-| An open panel's balance is never usable from `probe()` | `test_balance_appears_only_inside_the_open_account_dialog_and_that_dialog_stops_the_probe` |
+| valid integer / label | `test_valid_balances` (9 cases, both contexts) |
+| empty | `test_empty_is_missing` |
+| malformed, repeated separators | `test_malformed_numbers_are_invalid_in_every_context` (21 numbers × 2 contexts × with/without label): `50.5.5`, `5,0,0`, `50..0`, `50,,0`, `1,25`, `050`, `+50`, `1e3`, … |
+| negative | `test_negative_is_invalid` (`-`, `−`, `-0`) |
+| ambiguous | `test_dot_grouping_is_ambiguous_never_a_number` |
+| unrelated text, unknown format, non-ASCII digits | `test_unrelated_or_unknown_text_is_never_a_balance_in_page_text`, `test_proven_source_still_rejects_sentences_and_non_ascii_digits` |
+| numeric text from non-balance elements | `test_numeric_text_from_non_balance_elements_is_not_present` |
+| no strip-and-join | `test_parser_has_no_strip_and_join_shortcut`; `test_parse_result_cannot_carry_a_value_unless_valid` |
+| user-reported never verified | `test_user_reported_is_never_verified`; `test_contract_refuses_mixed_or_unsupported_provenance` |
+| open panel ≠ without interaction | `test_already_open_panel_is_observed_never_without_interaction`; `test_dialog_cases_are_unavailable` |
+| missing / invalid stays unavailable | `test_missing_invalid_or_multiple_values_stay_unavailable`; `test_unreadable_tree_is_unavailable` |
+| historical balance not current | `test_historical_or_future_balance_is_not_current`; `test_no_previous_balance_is_reused_and_no_state_is_kept` |
+| no implicit fallback | `test_gate_has_no_default_or_fallback_balance`; `test_everything_but_verified_is_credit_unknown` (including `None`) |
+| gate: verified processed by existing rules | `test_fresh_verified_balance_goes_through_the_existing_rules` (allowed; low balance → `INSUFFICIENT_CREDIT`) |
+| gate: user-reported / observed / unavailable rejected | `test_everything_but_verified_is_credit_unknown` → `CREDIT_UNKNOWN` |
+| approval gate unchanged | `test_approval_gate_unchanged_and_fail_closed_without_balance` |
+| live-probe stop rule | `test_live_probe_stop_rule_still_fires_for_every_non_verified_status`; `test_probe_still_stops_on_the_open_account_panel` |
+| F-1 untouched, not exercised | `test_read_credits_click_path_is_unchanged_and_not_exercised` |
+| purity, flags, protected files | `test_new_contract_code_is_pure`; `test_flags_registry_and_protected_files` |
+| nonce binding, manual attestation, strict handoff | their existing suites (5.3f: 43, 5.3f.1: 33, 5.3g.1: 32, 5.3e) pass; source files hash-equal |
 
-## Changed files
+## Existing tests
 
-New only:
-- `docs/phase-5.3g2/` (5 reports, `tools/credit_dom_discovery.py`, `evidence/`);
-- `tests/unit/test_phase5_3g2_credit_discovery.py`.
+- Unchanged and passing, including all old credit assertions: `test_core.py::test_parse_credits` (`"1,250 …" → 1250`,
+  `"40 credits" → None`), `test_phase5_probe.py` (exact legacy dict), `test_phase5_live_evidence.py`,
+  `test_production.py`, `tests/browser/test_live_probe_fixture.py`.
+- Changed (documented in `IMPLEMENTATION_REPORT.md` §5, diff in `evidence/test_changes.diff`):
+  - `test_phase5_3g_preflight.py`, `test_phase5_3g1_manual_submission.py`: hash line only;
+  - `test_phase5_3g2_credit_discovery.py`: hash line, F-2 `xfail` removed, and the two open-panel asserts made
+    stricter (F-3).
 
-Hashes of the new files: `evidence/new_files_hashes.txt`. Production code: none changed.
+## Protected hashes
+
+| Set | Result |
+|---|---|
+| 5.3g.3 baseline (97 files) | 91 equal; 6 differ, each exactly as listed in `evidence/approved_changes.txt` |
+| 5.3e / 5.3f / 5.3f.1 baselines, 5.3f.1 test baseline | all equal |
+| 5.3f test baseline | all equal except `test_phase5_3e_handoff.py`: a pre-existing 5.3f.1 change, already superseded by the 5.3f.1 test baseline (which it matches). Not touched in 5.3g.3. |
+| 5.3g / 5.3g.1 baselines | all equal except `live_probe.py` (approved) |
+| 5.3g.2 baseline (80) | 78 equal; `live_probe.py`, `reader.py` approved |
+| `docs/phase-5.3g1/**`, `docs/phase-5.3g2/**` | all equal |
+| `p53g.db` | equal before / after |

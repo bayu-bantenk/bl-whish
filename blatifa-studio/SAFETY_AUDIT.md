@@ -1,27 +1,27 @@
-# Phase 5.3g.2 — Safety audit
+# Phase 5.3g.3 — Safety audit
 
-> **Ringkasan (ID):** Tidak ada klik, ketikan, navigasi, reload, script, penyadapan jaringan, maupun pembacaan cookie
-> atau storage. Saat dialog terdeteksi, pemeriksaan langsung berhenti, dan Blatifa tidak menutup panel. Semua proteksi
-> tetap utuh. Tidak ada kredit terpakai.
+> **Ringkasan (ID):** Fase ini sepenuhnya offline:
+> - Tidak ada koneksi ke Chrome khusus atau ke Flow. Tidak ada klik, ketikan, navigasi atau reload.
+> - Tidak ada penyadapan jaringan, cookie atau storage. Tidak ada kredit terpakai.
+> - `blatifa account` dan `blatifa preflight` tidak dijalankan. Data eksperimen 5.3G.1 tidak berubah.
 
 | Check | Result | Evidence |
 |---|---|---|
-| `LIVE_ACTIONS_ACTIVE = False` | PASS | `authorization.py:30` (hash in baseline) |
-| 18 × `deny: true` | PASS | registry count 18; hash unchanged |
-| Discovery path uses only `ReadOnlyPage` reads | PASS | the tool's calls: `url`, `aria_snapshot` (via `body_tree`), `count` and `aria_snapshot` (via `validate` / `accessible_name`); `get_by_text` / `get_by_role` would only count and read, and that step did not run; static test `test_discovery_tool_uses_only_read_operations` |
-| No `evaluate` | PASS | not called; `ReadOnlyPage.evaluate` refuses non-vetted scripts anyway |
-| No click, type, hover, scroll, menu, reload, navigation | PASS | none in the tool; `ReadOnlyPage` raises before any of them |
-| `engine.health()` / `attach()` side effects | reviewed | `health` evaluates nothing before attach; `attach` connects over CDP and picks the existing Flow tab (it opens a tab only if none exists; the tool requires the health URL to be the project first); `detach` only disconnects |
-| No network listeners, interception, API inspection | PASS | none added; `attach` registers only Playwright's own `disconnected` callback (existing) |
-| No cookies, storage, tokens, credentials | PASS | not read; the output has 0 `@` characters; the 205-character credit-link URL value was not stored |
-| Stop conditions | **triggered: unexpected dialog** | the run stopped immediately after the ARIA snapshot; the dialog was not dismissed |
-| Identity | VERIFIED, expected fingerprint | `dom_discovery.json` |
-| Credits consumed / generation | 0 / none | nothing that can spend credits was reachable |
-| Disk ≥ 5 GiB | PASS | 14.57 GiB at start (`evidence/resource_gate.txt`) |
-| Production code modified | NO | `evidence/baseline_hashes.txt` (80 files incl. `cli.py`, `live_probe.py`, `account/reader.py`, `engine.py`) unchanged |
-
-**Finding F-1 (outside this phase's path):** `blatifa account` and `blatifa preflight` contain a click path
-(`read_credits`). They were not run. Under the current policy they must not be used to read credits.
-
-**Note for the user:** the dedicated Chrome shows the account panel ("Account settings") open. Blatifa did not open
-it and did not close it. You can close it yourself whenever you want.
+| Flow / browser interaction | NONE | no command attached to the dedicated Chrome; no `live-probe`, `account`, `preflight`, `handoff` or `experiment` command was run |
+| Local headless fixture tests | ran (existing regression) | `tests/browser/*` open `tests/fixtures/*.html` (local files) in the test engine. These are not Flow and do not use the personal profile. |
+| `LIVE_ACTIONS_ACTIVE = False` | PASS | `authorization.py:30`, unchanged (hash) |
+| 18 × `deny: true` | PASS | `flow_locators.yaml` unchanged (hash); count 18 asserted in tests |
+| `BLATIFA_LIVE` | not set | asserted in `test_flags_registry_and_protected_files`; 7 live tests skipped |
+| New code is pure | PASS | `account/balance.py` imports no browser, network or storage module (AST test `test_new_contract_code_is_pure`) |
+| No click, type, navigation added | PASS | `live_probe.ReadOnlyPage`, `probe`, `probe_detail` unchanged; `credits_without_click` reads a tree that was already read |
+| F-1 click path | unchanged, not run | `read_credits` + `_close_panel` source hash asserted; AST test: this phase's tests call neither `read_credits` nor `run_preflight` |
+| User-reported value | never verified | `user_reported()` → `USER_REPORTED`; `credit_evidence` → `(UNKNOWN, None)`; the contract refuses a verified value on it |
+| Historical balance | never current | `credit_evidence` rejects readings older than 300 s or dated in the future |
+| Default or fallback balance | none | no default on `PreflightInputs.credit_status` / `balance`; `credit_evidence` has no ledger, settings or memory input |
+| Experiment 5.3G.1 | unchanged | `p53g.db` sha256 `a6e4cacf…` before = after (`evidence/db_hashes_before.txt`, `evidence/db_hashes_after.txt`); attempt `4ae102de…`, nonce `[blatifa-exp-1e05d92f]`, prompt sha `f45e9887…` not touched |
+| Historical evidence 5.3G.1 / 5.3G.2 | unchanged | all `docs/phase-5.3g1/**` and `docs/phase-5.3g2/**` files hash-equal (`evidence/baseline_hashes.txt`) |
+| Historical baselines | unchanged | the 5.3e, 5.3f, 5.3f.1, 5.3g, 5.3g.1 and 5.3g.2 baseline files are not edited; the only accepted differences are the 6 in `evidence/approved_changes.txt` |
+| Nonce binding, manual attestation, strict handoff | unchanged | `nonce_binding.py`, `manual_submission.py`, `handoff.py`, `store.py` hash-equal; their test suites pass |
+| Deleted files | none | backups of the changed tests are kept outside the project; nothing was removed |
+| Disk | ≥ 5 GiB | 13 GiB at start (`evidence/resource_gate.txt`) |
+| Credits consumed | 0 | nothing that can spend credits was reachable |
