@@ -1,71 +1,58 @@
-# Phase 5.3g.3 — Test report
+# Phase 5.3g.4 — Test report
 
 > **Ringkasan (ID):**
-> - 132 tes baru, semuanya lulus.
-> - Regresi penuh: **749 passed, 7 skipped, 0 failed, 0 xfailed**. 749 = 615 (5.3g.2) + 2 (bekas xfail F-2 yang
->   kini lulus) + 132 baru.
-> - Semua tes lama yang relevan lulus. Assertion yang dikunci hash tidak diubah.
+> - 47 tes baru, semuanya lulus.
+> - Regresi penuh: **796 passed, 7 skipped, 0 failed**. 796 = 749 (5.3g.3) + 47.
+> - Hanya satu assertion lama yang diubah, dan perubahannya justru lebih ketat. Alasannya ada di
+>   `IMPLEMENTATION_REPORT.md` §4.
 
 ## Preflight
 
 | Item | Value |
 |---|---|
-| Git | not a git repository → hashes instead (`evidence/baseline_hashes.txt`, 97 files, all OK before the change; all earlier phase baselines OK) |
-| Resources (`evidence/resource_gate.txt`) | before: disk 13 GiB, swap 3342/4096 MB, memory free 37 %. After: 12 GiB, 4449/5120 MB, 44 %. Disk ≥ 10 GiB → full suite allowed, run **once** |
+| Git | not a git repository → hashes (`evidence/baseline_hashes.txt`, 289 files: all `src`/`tests` Python files, fixtures, the locator registry and all `docs/phase-5.3*` files) |
+| Resources (`evidence/resource_gate.txt`) | before: disk 12 GiB, swap 4412/5120 MB, memory free 40 %. After: 12 GiB, 5034/6144 MB, 42 %. Disk ≥ 10 GiB → full suite allowed, run **once** |
 
 ## Results
 
 | Run | Result |
 |---|---|
-| `tests/unit/test_phase5_3g3_credit_contract.py` (new) | 132 passed |
-| Targeted: 5.3g.3, 5.3g.2, 5.3g.1, 5.3g, 5.3f, 5.3f.1, 5.3e, `test_core`, `test_phase5_probe`, `test_production`, `test_phase5_live_evidence`, `tests/browser/test_live_probe_fixture.py` | 459 passed |
-| **Full regression** `pytest tests` (`evidence/pytest_full.log`) | **749 passed, 7 skipped, 0 failed**, 420 s, exit 0 |
+| `tests/unit/test_phase5_3g4_credit_paths.py` (new) | 47 passed |
+| Targeted: 5.3g.4, 5.3g.3, 5.3g.2, 5.3g.1, 5.3g, 5.3f, 5.3f.1, 5.3e, `test_production`, `test_core`, `test_phase5_probe`, `tests/browser/test_account_and_capture.py` | 502 passed |
+| **Full regression** `pytest tests` (`evidence/pytest_full.log`) | **796 passed, 7 skipped, 0 failed**, 419 s, exit 0 |
 | Skipped | 7 × `tests/live/test_flow_live.py` (opt-in `BLATIFA_LIVE=1`, not set) |
 | `ruff check src` + new or changed tests | all checks passed |
 
-## Coverage (brief §8)
+## Coverage (brief Stage D)
 
-| Requirement | Test(s) in `test_phase5_3g3_credit_contract.py` |
+| Requirement | Test |
 |---|---|
-| valid integer / label | `test_valid_balances` (9 cases, both contexts) |
-| empty | `test_empty_is_missing` |
-| malformed, repeated separators | `test_malformed_numbers_are_invalid_in_every_context` (21 numbers × 2 contexts × with/without label): `50.5.5`, `5,0,0`, `50..0`, `50,,0`, `1,25`, `050`, `+50`, `1e3`, … |
-| negative | `test_negative_is_invalid` (`-`, `−`, `-0`) |
-| ambiguous | `test_dot_grouping_is_ambiguous_never_a_number` |
-| unrelated text, unknown format, non-ASCII digits | `test_unrelated_or_unknown_text_is_never_a_balance_in_page_text`, `test_proven_source_still_rejects_sentences_and_non_ascii_digits` |
-| numeric text from non-balance elements | `test_numeric_text_from_non_balance_elements_is_not_present` |
-| no strip-and-join | `test_parser_has_no_strip_and_join_shortcut`; `test_parse_result_cannot_carry_a_value_unless_valid` |
-| user-reported never verified | `test_user_reported_is_never_verified`; `test_contract_refuses_mixed_or_unsupported_provenance` |
-| open panel ≠ without interaction | `test_already_open_panel_is_observed_never_without_interaction`; `test_dialog_cases_are_unavailable` |
-| missing / invalid stays unavailable | `test_missing_invalid_or_multiple_values_stay_unavailable`; `test_unreadable_tree_is_unavailable` |
-| historical balance not current | `test_historical_or_future_balance_is_not_current`; `test_no_previous_balance_is_reused_and_no_state_is_kept` |
-| no implicit fallback | `test_gate_has_no_default_or_fallback_balance`; `test_everything_but_verified_is_credit_unknown` (including `None`) |
-| gate: verified processed by existing rules | `test_fresh_verified_balance_goes_through_the_existing_rules` (allowed; low balance → `INSUFFICIENT_CREDIT`) |
-| gate: user-reported / observed / unavailable rejected | `test_everything_but_verified_is_credit_unknown` → `CREDIT_UNKNOWN` |
-| approval gate unchanged | `test_approval_gate_unchanged_and_fail_closed_without_balance` |
-| live-probe stop rule | `test_live_probe_stop_rule_still_fires_for_every_non_verified_status`; `test_probe_still_stops_on_the_open_account_panel` |
-| F-1 untouched, not exercised | `test_read_credits_click_path_is_unchanged_and_not_exercised` |
-| purity, flags, protected files | `test_new_contract_code_is_pure`; `test_flags_registry_and_protected_files` |
-| nonce binding, manual attestation, strict handoff | their existing suites (5.3f: 43, 5.3f.1: 33, 5.3g.1: 32, 5.3e) pass; source files hash-equal |
+| legacy `read_credits()` output cannot bypass `credit_evidence()` | `test_legacy_read_credits_output_cannot_pass_credit_evidence` (5 snapshots, including VERIFIED 10 000; even a simulated adapter refuses them) |
+| `blatifa preflight` cannot authorize on click-derived evidence | `test_run_preflight_cannot_authorize_from_a_click_derived_balance`, `test_blatifa_preflight_command_blocks_on_click_derived_evidence` (fake engine, page and readers); browser fixture test → `[CREDIT_UNKNOWN]` |
+| `blatifa account` diagnostics do not imply authorization | `test_blatifa_account_diagnostics_never_imply_authorization` (output and report JSON `granted: false`, no e-mail in the report) |
+| USER_REPORTED / OBSERVED_IN_ALREADY_OPEN_PANEL stay unverified | `test_user_reported_and_observed_panel_stay_unverified_even_for_simulation`; runner case with `user_reported("10000")` |
+| missing, stale, future, malformed, ambiguous, wrong types fail closed | `test_everything_but_a_fresh_verified_reading_fails_closed` (21 inputs × `credit_evidence`, `approval_balance`, `approval_gate`, `preflight_gate`) |
+| verified evidence follows the existing rules | `test_a_fresh_verified_reading_follows_the_existing_rules`; runner approves with a fresh reading |
+| every production path reaches the boundary | `test_call_graph_of_every_credit_decision`, `test_gate_inputs_come_only_from_the_boundary` |
+| simulation values cannot enter production | `test_only_simulated_flow_and_out_of_package_doubles_count_as_simulation`, `test_bare_numbers_never_reach_approval_for_a_live_adapter`, `test_runner_refuses_a_bare_number_for_a_live_adapter_and_accepts_fresh_evidence`, `test_simulation_defaults_stay_inside_the_simulate_branch` |
+| gate rules unchanged | `test_preflight_and_approval_rules_are_unchanged` (source sha256 = pre-5.3g.3 text) |
+| approved-change integrity | `test_integrity_roots_are_pinned_independently`, `test_manifest_cannot_approve_itself_the_helper_or_a_baseline`, `test_tampered_or_conflicting_manifest_is_refused` |
+| G.1 / G.2 / G.3 protections | `test_historical_baseline_files_and_experiment_inputs_are_unchanged`, `test_every_protected_file_matches_its_5_3g4_baseline_or_an_approved_change`, `test_flags_and_protections`; all G.1–G.3 suites pass |
 
 ## Existing tests
 
-- Unchanged and passing, including all old credit assertions: `test_core.py::test_parse_credits` (`"1,250 …" → 1250`,
-  `"40 credits" → None`), `test_phase5_probe.py` (exact legacy dict), `test_phase5_live_evidence.py`,
-  `test_production.py`, `tests/browser/test_live_probe_fixture.py`.
-- Changed (documented in `IMPLEMENTATION_REPORT.md` §5, diff in `evidence/test_changes.diff`):
-  - `test_phase5_3g_preflight.py`, `test_phase5_3g1_manual_submission.py`: hash line only;
-  - `test_phase5_3g2_credit_discovery.py`: hash line, F-2 `xfail` removed, and the two open-panel asserts made
-    stricter (F-3).
+- Changed assertion: one. In `tests/browser/test_account_and_capture.py`, `assert rep.gate.allowed` became
+  `assert rep.gate.blocks == [Block.CREDIT_UNKNOWN]`, plus a check that the diagnostic is still visible.
+- Changed helper: `tests/unit/protected_hashes.py` (hardened; diff in `evidence/test_changes.diff`). Every caller keeps
+  the same `matches(path, digest)` call.
+- Everything else is unchanged, including all hash-locked 5.3f / 5.3f.1 tests and all 5.3g … 5.3g.3 test files.
 
-## Protected hashes
+## Protected hashes (after)
 
 | Set | Result |
 |---|---|
-| 5.3g.3 baseline (97 files) | 91 equal; 6 differ, each exactly as listed in `evidence/approved_changes.txt` |
-| 5.3e / 5.3f / 5.3f.1 baselines, 5.3f.1 test baseline | all equal |
-| 5.3f test baseline | all equal except `test_phase5_3e_handoff.py`: a pre-existing 5.3f.1 change, already superseded by the 5.3f.1 test baseline (which it matches). Not touched in 5.3g.3. |
-| 5.3g / 5.3g.1 baselines | all equal except `live_probe.py` (approved) |
-| 5.3g.2 baseline (80) | 78 equal; `live_probe.py`, `reader.py` approved |
-| `docs/phase-5.3g1/**`, `docs/phase-5.3g2/**` | all equal |
-| `p53g.db` | equal before / after |
+| 5.3g.4 baseline (289 files) | 283 equal; 5 differ, each exactly as in `evidence/approved_changes.txt` (`cli.py`, `gates.py`, `preflight.py`, `runner.py`, `test_account_and_capture.py`); 1 integrity root (`protected_hashes.py`, pinned in the 5.3g.4 test) |
+| 10 historical baseline files + 5.3g.3 manifest | equal (`evidence/historical_baseline_files.txt`; its only other line is the helper's 5.3g.3 hash `bdfb8808…`, superseded as documented) |
+| `docs/phase-5.3g1/**`, `5.3g2/**`, `5.3g3/**` | byte-identical |
+| `p53g.db`, FINAL_PROMPT, BASE_PROMPT | identical before and after |
+| `LIVE_ACTIONS_ACTIVE`, `deny: true` | False, 18 (before = after) |
