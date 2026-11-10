@@ -37,10 +37,6 @@ echo "========================================"
 echo "FILE LIST WITH GITHUB URL"
 echo "========================================"
 
-git add .
-git commit -m "BLatifa"
-git push
-
 git status --porcelain=v1 -uall | while IFS= read -r line; do
     status="${line:0:2}"
     file="${line:3}"
@@ -56,6 +52,10 @@ git status --porcelain=v1 -uall | while IFS= read -r line; do
 
     echo "${REPO_URL}/${file}"
 done
+
+git add .
+git commit -m "BLatifa"
+git push
 
 
 echo ""
