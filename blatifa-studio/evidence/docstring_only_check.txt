@@ -1,0 +1,7 @@
+# Phase 5.3g.4.1: AST with docstrings removed, before vs after (True = only docstrings changed)
+src/blatifa/account/__init__.py True
+src/blatifa/account/reader.py True
+src/blatifa/cli.py True
+src/blatifa/production/preflight.py True
+src/blatifa/production/gates.py code changed (explicit trust): True
+src/blatifa/production/runner.py code changed (explicit trust): True
