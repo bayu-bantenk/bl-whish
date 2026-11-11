@@ -1,0 +1,13 @@
+# Host capability inspection (read-only), 2026-11-11 13:28 +0700
+hw.memsize=8589934592 (8 GiB)
+hw.ncpu=8 perf=4 eff=4 cpu=Apple M2
+ProductName:  macOS
+ProductVersion:  26.5
+BuildVersion:  25F71
+df /: /dev/disk3s1s1   460Gi    12Gi   9.9Gi    55%    459k  104M    0%   /
+System-wide memory free percentage: 35%
+Installed virtualization: UTM no, Parallels no, VMware Fusion no, OrbStack no, tart/lima/qemu/vfkit/container absent; Docker.app present (not run)
+Google Chrome (host, not launched; version from Info.plist): 157.0.8103.40
+playwright (venv metadata): 1.64.1; PySide6 not installed in .venv; ffmpeg: present (Homebrew)
+Video fixture docs/phase-0/evidence/media/E-FLOW-test_720p.mp4: h264 High + aac LC (ffprobe), 2867757 bytes
+Commands: sysctl, sw_vers, df, memory_pressure -Q, ls -d /Applications/<app>, command -v, defaults read Info.plist, ffprobe
