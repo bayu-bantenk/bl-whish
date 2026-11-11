@@ -1,0 +1,19 @@
+{
+ "steps": [
+  "start ok pid=9005 port=62469 Chrome/157.0.8103.40",
+  "attach ok url=about:blank",
+  "goto about:blank ok",
+  "loopback ok body=loopback-ok"
+ ],
+ "chrome_log_tail": [
+  "",
+  "DevTools listening on ws://127.0.0.1:62469/devtools/browser/005acedc-7803-4c74-9131-5991776bb7f4",
+  "Trying to load the allocator multiple times. This is *not* supported.",
+  "[9012:1482438:1111/113948.623253:ERROR:ui/display/mac/cv_display_link_mac.mm:188] CVDisplayLinkCreateWithCGDisplay failed. CVReturn: -6670",
+  "[9012:1482495:1111/113948.630635:ERROR:ui/display/mac/cv_display_link_mac.mm:188] CVDisplayLinkCreateWithCGDisplay failed. CVReturn: -6670",
+  "[9012:1482438:1111/113948.641943:ERROR:ui/display/mac/cv_display_link_mac.mm:188] CVDisplayLinkCreateWithCGDisplay failed. CVReturn: -6670",
+  "[9012:1482495:1111/113948.644967:ERROR:ui/display/mac/cv_display_link_mac.mm:188] CVDisplayLinkCreateWithCGDisplay failed. CVReturn: -6670",
+  "[9012:1482438:1111/113948.645300:ERROR:ui/display/mac/cv_display_link_mac.mm:188] CVDisplayLinkCreateWithCGDisplay failed. CVReturn: -6670",
+  "[9012:1482495:1111/113948.645364:ERROR:ui/display/mac/cv_display_link_mac.mm:188] CVDisplayLinkCreateWithCGDisplay failed. CVReturn: -6670"
+ ]
+}

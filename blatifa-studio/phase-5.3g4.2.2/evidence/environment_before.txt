@@ -1,0 +1,51 @@
+# environment before G.4.2.2 2026-11-11T04:34:49Z
+macOS: 26.5 (25F71) arm64
+sandbox-exec: -rwxr-xr-x  1 root  wheel  102560 May  1  2026 /usr/bin/sandbox-exec
+LIVE_ACTIONS_ACTIVE line 30:LIVE_ACTIONS_ACTIVE: Final = False
+deny_true_count: 18
+BLATIFA_LIVE: unset
+BLATIFA_CHROME: unset
+BLATIFA_WORKSPACE: unset
+HTTP_PROXY: unset
+HTTPS_PROXY: unset
+ALL_PROXY: unset
+http_proxy: unset
+https_proxy: unset
+all_proxy: unset
+--- scutil --proxy
+<dictionary> {
+  ExceptionsList : <array> {
+    0 : *.local
+    1 : 169.254/16
+  }
+  FTPPassive : 1
+  HTTPEnable : 0
+  HTTPSEnable : 0
+}
+--- DNS nameservers
+  nameserver[0] : 192.168.1.2
+--- listening TCP sockets on this Mac (n=20):
+ARDAgent *:3283
+ControlCe *:5000
+ControlCe *:7000
+Google 127.0.0.1:50568
+Google [::1]:7679
+beam.smp *:15672
+beam.smp *:15675
+beam.smp *:1883
+beam.smp *:25672
+beam.smp *:5672
+beam.smp *:61613
+dbeaver 127.0.0.1:57854
+epmd *:4369
+postgres 127.0.0.1:5432
+postgres [::1]:5432
+rapportd *:53866
+--- running Chrome processes (before): 60
+ 1394 /Applications/Google Chrome.app/Contents/MacOS/Google Chrome
+ 5133 /Applications/Google Chrome.app/Contents/MacOS/Google Chrome --user-data-dir=<…> --remote-debugging-address=127.0.0.1 --remote-debugging-port=50568 --no-f
+ 7639 /bin/zsh -c source ~/.claude-personal/shell-snapshots/snapshot-zsh-1794283453441-6dp3pl.sh 2>/dev/null || true && setopt NO_EXTEND
+ 7716 /bin/zsh -c source ~/.claude-personal/shell-snapshots/snapshot-zsh-1794283453441-6dp3pl.sh 2>/dev/null || true && setopt NO_EXTEND
+chrome binary: -rwxrwxr-x  2 bayu.rieswanto_mdp  admin  367696 Nov 10 08:28 /Applications/Google Chrome.app/Contents/MacOS/Google Chrome
+Google Chrome 157.0.8103.40 
+disk free: 9.34 GiB

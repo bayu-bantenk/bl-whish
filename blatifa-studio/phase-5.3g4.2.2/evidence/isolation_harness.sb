@@ -1,0 +1,35 @@
+;; Phase 5.3g.4.2.2 network isolation profile for the tests/browser run (macOS sandbox-exec / SBPL).
+;; Everything is allowed except outbound network. Outbound network is allowed only to loopback
+;; ("localhost" = 127.0.0.1 and ::1), and even there NOT to any port that was already listening (TCP) or bound
+;; (UDP) when the profile was generated (2026-11-11T04:35:48Z): the running Blatifa Chrome CDP port, databases and
+;; other local services stay unreachable. DNS (ports 53/853, the mDNSResponder socket) is denied.
+(version 1)
+(allow default)
+(deny network-outbound)
+(allow network-outbound (remote ip "localhost:*"))
+(allow network-outbound (remote unix-socket))
+(deny network-outbound (remote ip "localhost:53"))
+(deny network-outbound (remote ip "localhost:853"))
+(deny network-outbound (remote ip "localhost:1883"))
+(deny network-outbound (remote ip "localhost:3283"))
+(deny network-outbound (remote ip "localhost:4369"))
+(deny network-outbound (remote ip "localhost:5000"))
+(deny network-outbound (remote ip "localhost:5353"))
+(deny network-outbound (remote ip "localhost:5432"))
+(deny network-outbound (remote ip "localhost:5672"))
+(deny network-outbound (remote ip "localhost:7000"))
+(deny network-outbound (remote ip "localhost:7679"))
+(deny network-outbound (remote ip "localhost:15672"))
+(deny network-outbound (remote ip "localhost:15675"))
+(deny network-outbound (remote ip "localhost:25672"))
+(deny network-outbound (remote ip "localhost:50568"))
+(deny network-outbound (remote ip "localhost:53866"))
+(deny network-outbound (remote ip "localhost:55617"))
+(deny network-outbound (remote ip "localhost:56844"))
+(deny network-outbound (remote ip "localhost:57854"))
+(deny network-outbound (remote ip "localhost:60570"))
+(deny network-outbound (remote ip "localhost:61613"))
+(deny network-outbound (remote unix-socket (path-literal "/private/var/run/mDNSResponder")))
+(deny network-outbound (remote unix-socket (path-literal "/var/run/mDNSResponder")))
+;; harness only: prove that a per-port loopback deny works, on our own listener
+(deny network-outbound (remote ip "localhost:61634"))

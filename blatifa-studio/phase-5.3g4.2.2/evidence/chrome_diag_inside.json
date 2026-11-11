@@ -1,0 +1,33 @@
+{
+ "steps": [
+  "start ok pid=8943 port=62432 Chrome/157.0.8103.40"
+ ],
+ "error": "Error: BrowserContext.new_page: Target crashed ",
+ "chrome_log_tail": [
+  "[1111/113943.353611:WARNING:third_party/crashpad/crashpad/util/numeric/in_range_cast.h:38] value -634136515 out of range",
+  "[1111/113943.375431:ERROR:third_party/crashpad/crashpad/client/crash_report_database_mac.mm:751] open lock ~/Library/Application Support/Google/Chrome/Crashpad/pending/53878caf-61d9-4f02-a180-c2d4fee40b82.dmp: Resource temporarily unavailable (35)",
+  "aperitif: Failed to initialize sandbox",
+  "[1111/113943.749863:WARNING:third_party/crashpad/crashpad/util/numeric/in_range_cast.h:38] value -634136515 out of range",
+  "[1111/113944.060735:WARNING:third_party/crashpad/crashpad/util/numeric/in_range_cast.h:38] value -634136515 out of range",
+  "[1111/113944.358185:WARNING:third_party/crashpad/crashpad/util/numeric/in_range_cast.h:38] value -634136515 out of range",
+  "aperitif: Failed to initialize sandbox",
+  "aperitif: Failed to initialize sandbox",
+  "aperitif: Failed to initialize sandbox",
+  "aperitif: Failed to initialize sandbox",
+  "[1111/113944.679443:WARNING:third_party/crashpad/crashpad/util/numeric/in_range_cast.h:38] value -634136515 out of range",
+  "[8943:1481944:1111/113944.705790:ERROR:content/browser/network_service_instance_impl.cc:652] Network service crashed or was terminated, restarting service.",
+  "sandbox initialization failed: Operation not permitted",
+  "aperitif: Failed to initialize sandbox",
+  "[1111/113944.991372:WARNING:third_party/crashpad/crashpad/util/numeric/in_range_cast.h:38] value -634136515 out of range",
+  "[8943:1481944:1111/113945.014178:ERROR:content/browser/gpu/gpu_process_host.cc:1042] GPU process exited unexpectedly: exit_code=6",
+  "sandbox initialization failed: Operation not permitted",
+  "aperitif: Failed to initialize sandbox",
+  "[1111/113945.363406:WARNING:third_party/crashpad/crashpad/util/numeric/in_range_cast.h:38] value -634136515 out of range",
+  "[1111/113945.635825:WARNING:third_party/crashpad/crashpad/util/numeric/in_range_cast.h:38] value -634136515 out of range",
+  "[1111/113945.913332:WARNING:third_party/crashpad/crashpad/util/numeric/in_range_cast.h:38] value -634136515 out of range",
+  "[1111/113946.187676:WARNING:third_party/crashpad/crashpad/util/numeric/in_range_cast.h:38] value -634136515 out of range",
+  "aperitif: Failed to initialize sandbox",
+  "[1111/113946.492020:WARNING:third_party/crashpad/crashpad/util/numeric/in_range_cast.h:38] value -634136515 out of range",
+  "[1111/113946.762659:WARNING:third_party/crashpad/crashpad/util/numeric/in_range_cast.h:38] value -634136515 out of range"
+ ]
+}

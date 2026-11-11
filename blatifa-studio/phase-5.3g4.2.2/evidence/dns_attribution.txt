@@ -1,0 +1,11 @@
+# DNS attribution (A/B on the same profile, with and without the mDNSResponder rule)
+# note: 'localhost' resolves without mDNSResponder on macOS, so it cannot attribute anything (kept for the record):
+#   # DNS attribution A/B (no external query): name = localhost
+#   A full profile (isolation.sb):           {"outcome": "RESOLVED", "n": 2, "elapsed_ms": 2}
+#   B same profile minus the mDNSResponder rules: {"outcome": "RESOLVED", "n": 2, "elapsed_ms": 2}
+#   C outside any sandbox:                    {"outcome": "RESOLVED", "n": 2, "elapsed_ms": 1}
+#   D full profile, numeric 127.0.0.1 (no lookup needed): {"outcome": "RESOLVED", "n": 1, "elapsed_ms": 1}
+U1 full profile: connect unix socket /var/run/mDNSResponder      -> {"outcome": "ERROR", "errno": 1, "error": "PermissionError: [Errno 1] Operation not permitted", "elapsed_ms": 0}
+U2 without mDNS rule: connect unix socket /var/run/mDNSResponder -> {"outcome": "CONNECTED", "elapsed_ms": 0}
+D1 full profile: getaddrinfo example.com                          -> {"outcome": "ERROR", "errno": 8, "error": "gaierror: [Errno 8] nodename nor servname provided, or not known", "elapsed_ms": 2}
+D2 without mDNS rule: getaddrinfo example.com (ONE external DNS query by the system daemon, control) -> {"outcome": "RESOLVED", "n": 2, "elapsed_ms": 57}
