@@ -1,0 +1,166 @@
+--- a/tests/unit/test_phase5_3g3_credit_contract.py
++++ b/tests/unit/test_phase5_3g3_credit_contract.py
+@@ -49,6 +49,11 @@
+     return (NOW + timedelta(seconds=delta_s)).isoformat(timespec="seconds")
+ 
+ 
++def live(delta_s: float = 0) -> str:
++    """Phase 5.3g.4.2: `credit_evidence` has no `now` any more; it measures age against the real UTC clock."""
++    return (datetime.now(UTC) + timedelta(seconds=delta_s)).isoformat()
++
++
+ def verified(value: int = 40, read_at: str | None = None) -> BalanceReading:
+     r = bal.read_from_tree(tree(IDLE_WITH_BALANCE.replace("40", str(value))))
+     assert r.status is BalanceStatus.VERIFIED_WITHOUT_INTERACTION
+@@ -206,7 +211,7 @@
+     r = bal.user_reported("50", reported_at=at())
+     assert r.status is BalanceStatus.USER_REPORTED and r.user_reported_balance == 50
+     assert r.verified_balance is None and r.observed_balance is None and r.source == "user_statement"
+-    assert credit_evidence(r, now=NOW)[:2] == (ReadStatus.UNKNOWN, None)
++    assert credit_evidence(r)[:2] == (ReadStatus.UNKNOWN, None)          # 5.3g.4.2: was credit_evidence(r, now=NOW)
+     for bad in ("5,0,0", "", "about fifty", "1.000"):
+         assert bal.user_reported(bad, reported_at=at()).status is BalanceStatus.UNAVAILABLE
+ 
+@@ -257,10 +262,10 @@
+ 
+ 
+ def test_fresh_verified_balance_goes_through_the_existing_rules():
+-    status, value, _ = credit_evidence(verified(40), now=NOW)
++    status, value, _ = credit_evidence(verified(40, live(-10)))          # 5.3g.4.2: was verified(40), now=NOW
+     assert (status, value) == (ReadStatus.VERIFIED, 40)
+     assert preflight_gate(_pre(status, value), SpendingPolicy()).allowed
+-    low = credit_evidence(verified(5), now=NOW)
++    low = credit_evidence(verified(5, live(-10)))
+     assert preflight_gate(_pre(*low[:2]), SpendingPolicy()).blocks == [Block.INSUFFICIENT_CREDIT]
+ 
+ 
+@@ -273,15 +278,20 @@
+     lambda: None,
+ ])
+ def test_everything_but_verified_is_credit_unknown(make):
+-    status, value, why = credit_evidence(make(), now=NOW)
++    status, value, why = credit_evidence(make())                         # 5.3g.4.2: was make(), now=NOW
+     assert (status, value) == (ReadStatus.UNKNOWN, None) and why
+     assert preflight_gate(_pre(status, value), SpendingPolicy()).blocks == [Block.CREDIT_UNKNOWN]
+ 
+ 
+ @pytest.mark.parametrize(("delta", "ok"), [(-10, True), (-300, True), (-301, False), (-86400, False), (4, True), (60, False)])
+ def test_historical_or_future_balance_is_not_current(delta, ok):
+-    status, value, _ = credit_evidence(verified(40, at(delta)), now=NOW)
+-    assert (status is ReadStatus.VERIFIED) is ok and (value == 40) is ok
++    # Phase 5.3g.4.2 (user-approved migration): the age is no longer injectable through `now=NOW`. The same deltas and
++    # outcomes are checked deterministically on the fixed policy (age = -delta), then end to end against the real
++    # clock, except for -300, which sits exactly on the boundary (the real clock moves on while the test runs).
++    assert (gates._freshness_verdict(float(-delta)) is None) is ok
++    if delta != -300:
++        status, value, _ = credit_evidence(verified(40, live(delta)))
++        assert (status is ReadStatus.VERIFIED) is ok and (value == 40) is ok
+ 
+ 
+ def test_gate_has_no_default_or_fallback_balance():
+--- a/tests/unit/test_phase5_3g4_1_adapter_trust.py
++++ b/tests/unit/test_phase5_3g4_1_adapter_trust.py
+@@ -233,7 +233,8 @@
+ 
+ def test_no_caller_supplied_trust_anywhere():
+     params = inspect.signature(approval_balance).parameters
+-    assert list(params) == ["value", "adapter", "now"] and params["adapter"].default is inspect.Parameter.empty
++    # Phase 5.3g.4.2 (user-approved): `now` removed; freshness is fixed inside credit_evidence.
++    assert list(params) == ["value", "adapter"] and params["adapter"].default is inspect.Parameter.empty
+     for path in SRC.rglob("*.py"):
+         text = path.read_text()
+         assert not re.search(r"\bsimulated_adapter\b", text), path        # the 5.3g.4 caller-supplied flag is gone
+@@ -303,11 +304,14 @@
+ 
+ # ---- integrity: pinned roots, fail-closed chains, untouched history ----------------------------------------
+ INTEGRITY_ROOTS = {
+-    "tests/unit/protected_hashes.py": "9683cfc2b66c52cc461c156e49ae77df41882a857703007946d5a7425436c751",
+-    "tests/unit/test_phase5_3g4_credit_paths.py": "71550b88d276b9ca3c7da2ed534acc1cabdbf6a69220f5330e75ca79697c8528",
++    # 5.3g.4.2: helper was 9683cfc2…, G.4 test was 71550b88… (new manifest pinned in both)
++    "tests/unit/protected_hashes.py": "bba115a2ace2a8390319bbeb3e66dc4a0d8739a0fc3ee9e043c052e3384adfde",
++    "tests/unit/test_phase5_3g4_credit_paths.py": "14e345cf1eb7584fe9829163c7ddc15863ca4a16ce24a35a3532cf9c9ca9c6c4",
+     "docs/phase-5.3g3/evidence/approved_changes.txt": "decd8d3b246bb23131169221e3413751cd3942f91b4ab9677cc07647b9e51dcc",
+     "docs/phase-5.3g4/evidence/approved_changes.txt": "2be3994045fc56b6eb0c0f38179310ce3516e4de119bf8ba854697303d9c4b67",
+     "docs/phase-5.3g4.1/evidence/approved_changes.txt": "c7d0ba0c3e3290d324e32184c733692a2ce9c998abef3e220b6e98a4160f361c",
++    # added in 5.3g.4.2
++    "docs/phase-5.3g4.2/evidence/approved_changes.txt": "8c762e0d1f104aca1538a3791c6d47bbe88e9602e57461654c1ce292d6a21051",
+ }
+ MANIFEST = "docs/phase-5.3g4.1/evidence/approved_changes.txt"
+ BEFORE = "docs/phase-5.3g4.1/evidence/protected_hashes_before.txt"
+@@ -329,6 +333,10 @@
+ 
+ 
+ def test_every_change_since_the_5_3g4_1_baseline_is_approved_or_a_pinned_root():
++    """Phase 5.3g.4.2 (user-approved): chain-aware. A G.4.1 row must still start at the G.4.1 before-digest, and the
++    file must now be at its G.4.1 new digest or at a digest reached from it by later pinned manifests. A file without
++    a G.4.1 row must be unchanged or reach its current digest by a later pinned manifest. Integrity roots: exact pins.
++    """
+     rows, changed = _rows(), []
+     for line in (ROOT / BEFORE).read_text().splitlines():
+         digest, path = line.split(maxsplit=1)
+@@ -341,9 +349,13 @@
+         changed.append(path)
+         if path in INTEGRITY_ROOTS:
+             assert actual == INTEGRITY_ROOTS[path], path
++        elif path in rows:
++            old, new = rows[path]
++            assert old == digest and ph.matches(path, new), f"unexplained change: {path}"
+         else:
+-            assert rows.get(path) == (digest, actual), f"unexplained change: {path}"
+-    assert sorted(changed) == sorted([*rows, "tests/unit/protected_hashes.py", "tests/unit/test_phase5_3g4_credit_paths.py"])
++            assert ph.matches(path, digest), f"unexplained change (no approved chain): {path}"
++    assert set(rows) <= set(changed)
++    assert {"tests/unit/protected_hashes.py", "tests/unit/test_phase5_3g4_credit_paths.py"} <= set(changed)
+ 
+ 
+ def test_manifest_lists_only_the_user_approved_files():
+--- a/tests/unit/test_phase5_3g4_credit_paths.py
++++ b/tests/unit/test_phase5_3g4_credit_paths.py
+@@ -292,13 +292,15 @@
+ # ---- protected evidence and the approved-change mechanism --------------------------------------------------
+ INTEGRITY_ROOTS = {
+     "tests/unit/protected_hashes.py":
+-        "9683cfc2b66c52cc461c156e49ae77df41882a857703007946d5a7425436c751",  # 5.3g.4.1 (was 2dfb696e…)
++        "bba115a2ace2a8390319bbeb3e66dc4a0d8739a0fc3ee9e043c052e3384adfde",  # 5.3g.4.2 (was 9683cfc2…, before that 2dfb696e…)
+     "docs/phase-5.3g3/evidence/approved_changes.txt":
+         "decd8d3b246bb23131169221e3413751cd3942f91b4ab9677cc07647b9e51dcc",
+     "docs/phase-5.3g4/evidence/approved_changes.txt":
+         "2be3994045fc56b6eb0c0f38179310ce3516e4de119bf8ba854697303d9c4b67",
+     "docs/phase-5.3g4.1/evidence/approved_changes.txt":  # added in 5.3g.4.1
+         "c7d0ba0c3e3290d324e32184c733692a2ce9c998abef3e220b6e98a4160f361c",
++    "docs/phase-5.3g4.2/evidence/approved_changes.txt":  # added in 5.3g.4.2
++        "8c762e0d1f104aca1538a3791c6d47bbe88e9602e57461654c1ce292d6a21051",
+ }
+ 
+ 
+--- a/tests/unit/protected_hashes.py
++++ b/tests/unit/protected_hashes.py
+@@ -1,4 +1,4 @@
+-"""Protected-hash check shared by the 5.3f … 5.3g.4.1 invariant tests (introduced in 5.3g.3, hardened in 5.3g.4).
++"""Protected-hash check shared by the 5.3f … 5.3g.4.2 invariant tests (introduced in 5.3g.3, hardened in 5.3g.4).
+ 
+ A protected file passes when its SHA-256 equals its historical baseline digest, or when the approved-change manifests
+ contain an exact chain `baseline digest → … → current digest` for that path. Each manifest row names the only files
+@@ -8,9 +8,10 @@
+ - every manifest is pinned here by its own SHA-256 (`MANIFESTS`); a manifest whose content differs is refused;
+ - a manifest may never approve a change to a manifest, to this helper, or to any baseline-hash file;
+ - two rows that move the same (path, old digest) to different new digests are refused;
+-- `tests/unit/test_phase5_3g4_credit_paths.py` and `tests/unit/test_phase5_3g4_1_adapter_trust.py` independently
+-  pin this helper's and each manifest's SHA-256, so approving a new change needs edits in separate places that are
+-  all reviewed. These are repository-local pins, not a cryptographic trust anchor.
++- `tests/unit/test_phase5_3g4_credit_paths.py`, `tests/unit/test_phase5_3g4_1_adapter_trust.py` and
++  `tests/unit/test_phase5_3g4_2_freshness.py` independently pin this helper's and each manifest's SHA-256, so
++  approving a new change needs edits in separate places that are all reviewed. These are repository-local pins,
++  not a cryptographic trust anchor.
+ The historical baseline files themselves are never edited.
+ """
+ 
+@@ -24,6 +25,7 @@
+     "docs/phase-5.3g3/evidence/approved_changes.txt": "decd8d3b246bb23131169221e3413751cd3942f91b4ab9677cc07647b9e51dcc",
+     "docs/phase-5.3g4/evidence/approved_changes.txt": "2be3994045fc56b6eb0c0f38179310ce3516e4de119bf8ba854697303d9c4b67",
+     "docs/phase-5.3g4.1/evidence/approved_changes.txt": "c7d0ba0c3e3290d324e32184c733692a2ce9c998abef3e220b6e98a4160f361c",
++    "docs/phase-5.3g4.2/evidence/approved_changes.txt": "8c762e0d1f104aca1538a3791c6d47bbe88e9602e57461654c1ce292d6a21051",
+ }
+ SELF = "tests/unit/protected_hashes.py"
+ 
+# new file: tests/unit/test_phase5_3g4_2_freshness.py (sha256 1bdc7923f18e51b9eb5694f575d61be13dcb090ff5b7b8b990e87f3d714d1994, 393 lines)

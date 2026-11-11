@@ -1,0 +1,100 @@
+--- a/src/blatifa/production/gates.py
++++ b/src/blatifa/production/gates.py
+@@ -10,6 +10,7 @@
+ 
+ from __future__ import annotations
+ 
++import math
+ import re
+ from dataclasses import dataclass, field
+ from datetime import UTC, datetime
+@@ -108,7 +109,8 @@
+     return GateResult(blocks, details)
+ 
+ 
+-# A balance older than this is history, not a current balance (Phase 5.3g.3).
++# A balance older than this is history, not a current balance (Phase 5.3g.3). Phase 5.3g.4.2: documentation only.
++# `_freshness_verdict` uses its own literals, so rebinding these names changes nothing (there is no policy override).
+ CREDIT_EVIDENCE_MAX_AGE_S = 300
+ CREDIT_EVIDENCE_MAX_CLOCK_SKEW_S = 5
+ 
+@@ -121,8 +123,25 @@
+                      "credit evidence; confirm the balance manually")
+ 
+ 
+-def credit_evidence(reading: object, *, now: datetime | None = None,
+-                    max_age_s: int = CREDIT_EVIDENCE_MAX_AGE_S) -> tuple[ReadStatus, int | None, str]:
++def _freshness_verdict(age_s: object) -> str | None:
++    """None if a reading of this age (seconds; negative = dated in the future) is current, else why it is not.
++
++    Phase 5.3g.4.2: the one fixed freshness policy. Pure: no clock, no parameters, no module-level policy. Accepted:
++    -5 <= age <= 300 (both bounds inclusive). Anything else, including a non-number, a bool, NaN or ±infinity, is
++    refused.
++    """
++    if isinstance(age_s, bool) or not isinstance(age_s, (int, float)):
++        return f"reading age is not a number ({type(age_s).__name__})"
++    if not math.isfinite(age_s):
++        return f"reading age is not finite ({age_s})"
++    if age_s < -5:
++        return "reading is dated in the future"
++    if age_s > 300:
++        return f"reading is {age_s:.0f} s old (> 300 s): not a current balance"
++    return None
++
++
++def credit_evidence(reading: object) -> tuple[ReadStatus, int | None, str]:
+     """(credit_status, balance, why): THE boundary every production credit decision goes through.
+ 
+     Fail-closed: only a fresh VERIFIED_WITHOUT_INTERACTION `BalanceReading` yields (VERIFIED, balance). Everything
+@@ -132,6 +151,11 @@
+     - (Phase 5.3g.4, F-1) a legacy `CreditSnapshot` from `read_credits`, whatever its status;
+     - any other object: a bare number, a `ReadStatus`, a string, a dict.
+     There is no default and no fallback value.
++
++    Phase 5.3g.4.2: freshness is fixed. The age is measured against the real UTC wall clock and judged by
++    `_freshness_verdict` (300 s, 5 s skew). Callers cannot pass a time or a maximum age any more. A timestamp that
++    cannot be evaluated (TypeError / ValueError) gives (UNKNOWN, None) with the reason; it never raises past this
++    boundary and never yields VERIFIED. Where `read_at` came from is not authenticated (R-2, deferred).
+     """
+     if reading is None:
+         return ReadStatus.UNKNOWN, None, "no reading"
+@@ -141,11 +165,13 @@
+         return ReadStatus.UNKNOWN, None, f"unsupported credit evidence type {type(reading).__name__}"
+     if reading.status is not BalanceStatus.VERIFIED_WITHOUT_INTERACTION or reading.verified_balance is None:
+         return ReadStatus.UNKNOWN, None, f"{reading.status.value} is not verified evidence"
+-    age = ((now or datetime.now(UTC)) - parse_time(reading.read_at)).total_seconds()
+-    if age < -CREDIT_EVIDENCE_MAX_CLOCK_SKEW_S:
+-        return ReadStatus.UNKNOWN, None, "reading is dated in the future"
+-    if age > max_age_s:
+-        return ReadStatus.UNKNOWN, None, f"reading is {age:.0f} s old (> {max_age_s} s): not a current balance"
++    try:
++        age = (datetime.now(UTC) - parse_time(reading.read_at)).total_seconds()
++    except (TypeError, ValueError) as exc:
++        return ReadStatus.UNKNOWN, None, f"reading time cannot be evaluated: {type(exc).__name__}: {exc}"
++    stale = _freshness_verdict(age)
++    if stale is not None:
++        return ReadStatus.UNKNOWN, None, stale
+     return ReadStatus.VERIFIED, reading.verified_balance, "fresh reading without interaction"
+ 
+ 
+@@ -161,17 +187,18 @@
+     return type(adapter) is SimulatedFlow
+ 
+ 
+-def approval_balance(value: object, *, adapter: object, now: datetime | None = None) -> int | None:
++def approval_balance(value: object, *, adapter: object) -> int | None:
+     """The balance `approval_gate` may compare against (Phase 5.3g.4, trust made explicit in 5.3g.4.1).
+ 
+     `adapter` is the adapter that would click Approve (the runner passes its own). A bare non-negative int is
+     accepted only when `is_simulated_adapter(adapter)`, i.e. the exact built-in `SimulatedFlow` (offline runs;
+     nothing is spent). For every other adapter the value must be a `BalanceReading` and goes through
+     `credit_evidence`; anything else is None, which makes `approval_gate` block with COST_OVER_BALANCE.
++    Phase 5.3g.4.2: no `now` parameter; the fixed freshness policy of `credit_evidence` applies.
+     """
+     if is_simulated_adapter(adapter) and type(value) is int and value >= 0:
+         return value
+-    status, balance, _ = credit_evidence(value, now=now)
++    status, balance, _ = credit_evidence(value)
+     return balance if status is ReadStatus.VERIFIED else None
+ 
+ 

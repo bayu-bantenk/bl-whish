@@ -1,0 +1,9 @@
+# Phase 5.3g.4.2 approved changes: <path> <old sha256> <new sha256>. Only these files may differ from protected_hashes_before.txt.
+# Production (phase scope, user-approved 2026-11-11): fixed freshness policy, no now/max_age_s overrides, fail-closed time errors (gates.py).
+# Historical test (user-approved migration): the five now=NOW calls of the 5.3g.3 contract test.
+# Integrity roots NOT listed (a row would create a hash cycle; pinned by exact digest in tests/unit/test_phase5_3g4_2_freshness.py):
+#   tests/unit/protected_hashes.py old 9683cfc2b66c52cc461c156e49ae77df41882a857703007946d5a7425436c751
+#   tests/unit/test_phase5_3g4_credit_paths.py old 71550b88d276b9ca3c7da2ed534acc1cabdbf6a69220f5330e75ca79697c8528
+#   tests/unit/test_phase5_3g4_1_adapter_trust.py old 86730705d8d46b724dbbb6a7f6092ce078b1250b22e2696cb80a2babd61d24d2
+src/blatifa/production/gates.py 0a2fa5d0ddbddd018071c916c6140073292d77fc6c68bdf60c42822a9fa0a9f8 5b701a9e247138b2af1dc288f1148ba85807ed308a186c3da49cfdea980ffd4d
+tests/unit/test_phase5_3g3_credit_contract.py 411df6e5912d6ffd75d852db548c9e85e275c2b640666b7b8ac770f1e3f4c077 67d8a44bf1d2c8a16fda03c4ba32e63f843f30d1b4faa7f9b7cadbb523f08d9c

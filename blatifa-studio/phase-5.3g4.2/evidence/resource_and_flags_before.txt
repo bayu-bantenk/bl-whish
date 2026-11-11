@@ -1,0 +1,11 @@
+# before G.4.2 2026-11-11T03:57:27Z
+disk free: 10.98 GiB
+swap: total = 6144.00M  used = 5282.25M  free = 861.75M  (encrypted)
+System-wide memory free percentage: 32%
+LIVE_ACTIONS_ACTIVE line 30:LIVE_ACTIONS_ACTIVE: Final = False
+deny_true_count: 18
+BLATIFA_LIVE env: unset
+# full offline regression start 2026-11-11T04:02:58Z
+disk free: 11.09 GiB (>= 10 GiB required; stop below 5 GiB)
+command: uv run pytest tests --ignore=tests/browser -p no:cacheprovider -rs
+excluded: tests/browser (Playwright + Chrome on local fixtures; G.4.2 brief §11 forbids any Playwright/CDP browser connection)

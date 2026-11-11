@@ -1,0 +1,59 @@
+============================= test session starts ==============================
+platform darwin -- Python 3.12.14, pytest-9.2.0, pluggy-1.7.0
+rootdir: /Users/bayu.rieswanto_mdp/Developments/My Project/blatifa-studio
+configfile: pyproject.toml
+collected 977 items
+
+tests/live/test_flow_live.py sssssss                                     [  0%]
+tests/unit/test_core.py ........................................         [  4%]
+tests/unit/test_devserver_tool.py ...                                    [  5%]
+tests/unit/test_episode_e2e.py ....................                      [  7%]
+tests/unit/test_flow_readers.py ............................             [ 10%]
+tests/unit/test_media.py .....                                           [ 10%]
+tests/unit/test_phase4_authorization.py ..........                       [ 11%]
+tests/unit/test_phase4_locks.py ........                                 [ 12%]
+tests/unit/test_phase4_media_ids.py ....                                 [ 12%]
+tests/unit/test_phase4_readiness.py ...........                          [ 13%]
+tests/unit/test_phase4_ui.py ...............                             [ 15%]
+tests/unit/test_phase5_1_recognition.py .............................    [ 18%]
+tests/unit/test_phase5_1_runner_compat.py ........                       [ 19%]
+tests/unit/test_phase5_2_1_registry_correction.py .........              [ 20%]
+tests/unit/test_phase5_2_live_evidence.py .............                  [ 21%]
+tests/unit/test_phase5_2_observation.py .............                    [ 22%]
+tests/unit/test_phase5_3_aspect.py ...                                   [ 23%]
+tests/unit/test_phase5_3_markers.py .....                                [ 23%]
+tests/unit/test_phase5_3_recognition.py ......                           [ 24%]
+tests/unit/test_phase5_3_reference.py .......                            [ 24%]
+tests/unit/test_phase5_3d_identity.py .........                          [ 25%]
+tests/unit/test_phase5_3e_handoff.py ................................... [ 29%]
+.....................................................                    [ 34%]
+tests/unit/test_phase5_3f1_strict_default.py ........................... [ 37%]
+......                                                                   [ 38%]
+tests/unit/test_phase5_3f_nonce_binding.py ............................. [ 41%]
+..............                                                           [ 42%]
+tests/unit/test_phase5_3g1_manual_submission.py ........................ [ 45%]
+........                                                                 [ 45%]
+tests/unit/test_phase5_3g2_credit_discovery.py ....................      [ 48%]
+tests/unit/test_phase5_3g3_credit_contract.py .......................... [ 50%]
+........................................................................ [ 58%]
+..................................                                       [ 61%]
+tests/unit/test_phase5_3g4_1_adapter_trust.py .......................... [ 64%]
+........................................................................ [ 71%]
+........................................                                 [ 75%]
+tests/unit/test_phase5_3g4_2_freshness.py .............................. [ 78%]
+.................................................                        [ 83%]
+tests/unit/test_phase5_3g4_credit_paths.py ............................. [ 86%]
+..................                                                       [ 88%]
+tests/unit/test_phase5_3g_preflight.py .........                         [ 89%]
+tests/unit/test_phase5_live_evidence.py .......                          [ 90%]
+tests/unit/test_phase5_probe.py ...............                          [ 91%]
+tests/unit/test_production.py ....................................       [ 95%]
+tests/unit/test_pytest_isolation.py .......                              [ 96%]
+tests/unit/test_runner_simulation.py .................                   [ 97%]
+tests/unit/test_scene_and_crash_sweep.py .....................           [100%]
+
+=========================== short test summary info ============================
+SKIPPED [1] tests/live/test_flow_live.py:36: live Flow checks are opt-in (BLATIFA_LIVE=1)
+SKIPPED [6] tests/live/test_flow_live.py:43: live Flow checks are opt-in (BLATIFA_LIVE=1)
+================== 970 passed, 7 skipped in 370.82s (0:06:10) ==================
+exit=0
