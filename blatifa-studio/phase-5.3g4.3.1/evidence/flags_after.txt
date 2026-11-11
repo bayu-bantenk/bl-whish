@@ -1,0 +1,11 @@
+LIVE_ACTIONS_ACTIVE: 30:LIVE_ACTIONS_ACTIVE: Final = False
+deny_true_count: 18
+BLATIFA_LIVE=<unset>
+BLATIFA_CHROME=<unset>
+BLATIFA_WORKSPACE=<unset>
+test Chrome / Playwright / pytest processes: 0
+Blatifa Chrome CDP 50568 listening: Google 
+Wi-Fi power: Wi-Fi Power (en0): On
+active interfaces (scutil --nwi): Network interfaces: en0
+Application Firewall: Firewall is enabled. (State = 1)
+df /: /dev/disk3s1s1   460Gi    12Gi   9.0Gi    57%    459k   94M    0%   /

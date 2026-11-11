@@ -1,0 +1,105 @@
+# Host network/firewall state (read-only), 2026-11-11 14:01 +0700
+hw.model=Mac14,7 cpu=Apple M2 mem=8589934592
+df /: /dev/disk3s1s1   460Gi    12Gi    10Gi    55%    459k  104M    0%   /
+--- interfaces (ifconfig -l)
+lo0 gif0 stf0 anpi0 anpi1 en3 en4 en1 en2 bridge0 ap1 en0 awdl0 llw0 utun0 utun1 utun2 utun3 pktap0
+--- interface status/addresses (names + flags + inet/inet6 family only, addresses masked)
+lo0: flags=8049<UP,LOOPBACK,RUNNING,MULTICAST>
+   inet <addr>
+   inet6 <addr>
+   inet6 <addr> (link-local/scoped)
+gif0: flags=8010<POINTOPOINT,MULTICAST>
+stf0: flags=0<>
+anpi0: flags=8863<UP,BROADCAST,SMART,RUNNING,SIMPLEX,MULTICAST>
+   	status: inactive
+anpi1: flags=8863<UP,BROADCAST,SMART,RUNNING,SIMPLEX,MULTICAST>
+   	status: inactive
+en3: flags=8863<UP,BROADCAST,SMART,RUNNING,SIMPLEX,MULTICAST>
+   	status: inactive
+en4: flags=8863<UP,BROADCAST,SMART,RUNNING,SIMPLEX,MULTICAST>
+   	status: inactive
+en1: flags=8963<UP,BROADCAST,SMART,RUNNING,PROMISC,SIMPLEX,MULTICAST>
+   	status: inactive
+en2: flags=8963<UP,BROADCAST,SMART,RUNNING,PROMISC,SIMPLEX,MULTICAST>
+   	status: inactive
+bridge0: flags=8863<UP,BROADCAST,SMART,RUNNING,SIMPLEX,MULTICAST>
+   	status: inactive
+ap1: flags=8863<UP,BROADCAST,SMART,RUNNING,SIMPLEX,MULTICAST>
+   	status: inactive
+en0: flags=8863<UP,BROADCAST,SMART,RUNNING,SIMPLEX,MULTICAST>
+   inet6 <addr> (link-local/scoped)
+   inet <addr>
+   	status: active
+awdl0: flags=8863<UP,BROADCAST,SMART,RUNNING,SIMPLEX,MULTICAST>
+   inet6 <addr> (link-local/scoped)
+   	status: active
+llw0: flags=8863<UP,BROADCAST,SMART,RUNNING,SIMPLEX,MULTICAST>
+   inet6 <addr> (link-local/scoped)
+utun0: flags=8051<UP,POINTOPOINT,RUNNING,MULTICAST>
+   inet6 <addr> (link-local/scoped)
+utun1: flags=8051<UP,POINTOPOINT,RUNNING,MULTICAST>
+   inet6 <addr> (link-local/scoped)
+utun2: flags=8051<UP,POINTOPOINT,RUNNING,MULTICAST>
+   inet6 <addr> (link-local/scoped)
+utun3: flags=8051<UP,POINTOPOINT,RUNNING,MULTICAST>
+   inet6 <addr> (link-local/scoped)
+pktap0: flags=1<UP>
+--- hardware ports
+Hardware Port: Ethernet Adapter (en3)
+Device: en3
+Hardware Port: Ethernet Adapter (en4)
+Device: en4
+Hardware Port: Thunderbolt Bridge
+Device: bridge0
+Hardware Port: Wi-Fi
+Device: en0
+Hardware Port: Thunderbolt 1
+Device: en1
+Hardware Port: Thunderbolt 2
+Device: en2
+--- scutil --nwi
+Network information
+
+IPv4 network interface information
+     en0 : flags      : 0x5 (IPv4,DNS)
+           address    : <ipv4>
+           reach      : 0x00000002 (Reachable)
+
+   REACH : flags 0x00000002 (Reachable)
+
+IPv6 network interface information
+   No IPv6 states found
+
+
+   REACH : flags 0x00000007 (Reachable,Transient Connection,Connection Required)
+
+Network interfaces: en0
+--- default routes
+inet default via <gw> if en0
+inet6 default if utun0
+inet6 default if utun1
+inet6 default if utun2
+inet6 default if utun3
+--- application firewall (socketfilterfw query)
+Firewall is enabled. (State = 1)
+Firewall has block all state set to disabled.
+--- pf.conf anchors (file read only; pfctl not run: needs root)
+scrub-anchor "com.apple/*"
+nat-anchor "com.apple/*"
+rdr-anchor "com.apple/*"
+dummynet-anchor "com.apple/*"
+anchor "com.apple/*"
+load anchor "com.apple" from "/etc/pf.anchors/com.apple"
+--- third-party firewalls
+LuLu: absent
+Little Snitch: absent
+--- system extensions
+1 extension(s)
+--- com.apple.system_extension.network_extension (Go to 'System Settings > General > Login Items & Extensions > Network Extensions' to modify these system extension(s))
+enabled	active	teamID	bundleID (version)	name	[state]
+*	*	GUNFMW623Y	com.bitdefender.cst.net.dci.dci-network-extension (8.26.04.200013/8.26.04.200013)	dci-net-ext	[activated enabled]
+--- VPN / proxy
+Available network connection services in the current set (*=enabled):
+* (Disconnected)   706D284C-FD61-496D-AF54-1816DA42986C PPP --> MT65xx Preloader "MT65xx Preloader"               [PPP:Modem]
+  HTTPEnable : 0
+  HTTPSEnable : 0
