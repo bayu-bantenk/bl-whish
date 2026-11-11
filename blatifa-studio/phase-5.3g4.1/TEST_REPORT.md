@@ -4,7 +4,9 @@
 > - 138 tes baru, semuanya lulus.
 > - Regresi penuh: **934 passed, 7 skipped, 0 failed** (exit 0). 934 = 796 (5.3g.4) + 138.
 > - Tujuh tes yang di-skip adalah tes live opt-in.
-> - Empat mutan aturan trust semuanya tertangkap.
+> - Empat mutation check dilaporkan tertangkap selama implementasi (22/12/89/22 kegagalan), tetapi log lengkapnya
+>   tidak tersedia. Status: `MUTATION EVIDENCE NOT INDEPENDENTLY VERIFIED` (§3).
+> - Risiko override freshness pada API tetap terbuka: `OPEN — freshness override API risk` (§6).
 
 ## 1. Resources (`evidence/resource_gate.txt`)
 
@@ -40,14 +42,25 @@ Skipped: 7 × `tests/live/test_flow_live.py` ("live Flow checks are opt-in (BLAT
 `gates.is_simulated_adapter` was temporarily replaced by a weaker rule, the new module was run, and the file was
 then restored. The restored sha `0a2fa5d0…` equals the manifest row.
 
-**Evidence status (2026-11-11): NOT INDEPENDENTLY VERIFIED.**
+**Status: `MUTATION EVIDENCE NOT INDEPENDENTLY VERIFIED`** (2026-11-11).
+
+Four mutation checks were reported as caught during Phase 5.3G.4.1 implementation (22/12/89/22 failures). However,
+complete mutation logs are unavailable, so these results are NOT INDEPENDENTLY VERIFIED.
+
+**A. Independently verifiable evidence**
+- `evidence/pytest_full.log` records all 138 results of `tests/unit/test_phase5_3g4_1_adapter_trust.py` as passed.
+- Those 138 results include `test_trust_rule_is_one_exact_type_check` and the 99 rejection cases of
+  `test_untrusted_adapter_cannot_pass_a_raw_balance` (11 untrusted adapters × 9 raw values, as defined in the test
+  source).
+- The log records results per file, not per test name. It does show that every test of the module passed against
+  the final `gates.py`, whose sha `0a2fa5d0…` equals the manifest row.
+
+**B. Previously reported mutation results (not independently verified)**
 - No log of the four runs is stored in `evidence/`.
 - The command printed only the last summary line of each run (`tail -1`). No per-test output was ever captured.
 - That summary output still exists only in the local session transcript of the assistant, outside the repository.
   It is not repository evidence, it holds no test names, and it was not copied or reconstructed into `evidence/`.
-- The numbers below are therefore a report, not verified evidence.
-- What *is* verified independently: the final `gates.py` sha equals the manifest row, and `pytest_full.log` shows
-  all 138 tests of the new module passing against it.
+- The numbers below are therefore a reported result, kept as history, not independently proven evidence.
 
 | Mutant | New tests failing |
 |---|---|
@@ -103,3 +116,26 @@ Also covered:
 | 5.3f.1 `test_simulated_cli_uses_strict_handoff_and_nonce_binding` | `NamelessFlow` subclass | exact `SimulatedFlow` with `observe` patched locally; **two assertions added** | user-approved; original assertions unchanged |
 
 No test was removed, skipped or marked xfail. Full diffs: `evidence/test_changes.diff`.
+
+## 6. Open API risk: freshness override
+
+**Status: `OPEN — freshness override API risk`.** This is an API-level risk, not observed production behavior.
+The full static audit is in CALL_GRAPH_AUDIT §4, and the item is also listed in IMPLEMENTATION_REPORT §6 and
+SAFETY_AUDIT §7.
+
+- **Default policy:** freshness is evaluated against the wall clock (`datetime.now(UTC)`). The maximum age is 300 s,
+  and the clock-skew allowance is 5 s (a constant, not a parameter).
+- **What the API permits:**
+  - a caller-supplied earlier `now` (`credit_evidence(now=...)`, `approval_balance(now=...)`) can make an old
+    reading appear fresh;
+  - a caller-supplied larger `max_age_s` (`credit_evidence(max_age_s=...)`) can let older readings pass.
+- **What the overrides cannot do:** bypass the type and status validation. Only a `BalanceReading` with status
+  `VERIFIED_WITHOUT_INTERACTION` reaches the age check.
+- **Observed production behavior:** no current production call site supplies these overrides.
+- **API-level risk:** the API nevertheless permits callers to weaken freshness validation.
+
+Test coverage is partial and indirect. The two gate-feeding call sites are pinned by exact source strings; the
+diagnostic `cmd_account` call is not; no test scans every call site for `now=` or `max_age_s=`. The 5.3g.3 contract
+tests pass `now=` deliberately, with a fixed time.
+
+No test was added or run for this documentation update.
