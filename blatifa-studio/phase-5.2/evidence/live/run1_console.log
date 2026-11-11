@@ -1,0 +1,4 @@
+browser: HEALTHY  process_alive=True cdp=True page_responsive=True  chrome=Chrome/156.0.8078.74  url=https://flow.google.com/project/562eec3d…
+probe 1: identity=UNKNOWN credits=UNAVAILABLE_WITHOUT_CLICK balance=None tiles=9 dialogs=[] confirmation=ABSENT stop=['IDENTITY_UNREADABLE_OR_AMBIGUOUS']
+report: /Users/bayu.rieswanto_mdp/BlatifaStudio/inspections/20261103T140330Z-live-probe
+stop reasons: ['CREDIT_BALANCE_UNREADABLE_WITHOUT_CLICK', 'IDENTITY_UNREADABLE_OR_AMBIGUOUS']

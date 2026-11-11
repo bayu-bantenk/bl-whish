@@ -1,0 +1,1480 @@
+{
+ "label": "s2_02b_chip_subtree",
+ "at": "2026-11-05T15:04:35+00:00",
+ "chip_count": 1,
+ "regions": [
+  {
+   "chip": [
+    {
+     "depth": 0,
+     "role": "button",
+     "name": "Ingredient",
+     "value": null,
+     "attrs": []
+    },
+    {
+     "depth": 1,
+     "role": "img",
+     "name": "Character ingredient image",
+     "value": null,
+     "attrs": []
+    }
+   ],
+   "parent": [
+    {
+     "depth": 0,
+     "role": "main",
+     "name": null,
+     "value": null,
+     "attrs": []
+    },
+    {
+     "depth": 1,
+     "role": "navigation",
+     "name": null,
+     "value": null,
+     "attrs": []
+    },
+    {
+     "depth": 2,
+     "role": "button",
+     "name": "Home",
+     "value": null,
+     "attrs": []
+    },
+    {
+     "depth": 2,
+     "role": "heading",
+     "name": "Blatifa",
+     "value": null,
+     "attrs": [
+      "level=1"
+     ]
+    },
+    {
+     "depth": 2,
+     "role": "textbox",
+     "name": "Editable text",
+     "value": null,
+     "attrs": []
+    },
+    {
+     "depth": 3,
+     "role": "/placeholder",
+     "name": null,
+     "value": "",
+     "attrs": []
+    },
+    {
+     "depth": 3,
+     "role": "text",
+     "name": null,
+     "value": "Blatifa",
+     "attrs": []
+    },
+    {
+     "depth": 1,
+     "role": "button",
+     "name": "More options for the project",
+     "value": null,
+     "attrs": []
+    },
+    {
+     "depth": 1,
+     "role": "button",
+     "name": "Search",
+     "value": null,
+     "attrs": []
+    },
+    {
+     "depth": 1,
+     "role": "textbox",
+     "name": "Search",
+     "value": null,
+     "attrs": []
+    },
+    {
+     "depth": 1,
+     "role": "button",
+     "name": "Filtering and sorting options",
+     "value": null,
+     "attrs": []
+    },
+    {
+     "depth": 1,
+     "role": "button",
+     "name": "Add media menu",
+     "value": null,
+     "attrs": []
+    },
+    {
+     "depth": 1,
+     "role": "button",
+     "name": "Product help",
+     "value": null,
+     "attrs": []
+    },
+    {
+     "depth": 1,
+     "role": "button",
+     "name": "Settings",
+     "value": null,
+     "attrs": []
+    },
+    {
+     "depth": 1,
+     "role": "button",
+     "name": "More options",
+     "value": null,
+     "attrs": []
+    },
+    {
+     "depth": 1,
+     "role": "button",
+     "name": "Account details",
+     "value": null,
+     "attrs": []
+    },
+    {
+     "depth": 2,
+     "role": "button",
+     "name": "<redacted>",
+     "value": null,
+     "attrs": []
+    },
+    {
+     "depth": 1,
+     "role": "navigation",
+     "name": "Project navigation",
+     "value": null,
+     "attrs": []
+    },
+    {
+     "depth": 2,
+     "role": "button",
+     "name": "All media",
+     "value": null,
+     "attrs": []
+    },
+    {
+     "depth": 2,
+     "role": "button",
+     "name": "Images",
+     "value": null,
+     "attrs": []
+    },
+    {
+     "depth": 2,
+     "role": "button",
+     "name": "Videos",
+     "value": null,
+     "attrs": []
+    },
+    {
+     "depth": 2,
+     "role": "button",
+     "name": "Characters",
+     "value": null,
+     "attrs": []
+    },
+    {
+     "depth": 2,
+     "role": "button",
+     "name": "Scenes",
+     "value": null,
+     "attrs": []
+    },
+    {
+     "depth": 2,
+     "role": "button",
+     "name": "Uploads",
+     "value": null,
+     "attrs": []
+    },
+    {
+     "depth": 2,
+     "role": "separator",
+     "name": null,
+     "value": null,
+     "attrs": []
+    },
+    {
+     "depth": 2,
+     "role": "link",
+     "name": "Library Create collection",
+     "value": null,
+     "attrs": []
+    },
+    {
+     "depth": 3,
+     "role": "/url",
+     "name": null,
+     "value": "/project/562eec3d-9c48-4802-b152-3ed1d8c91ebd",
+     "attrs": []
+    },
+    {
+     "depth": 3,
+     "role": "text",
+     "name": null,
+     "value": "Library",
+     "attrs": []
+    },
+    {
+     "depth": 3,
+     "role": "button",
+     "name": "Create collection",
+     "value": null,
+     "attrs": []
+    },
+    {
+     "depth": 2,
+     "role": "separator",
+     "name": null,
+     "value": null,
+     "attrs": []
+    },
+    {
+     "depth": 2,
+     "role": "link",
+     "name": "Tools",
+     "value": null,
+     "attrs": []
+    },
+    {
+     "depth": 3,
+     "role": "/url",
+     "name": null,
+     "value": "/project/562eec3d-9c48-4802-b152-3ed1d8c91ebd/tools",
+     "attrs": []
+    },
+    {
+     "depth": 2,
+     "role": "link",
+     "name": "Create tool",
+     "value": null,
+     "attrs": []
+    },
+    {
+     "depth": 3,
+     "role": "/url",
+     "name": null,
+     "value": "/project/562eec3d-9c48-4802-b152-3ed1d8c91ebd/create-tool",
+     "attrs": []
+    },
+    {
+     "depth": 2,
+     "role": "link",
+     "name": "Trash",
+     "value": null,
+     "attrs": []
+    },
+    {
+     "depth": 3,
+     "role": "/url",
+     "name": null,
+     "value": "/project/562eec3d-9c48-4802-b152-3ed1d8c91ebd/trash",
+     "attrs": []
+    },
+    {
+     "depth": 2,
+     "role": "button",
+     "name": "Collapse",
+     "value": null,
+     "attrs": []
+    },
+    {
+     "depth": 1,
+     "role": "group",
+     "name": "Pink octopus waving tentacle",
+     "value": null,
+     "attrs": []
+    },
+    {
+     "depth": 1,
+     "role": "group",
+     "name": "Pink octopus waving in water",
+     "value": null,
+     "attrs": []
+    },
+    {
+     "depth": 1,
+     "role": "group",
+     "name": "Sea Lion",
+     "value": null,
+     "attrs": []
+    },
+    {
+     "depth": 2,
+     "role": "img",
+     "name": "Character thumbnail",
+     "value": null,
+     "attrs": []
+    },
+    {
+     "depth": 2,
+     "role": "text",
+     "name": null,
+     "value": "Sea Lion",
+     "attrs": []
+    },
+    {
+     "depth": 1,
+     "role": "group",
+     "name": "Octopus",
+     "value": null,
+     "attrs": []
+    },
+    {
+     "depth": 2,
+     "role": "img",
+     "name": "Character thumbnail",
+     "value": null,
+     "attrs": []
+    },
+    {
+     "depth": 2,
+     "role": "text",
+     "name": null,
+     "value": "Octopus",
+     "attrs": []
+    },
+    {
+     "depth": 1,
+     "role": "group",
+     "name": "Dolphin",
+     "value": null,
+     "attrs": []
+    },
+    {
+     "depth": 2,
+     "role": "img",
+     "name": "Character thumbnail",
+     "value": null,
+     "attrs": []
+    },
+    {
+     "depth": 2,
+     "role": "text",
+     "name": null,
+     "value": "Dolphin",
+     "attrs": []
+    },
+    {
+     "depth": 1,
+     "role": "group",
+     "name": "Whisk_u2yivwz5ejzyqtzl1iy0udotcdnirtl2mgnz0sz.png",
+     "value": null,
+     "attrs": []
+    },
+    {
+     "depth": 2,
+     "role": "img",
+     "name": "Tile displaying a user's image",
+     "value": null,
+     "attrs": []
+    },
+    {
+     "depth": 1,
+     "role": "group",
+     "name": "Cat waving to camera",
+     "value": null,
+     "attrs": []
+    },
+    {
+     "depth": 2,
+     "role": "img",
+     "name": "Generated video thumbnail",
+     "value": null,
+     "attrs": []
+    },
+    {
+     "depth": 1,
+     "role": "group",
+     "name": "Blumaro",
+     "value": null,
+     "attrs": []
+    },
+    {
+     "depth": 2,
+     "role": "img",
+     "name": "Tile displaying a user's image",
+     "value": null,
+     "attrs": []
+    },
+    {
+     "depth": 1,
+     "role": "group",
+     "name": "blahiro",
+     "value": null,
+     "attrs": []
+    },
+    {
+     "depth": 2,
+     "role": "img",
+     "name": "Tile displaying a user's image",
+     "value": null,
+     "attrs": []
+    },
+    {
+     "depth": 1,
+     "role": "group",
+     "name": "Cat character wearing cute clothes",
+     "value": null,
+     "attrs": []
+    },
+    {
+     "depth": 2,
+     "role": "img",
+     "name": "Tile displaying a user's image",
+     "value": null,
+     "attrs": []
+    },
+    {
+     "depth": 1,
+     "role": "group",
+     "name": "Blatifa",
+     "value": null,
+     "attrs": []
+    },
+    {
+     "depth": 2,
+     "role": "img",
+     "name": "Tile displaying a user's image",
+     "value": null,
+     "attrs": []
+    },
+    {
+     "depth": 1,
+     "role": "button",
+     "name": "Open session history",
+     "value": null,
+     "attrs": []
+    },
+    {
+     "depth": 1,
+     "role": "heading",
+     "name": "Video Generation Token Costs",
+     "value": null,
+     "attrs": [
+      "level=2"
+     ]
+    },
+    {
+     "depth": 1,
+     "role": "button",
+     "name": "Start new session",
+     "value": null,
+     "attrs": []
+    },
+    {
+     "depth": 1,
+     "role": "button",
+     "name": "Close",
+     "value": null,
+     "attrs": []
+    },
+    {
+     "depth": 1,
+     "role": "text",
+     "name": null,
+     "value": "jelaskan berapa biaya token dalam pembuatan video per detiknya?",
+     "attrs": []
+    },
+    {
+     "depth": 1,
+     "role": "paragraph",
+     "name": null,
+     "value": null,
+     "attrs": []
+    },
+    {
+     "depth": 2,
+     "role": "text",
+     "name": null,
+     "value": "Di Google Flow, pembuatan video",
+     "attrs": []
+    },
+    {
+     "depth": 2,
+     "role": "strong",
+     "name": null,
+     "value": "tidak dihitung berdasarkan token",
+     "attrs": []
+    },
+    {
+     "depth": 2,
+     "role": "text",
+     "name": null,
+     "value": ", melainkan menggunakan",
+     "attrs": []
+    },
+    {
+     "depth": 2,
+     "role": "strong",
+     "name": null,
+     "value": "Kredit AI",
+     "attrs": []
+    },
+    {
+     "depth": 2,
+     "role": "text",
+     "name": null,
+     "value": "(AI Credits).",
+     "attrs": []
+    },
+    {
+     "depth": 1,
+     "role": "paragraph",
+     "name": null,
+     "value": null,
+     "attrs": []
+    },
+    {
+     "depth": 2,
+     "role": "text",
+     "name": null,
+     "value": "Biaya kredit bergantung pada",
+     "attrs": []
+    },
+    {
+     "depth": 2,
+     "role": "strong",
+     "name": null,
+     "value": "model video",
+     "attrs": []
+    },
+    {
+     "depth": 2,
+     "role": "text",
+     "name": null,
+     "value": ",",
+     "attrs": []
+    },
+    {
+     "depth": 2,
+     "role": "strong",
+     "name": null,
+     "value": "durasi",
+     "attrs": []
+    },
+    {
+     "depth": 2,
+     "role": "text",
+     "name": null,
+     "value": ", dan",
+     "attrs": []
+    },
+    {
+     "depth": 2,
+     "role": "strong",
+     "name": null,
+     "value": "resolusi",
+     "attrs": []
+    },
+    {
+     "depth": 2,
+     "role": "text",
+     "name": null,
+     "value": "yang Anda pilih. Berikut adalah rincian biaya kredit per durasi untuk model yang tersedia di akun Anda saat ini:",
+     "attrs": []
+    },
+    {
+     "depth": 1,
+     "role": "heading",
+     "name": "1. Model Omni 1.1 Flash",
+     "value": null,
+     "attrs": [
+      "level=3"
+     ]
+    },
+    {
+     "depth": 1,
+     "role": "paragraph",
+     "name": null,
+     "value": null,
+     "attrs": []
+    },
+    {
+     "depth": 2,
+     "role": "emphasis",
+     "name": null,
+     "value": "Model standar dengan opsi resolusi 360p dan 720p serta opsi durasi fleksibel:",
+     "attrs": []
+    },
+    {
+     "depth": 1,
+     "role": "list",
+     "name": null,
+     "value": null,
+     "attrs": []
+    },
+    {
+     "depth": 2,
+     "role": "listitem",
+     "name": null,
+     "value": null,
+     "attrs": []
+    },
+    {
+     "depth": 3,
+     "role": "strong",
+     "name": null,
+     "value": "Durasi 4 Detik:",
+     "attrs": []
+    },
+    {
+     "depth": 2,
+     "role": "listitem",
+     "name": null,
+     "value": null,
+     "attrs": []
+    },
+    {
+     "depth": 3,
+     "role": "strong",
+     "name": null,
+     "value": "360p:",
+     "attrs": []
+    },
+    {
+     "depth": 3,
+     "role": "text",
+     "name": null,
+     "value": "4 kredit (~1 kredit / detik)",
+     "attrs": []
+    },
+    {
+     "depth": 2,
+     "role": "listitem",
+     "name": null,
+     "value": null,
+     "attrs": []
+    },
+    {
+     "depth": 3,
+     "role": "strong",
+     "name": null,
+     "value": "720p:",
+     "attrs": []
+    },
+    {
+     "depth": 3,
+     "role": "text",
+     "name": null,
+     "value": "7 kredit (~1,75 kredit / detik)",
+     "attrs": []
+    },
+    {
+     "depth": 2,
+     "role": "listitem",
+     "name": null,
+     "value": null,
+     "attrs": []
+    },
+    {
+     "depth": 3,
+     "role": "strong",
+     "name": null,
+     "value": "Durasi 6 Detik:",
+     "attrs": []
+    },
+    {
+     "depth": 2,
+     "role": "listitem",
+     "name": null,
+     "value": null,
+     "attrs": []
+    },
+    {
+     "depth": 3,
+     "role": "strong",
+     "name": null,
+     "value": "360p:",
+     "attrs": []
+    },
+    {
+     "depth": 3,
+     "role": "text",
+     "name": null,
+     "value": "5 kredit (~0,83 kredit / detik)",
+     "attrs": []
+    },
+    {
+     "depth": 2,
+     "role": "listitem",
+     "name": null,
+     "value": null,
+     "attrs": []
+    },
+    {
+     "depth": 3,
+     "role": "strong",
+     "name": null,
+     "value": "720p:",
+     "attrs": []
+    },
+    {
+     "depth": 3,
+     "role": "text",
+     "name": null,
+     "value": "10 kredit (~1,67 kredit / detik)",
+     "attrs": []
+    },
+    {
+     "depth": 2,
+     "role": "listitem",
+     "name": null,
+     "value": null,
+     "attrs": []
+    },
+    {
+     "depth": 3,
+     "role": "strong",
+     "name": null,
+     "value": "Durasi 8 Detik:",
+     "attrs": []
+    },
+    {
+     "depth": 2,
+     "role": "listitem",
+     "name": null,
+     "value": null,
+     "attrs": []
+    },
+    {
+     "depth": 3,
+     "role": "strong",
+     "name": null,
+     "value": "360p:",
+     "attrs": []
+    },
+    {
+     "depth": 3,
+     "role": "text",
+     "name": null,
+     "value": "6 kredit (0,75 kredit / detik)",
+     "attrs": []
+    },
+    {
+     "depth": 2,
+     "role": "listitem",
+     "name": null,
+     "value": null,
+     "attrs": []
+    },
+    {
+     "depth": 3,
+     "role": "strong",
+     "name": null,
+     "value": "720p:",
+     "attrs": []
+    },
+    {
+     "depth": 3,
+     "role": "text",
+     "name": null,
+     "value": "12 kredit (1,5 kredit / detik)",
+     "attrs": []
+    },
+    {
+     "depth": 2,
+     "role": "listitem",
+     "name": null,
+     "value": null,
+     "attrs": []
+    },
+    {
+     "depth": 3,
+     "role": "strong",
+     "name": null,
+     "value": "Durasi 10 Detik:",
+     "attrs": []
+    },
+    {
+     "depth": 2,
+     "role": "listitem",
+     "name": null,
+     "value": null,
+     "attrs": []
+    },
+    {
+     "depth": 3,
+     "role": "strong",
+     "name": null,
+     "value": "360p:",
+     "attrs": []
+    },
+    {
+     "depth": 3,
+     "role": "text",
+     "name": null,
+     "value": "7 kredit (0,7 kredit / detik)",
+     "attrs": []
+    },
+    {
+     "depth": 2,
+     "role": "listitem",
+     "name": null,
+     "value": null,
+     "attrs": []
+    },
+    {
+     "depth": 3,
+     "role": "strong",
+     "name": null,
+     "value": "720p:",
+     "attrs": []
+    },
+    {
+     "depth": 3,
+     "role": "text",
+     "name": null,
+     "value": "15 kredit (1,5 kredit / detik)",
+     "attrs": []
+    },
+    {
+     "depth": 1,
+     "role": "separator",
+     "name": null,
+     "value": null,
+     "attrs": []
+    },
+    {
+     "depth": 1,
+     "role": "heading",
+     "name": "2. Model Seri Veo 3.1 (Hanya Resolusi 720p)",
+     "value": null,
+     "attrs": [
+      "level=3"
+     ]
+    },
+    {
+     "depth": 1,
+     "role": "list",
+     "name": null,
+     "value": null,
+     "attrs": []
+    },
+    {
+     "depth": 2,
+     "role": "listitem",
+     "name": null,
+     "value": null,
+     "attrs": []
+    },
+    {
+     "depth": 3,
+     "role": "paragraph",
+     "name": null,
+     "value": null,
+     "attrs": []
+    },
+    {
+     "depth": 4,
+     "role": "strong",
+     "name": null,
+     "value": "Veo 3.1 - Lite",
+     "attrs": []
+    },
+    {
+     "depth": 4,
+     "role": "emphasis",
+     "name": null,
+     "value": "(Cepat & hemat)",
+     "attrs": []
+    },
+    {
+     "depth": 4,
+     "role": "text",
+     "name": null,
+     "value": ":",
+     "attrs": []
+    },
+    {
+     "depth": 2,
+     "role": "listitem",
+     "name": null,
+     "value": null,
+     "attrs": []
+    },
+    {
+     "depth": 3,
+     "role": "paragraph",
+     "name": null,
+     "value": null,
+     "attrs": []
+    },
+    {
+     "depth": 4,
+     "role": "strong",
+     "name": null,
+     "value": "8 Detik (720p):",
+     "attrs": []
+    },
+    {
+     "depth": 4,
+     "role": "text",
+     "name": null,
+     "value": "10 kredit (1,25 kredit / detik)",
+     "attrs": []
+    },
+    {
+     "depth": 2,
+     "role": "listitem",
+     "name": null,
+     "value": null,
+     "attrs": []
+    },
+    {
+     "depth": 3,
+     "role": "paragraph",
+     "name": null,
+     "value": null,
+     "attrs": []
+    },
+    {
+     "depth": 4,
+     "role": "strong",
+     "name": null,
+     "value": "Veo 3.1 - Fast",
+     "attrs": []
+    },
+    {
+     "depth": 4,
+     "role": "text",
+     "name": null,
+     "value": ":",
+     "attrs": []
+    },
+    {
+     "depth": 2,
+     "role": "listitem",
+     "name": null,
+     "value": null,
+     "attrs": []
+    },
+    {
+     "depth": 3,
+     "role": "paragraph",
+     "name": null,
+     "value": null,
+     "attrs": []
+    },
+    {
+     "depth": 4,
+     "role": "strong",
+     "name": null,
+     "value": "8 Detik (720p):",
+     "attrs": []
+    },
+    {
+     "depth": 4,
+     "role": "text",
+     "name": null,
+     "value": "20 kredit (2,5 kredit / detik)",
+     "attrs": []
+    },
+    {
+     "depth": 2,
+     "role": "listitem",
+     "name": null,
+     "value": null,
+     "attrs": []
+    },
+    {
+     "depth": 3,
+     "role": "paragraph",
+     "name": null,
+     "value": null,
+     "attrs": []
+    },
+    {
+     "depth": 4,
+     "role": "strong",
+     "name": null,
+     "value": "Veo 3.1 - Quality",
+     "attrs": []
+    },
+    {
+     "depth": 4,
+     "role": "emphasis",
+     "name": null,
+     "value": "(Kualitas visual tinggi)",
+     "attrs": []
+    },
+    {
+     "depth": 4,
+     "role": "text",
+     "name": null,
+     "value": ":",
+     "attrs": []
+    },
+    {
+     "depth": 2,
+     "role": "listitem",
+     "name": null,
+     "value": null,
+     "attrs": []
+    },
+    {
+     "depth": 3,
+     "role": "paragraph",
+     "name": null,
+     "value": null,
+     "attrs": []
+    },
+    {
+     "depth": 4,
+     "role": "strong",
+     "name": null,
+     "value": "8 Detik (720p):",
+     "attrs": []
+    },
+    {
+     "depth": 4,
+     "role": "text",
+     "name": null,
+     "value": "100 kredit (12,5 kredit / detik)",
+     "attrs": []
+    },
+    {
+     "depth": 1,
+     "role": "separator",
+     "name": null,
+     "value": null,
+     "attrs": []
+    },
+    {
+     "depth": 1,
+     "role": "blockquote",
+     "name": null,
+     "value": null,
+     "attrs": []
+    },
+    {
+     "depth": 2,
+     "role": "paragraph",
+     "name": null,
+     "value": null,
+     "attrs": []
+    },
+    {
+     "depth": 3,
+     "role": "text",
+     "name": null,
+     "value": "💡",
+     "attrs": []
+    },
+    {
+     "depth": 3,
+     "role": "strong",
+     "name": null,
+     "value": "Catatan Penting:",
+     "attrs": []
+    },
+    {
+     "depth": 3,
+     "role": "text",
+     "name": null,
+     "value": "Jika pembuatan video gagal,",
+     "attrs": []
+    },
+    {
+     "depth": 3,
+     "role": "strong",
+     "name": null,
+     "value": "tidak ada kredit yang akan dipotong",
+     "attrs": []
+    },
+    {
+     "depth": 3,
+     "role": "text",
+     "name": null,
+     "value": "dari akun Anda.",
+     "attrs": []
+    },
+    {
+     "depth": 1,
+     "role": "button",
+     "name": "Good response",
+     "value": null,
+     "attrs": []
+    },
+    {
+     "depth": 1,
+     "role": "button",
+     "name": "Bad response",
+     "value": null,
+     "attrs": []
+    },
+    {
+     "depth": 1,
+     "role": "button",
+     "name": "Copy",
+     "value": null,
+     "attrs": []
+    },
+    {
+     "depth": 1,
+     "role": "button",
+     "name": "Flag output",
+     "value": null,
+     "attrs": []
+    },
+    {
+     "depth": 1,
+     "role": "text",
+     "name": null,
+     "value": "One small pink octopus floats gently in calm, clear blue water against a plain, simple background and slowly waves one tentacle at the camera. Static camera, me",
+     "attrs": []
+    },
+    {
+     "depth": 1,
+     "role": "paragraph",
+     "name": null,
+     "value": "Would you like me to kick off this 1 video generation, costing 10 credits?",
+     "attrs": []
+    },
+    {
+     "depth": 1,
+     "role": "radiogroup",
+     "name": "Permission options",
+     "value": null,
+     "attrs": []
+    },
+    {
+     "depth": 2,
+     "role": "radio",
+     "name": "Approve",
+     "value": null,
+     "attrs": [
+      "checked",
+      "disabled"
+     ]
+    },
+    {
+     "depth": 2,
+     "role": "radio",
+     "name": "Always approve",
+     "value": null,
+     "attrs": [
+      "disabled"
+     ]
+    },
+    {
+     "depth": 2,
+     "role": "radio",
+     "name": "Reject",
+     "value": null,
+     "attrs": [
+      "disabled"
+     ]
+    },
+    {
+     "depth": 1,
+     "role": "button",
+     "name": "Good response",
+     "value": null,
+     "attrs": []
+    },
+    {
+     "depth": 1,
+     "role": "button",
+     "name": "Bad response",
+     "value": null,
+     "attrs": []
+    },
+    {
+     "depth": 1,
+     "role": "button",
+     "name": "Copy",
+     "value": null,
+     "attrs": []
+    },
+    {
+     "depth": 1,
+     "role": "button",
+     "name": "Flag output",
+     "value": null,
+     "attrs": []
+    },
+    {
+     "depth": 1,
+     "role": "text",
+     "name": null,
+     "value": "Approve",
+     "attrs": []
+    },
+    {
+     "depth": 1,
+     "role": "group",
+     "name": "Media options gallery",
+     "value": null,
+     "attrs": []
+    },
+    {
+     "depth": 2,
+     "role": "button",
+     "name": "Open video in editor",
+     "value": null,
+     "attrs": []
+    },
+    {
+     "depth": 3,
+     "role": "img",
+     "name": "One small pink octopus floats gently in calm, clear blue water against a plain, simple background and slowly waves one tentacle at the camera. Static camera, me",
+     "value": null,
+     "attrs": []
+    },
+    {
+     "depth": 1,
+     "role": "paragraph",
+     "name": null,
+     "value": "Menggunakan model default Anda Veo 3.1 - Lite, saya telah menjadwalkan pembuatan video gurita merah muda kecil. Karena antrean sedang tinggi, proses pembuatan s",
+     "attrs": []
+    },
+    {
+     "depth": 1,
+     "role": "button",
+     "name": "Good response",
+     "value": null,
+     "attrs": []
+    },
+    {
+     "depth": 1,
+     "role": "button",
+     "name": "Bad response",
+     "value": null,
+     "attrs": []
+    },
+    {
+     "depth": 1,
+     "role": "button",
+     "name": "Copy",
+     "value": null,
+     "attrs": []
+    },
+    {
+     "depth": 1,
+     "role": "button",
+     "name": "Flag output",
+     "value": null,
+     "attrs": []
+    },
+    {
+     "depth": 1,
+     "role": "text",
+     "name": null,
+     "value": "<redacted>",
+     "attrs": []
+    },
+    {
+     "depth": 1,
+     "role": "paragraph",
+     "name": null,
+     "value": "Would you like me to kick off this 1 video generation, costing 10 credits?",
+     "attrs": []
+    },
+    {
+     "depth": 1,
+     "role": "radiogroup",
+     "name": "Permission options",
+     "value": null,
+     "attrs": []
+    },
+    {
+     "depth": 2,
+     "role": "radio",
+     "name": "Approve",
+     "value": null,
+     "attrs": [
+      "checked",
+      "disabled"
+     ]
+    },
+    {
+     "depth": 2,
+     "role": "radio",
+     "name": "Always approve",
+     "value": null,
+     "attrs": [
+      "disabled"
+     ]
+    },
+    {
+     "depth": 2,
+     "role": "radio",
+     "name": "Reject",
+     "value": null,
+     "attrs": [
+      "disabled"
+     ]
+    },
+    {
+     "depth": 1,
+     "role": "button",
+     "name": "Good response",
+     "value": null,
+     "attrs": []
+    },
+    {
+     "depth": 1,
+     "role": "button",
+     "name": "Bad response",
+     "value": null,
+     "attrs": []
+    },
+    {
+     "depth": 1,
+     "role": "button",
+     "name": "Copy",
+     "value": null,
+     "attrs": []
+    },
+    {
+     "depth": 1,
+     "role": "button",
+     "name": "Flag output",
+     "value": null,
+     "attrs": []
+    },
+    {
+     "depth": 1,
+     "role": "text",
+     "name": null,
+     "value": "Approve",
+     "attrs": []
+    },
+    {
+     "depth": 1,
+     "role": "group",
+     "name": "Media options gallery",
+     "value": null,
+     "attrs": []
+    },
+    {
+     "depth": 2,
+     "role": "button",
+     "name": "Open video in editor",
+     "value": null,
+     "attrs": []
+    },
+    {
+     "depth": 3,
+     "role": "img",
+     "name": "Soft 3D animated family-friendly style, warm cozy lighting, consistent character design across all scenes, no text, no subtitles, no watermark overlays. The Oct",
+     "value": null,
+     "attrs": []
+    },
+    {
+     "depth": 1,
+     "role": "paragraph",
+     "name": null,
+     "value": "<redacted>",
+     "attrs": []
+    },
+    {
+     "depth": 1,
+     "role": "button",
+     "name": "Good response",
+     "value": null,
+     "attrs": []
+    },
+    {
+     "depth": 1,
+     "role": "button",
+     "name": "Bad response",
+     "value": null,
+     "attrs": []
+    },
+    {
+     "depth": 1,
+     "role": "button",
+     "name": "Copy",
+     "value": null,
+     "attrs": []
+    },
+    {
+     "depth": 1,
+     "role": "button",
+     "name": "Flag output",
+     "value": null,
+     "attrs": []
+    },
+    {
+     "depth": 1,
+     "role": "button",
+     "name": "Ingredient",
+     "value": null,
+     "attrs": []
+    },
+    {
+     "depth": 2,
+     "role": "img",
+     "name": "Character ingredient image",
+     "value": null,
+     "attrs": []
+    },
+    {
+     "depth": 1,
+     "role": "button",
+     "name": "Clear prompt",
+     "value": null,
+     "attrs": []
+    },
+    {
+     "depth": 1,
+     "role": "textbox",
+     "name": "What do you want to create?",
+     "value": null,
+     "attrs": []
+    },
+    {
+     "depth": 2,
+     "role": "paragraph",
+     "name": null,
+     "value": null,
+     "attrs": []
+    },
+    {
+     "depth": 1,
+     "role": "button",
+     "name": "Add ingredients to the prompt box",
+     "value": null,
+     "attrs": []
+    },
+    {
+     "depth": 1,
+     "role": "button",
+     "name": "Agent instructions",
+     "value": null,
+     "attrs": []
+    },
+    {
+     "depth": 1,
+     "role": "button",
+     "name": "Settings",
+     "value": null,
+     "attrs": []
+    },
+    {
+     "depth": 1,
+     "role": "button",
+     "name": "Start generation",
+     "value": null,
+     "attrs": [
+      "disabled"
+     ]
+    },
+    {
+     "depth": 1,
+     "role": "paragraph",
+     "name": null,
+     "value": "Google Flow can make mistakes, so double check it",
+     "attrs": []
+    }
+   ],
+   "grandparent_role": "root"
+  }
+ ]
+}

@@ -1,0 +1,6 @@
+## disk gate 2026-11-04 08:17:39 WIB
+/dev/disk3s1s1   460Gi    12Gi   6.6Gi    64%    459k   69M    1%   /
+/dev/disk3s1s1    494G     13G   7087M    64%    459k   69M    1%   /
+vm.swapusage: total = 8192.00M  used = 7846.06M  free = 345.94M  (encrypted)
+       8
+(end processes)

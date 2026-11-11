@@ -1,0 +1,80 @@
+--- a/tests/unit/test_phase5_3g_preflight.py
++++ b/tests/unit/test_phase5_3g_preflight.py
+@@ -155,9 +155,10 @@
+ 
+ # ---- invariants ------------------------------------------------------------------------------------------
+ def test_protected_hashes_flags_and_no_live_switch():
++    from protected_hashes import matches  # Phase 5.3g.3: baseline digest, or an approved 5.3g.3 change
+     for line in (ROOT / "docs/phase-5.3g/evidence/baseline_hashes.txt").read_text().splitlines():
+         digest, path = line.split()
+-        assert hashlib.sha256((ROOT / path).read_bytes()).hexdigest() == digest, path
++        assert matches(path, digest), path
+     from blatifa.production import authorization
+     assert authorization.LIVE_ACTIONS_ACTIVE is False
+     assert (ROOT / "src/blatifa/inspector/data/flow_locators.yaml").read_text().count("deny: true") == 18
+--- a/tests/unit/test_phase5_3g1_manual_submission.py
++++ b/tests/unit/test_phase5_3g1_manual_submission.py
+@@ -437,9 +437,10 @@
+     src = inspect.getsource(ms)
+     for word in (".click(", ".fill(", ".goto(", "submit(", "approve(", "playwright", "live_probe", "ReadOnlyPage", "route("):
+         assert word not in src, word
++    from protected_hashes import matches  # Phase 5.3g.3: baseline digest, or an approved 5.3g.3 change
+     for line in (ROOT / "docs/phase-5.3g1/evidence/baseline_hashes.txt").read_text().splitlines():
+         digest, p = line.split()
+-        assert hashlib.sha256((ROOT / p).read_bytes()).hexdigest() == digest, p
++        assert matches(p, digest), p
+     from blatifa.production import authorization
+     assert authorization.LIVE_ACTIONS_ACTIVE is False
+     assert (ROOT / "src/blatifa/inspector/data/flow_locators.yaml").read_text().count("deny: true") == 18
+--- a/tests/unit/test_phase5_3g2_credit_discovery.py
++++ b/tests/unit/test_phase5_3g2_credit_discovery.py
+@@ -6,7 +6,6 @@
+ 
+ from __future__ import annotations
+ 
+-import hashlib
+ import inspect
+ import re
+ from pathlib import Path
+@@ -49,7 +48,9 @@
+ 
+ def test_balance_appears_only_inside_the_open_account_dialog_and_that_dialog_stops_the_probe():
+     t = tree(OPEN)
+-    assert lp.credits_without_click(t)["balance"] == 50          # only because the panel is open
++    # Phase 5.3g.3 (F-3 fixed): the open panel's value is kept apart as observed_balance, never as "balance".
++    r = lp.credits_without_click(t)
++    assert r["observed_balance"] == 50 and r["balance"] is None and r["status"] == "OBSERVED_IN_ALREADY_OPEN_PANEL"
+     assert lp.dialogs(t) == ["dialog:16"]                          # "Account settings" → UNEXPECTED_DIALOG in probe()
+     assert 'stop.append("UNEXPECTED_DIALOG")' in inspect.getsource(lp.probe)
+ 
+@@ -64,8 +65,7 @@
+     assert r["balance"] is None and r["status"] == "UNAVAILABLE_WITHOUT_CLICK"
+ 
+ 
+-@pytest.mark.xfail(strict=True, reason="FINDING F-2 (5.3g.2): parse_credits accepts malformed digit grouping "
+-                                       "('50.5.5' → 5055, '5,0,0' → 500); production unchanged in this phase")
++# Phase 5.3g.3: F-2 fixed, so the strict xfail mark is removed (as TEST_REPORT.md of 5.3g.2 required).
+ @pytest.mark.parametrize("text", ["50.5.5 Google Flow credits", "5,0,0 Google Flow credits"])
+ def test_malformed_digit_grouping_should_be_unavailable(text):
+     assert parse_credits(text) is None
+@@ -77,7 +77,7 @@
+ 
+ 
+ def test_no_previous_balance_is_reused():
+-    assert lp.credits_without_click(tree(OPEN))["balance"] == 50
++    assert lp.credits_without_click(tree(OPEN))["observed_balance"] == 50   # 5.3g.3: observed, not "balance"
+     after = lp.credits_without_click(tree(CLOSED))                 # same process, right after a VERIFIED read
+     assert after["balance"] is None and after["status"] == "UNAVAILABLE_WITHOUT_CLICK"
+     assert lp.credits_without_click(None) == {"status": "UNKNOWN", "balance": None, "detail": "page accessibility tree unreadable"}
+@@ -98,9 +98,10 @@
+     src = inspect.getsource(cli.cmd_live_probe)
+     assert 'if any(p.credits["status"] != "VERIFIED" for p in probes):' in src
+     assert 'stop.append("CREDIT_BALANCE_UNREADABLE_WITHOUT_CLICK")' in src
++    from protected_hashes import matches  # Phase 5.3g.3: baseline digest, or an approved 5.3g.3 change
+     for line in (ROOT / "docs/phase-5.3g2/evidence/baseline_hashes.txt").read_text().splitlines():
+         digest, path = line.split()
+-        assert hashlib.sha256((ROOT / path).read_bytes()).hexdigest() == digest, path
++        assert matches(path, digest), path
+ 
+ 
+ def test_read_only_page_refuses_the_account_panel_click():

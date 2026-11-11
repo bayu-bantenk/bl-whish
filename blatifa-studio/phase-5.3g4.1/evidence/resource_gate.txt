@@ -1,0 +1,6 @@
+# before full regression 2026-11-10T08:56:44Z
+disk free: 10Gi
+swap: total = 7168.00M  used = 6454.25M  free = 713.75M  (encrypted)
+System-wide memory free percentage: 45%
+gate: disk >= 10 GiB -> full suite allowed (stop if < 5 GiB)
+free: 10.35 GiB (exact, df -k)

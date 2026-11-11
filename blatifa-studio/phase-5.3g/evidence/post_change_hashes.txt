@@ -1,0 +1,4 @@
+90f105edf03bceef8cf8c0914fd5dc7d4e9075849d2f318efe2aeafad5a9aa95  src/blatifa/production/handoff.py
+5b36da044f13c1ffb2762cd6b96276a8064878d53fca963218e51cbfd5e034ac  src/blatifa/cli.py
+faa736c9b5861123d5ab0dcd7e87f3e250fb7611dc3df4a5f0ed1014bf4fd3c1  tests/unit/test_phase5_3g_preflight.py
+461a31b8a05471eaa1c828d5430f81bdc786db0c0aa9d3d46e4eb33c22c759a7  docs/phase-5.3g/tools/check_candidate.py

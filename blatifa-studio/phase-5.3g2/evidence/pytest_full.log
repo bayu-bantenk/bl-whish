@@ -1,0 +1,16 @@
+...........................................sssssss...................... [ 11%]
+........................................................................ [ 23%]
+........................................................................ [ 34%]
+........................................................................ [ 46%]
+........................................................................ [ 57%]
+........................................................................ [ 69%]
+........................................................................ [ 80%]
+xx...................................................................... [ 92%]
+................................................                         [100%]
+=========================== short test summary info ============================
+SKIPPED [1] tests/live/test_flow_live.py:36: live Flow checks are opt-in (BLATIFA_LIVE=1)
+SKIPPED [6] tests/live/test_flow_live.py:43: live Flow checks are opt-in (BLATIFA_LIVE=1)
+XFAIL tests/unit/test_phase5_3g2_credit_discovery.py::test_malformed_digit_grouping_should_be_unavailable[50.5.5 Google Flow credits] - FINDING F-2 (5.3g.2): parse_credits accepts malformed digit grouping ('50.5.5' → 5055, '5,0,0' → 500); production unchanged in this phase
+XFAIL tests/unit/test_phase5_3g2_credit_discovery.py::test_malformed_digit_grouping_should_be_unavailable[5,0,0 Google Flow credits] - FINDING F-2 (5.3g.2): parse_credits accepts malformed digit grouping ('50.5.5' → 5055, '5,0,0' → 500); production unchanged in this phase
+615 passed, 7 skipped, 2 xfailed in 414.45s (0:06:54)
+exit=0

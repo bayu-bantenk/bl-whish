@@ -1,0 +1,6 @@
+## baseline 2026-11-03 16:33:34 WIB
+/dev/disk3s1s1   460Gi    12Gi    13Gi    49%    459k  133M    0%   /
+vm.swapusage: total = 4096.00M  used = 3310.75M  free = 785.25M  (encrypted)
+(end processes)
+browser: NOT_RUNNING  process_alive=False cdp=False page_responsive=None  chrome=None  url=None
+  detail: no session file

@@ -1,0 +1,15 @@
+# Phase 5.3g.4.1 approved changes: <path> <old sha256> <new sha256>. Only these files may differ from protected_hashes_before.txt.
+# Production (phase scope): explicit SimulatedFlow trust (gates, runner); read-only wording corrected (preflight, cli, account/reader, account/__init__).
+# Historical tests (user-approved list, 2026-11-10): simflow FakeFlow supplies BalanceReading; 5.3f integrity check uses protected_hashes.matches; 5.3f.1 test uses the exact SimulatedFlow.
+# Integrity roots NOT listed (a row would create a hash cycle; they are pinned by exact digest in tests/unit/test_phase5_3g4_1_adapter_trust.py):
+#   tests/unit/protected_hashes.py old 2dfb696e0a721e5a9c0a1db64d00f40689c85b64e05d4f9cd4082667458207d4
+#   tests/unit/test_phase5_3g4_credit_paths.py old e536020da84c0e1208e0a21656b93da15a4ff5a8f2b776e591738c2d582a2bb6
+src/blatifa/account/__init__.py 05580b6b745ff6c729a64d26124d36c4dfc3036095c1ae1220e66d81a5f05616 f47154e464a5a316e4b5cfbf704ca57f85c7c0fdd2a7f01da38b16b0fd2f5efc
+src/blatifa/account/reader.py eb1bb47cbb10b5e9ef9bd52d691e469f6501e53718ac31231edfc632e375fabe d5467a668510dd062f9d06b74098b534ac67702505a1d2fb9dc04b83ff44b7eb
+src/blatifa/cli.py dac6da57ada5cd2247829c40d455d2149dce50fd61fc7235203099c8901b264a 01994f2d82c6771425112267a98f5e60a7d472fc7d2d9d92c9ef53d1068f6217
+src/blatifa/production/gates.py 05a81f24dbdb1d76187c152a6038cb77ebcc51f82068ec48af2f6d46ffa050ed 0a2fa5d0ddbddd018071c916c6140073292d77fc6c68bdf60c42822a9fa0a9f8
+src/blatifa/production/preflight.py 3ea6729c471e5292bfa1b38f74080e4844d5608f3b44c94c501694552d3ef24b 55fbcf7134d496d493a96638882ba7051129379dd5a88787003e693352567096
+src/blatifa/production/runner.py 761c36bef4895c35780064bccdbb141a30da71140df562b8c8d08d82eca1eeb6 6000fb18cb66f228b5405e1558c3e04aed2e92ff37cf3390cd97bb0940df9341
+tests/unit/simflow.py f6ad4e7f1d81a504c8f0cd64b0d8a3469ae975ff40e07c33b8a9480937f03241 8e76d5ee84be8d423776a24b9d4f5afd12162d445aaf16519cb48c503ea9949f
+tests/unit/test_phase5_3f1_strict_default.py 3ac21b87a8599c66b5324c6cafda40878fdb2657b42676dbbcc25aff9b2d7f6c d4ca8a75ab0817c4f9361148bdcc23b199cc181a9f34773d8ffee4c96cdf81ea
+tests/unit/test_phase5_3f_nonce_binding.py a70ca8d736d9f200cafaeb10900702a1116e0d9ba6ad9a7c341ea81919a16315 677b8cf156f6b130f93a6bf6f5d16ca69ee254d246856e0d7023a51e5d2d0c6f

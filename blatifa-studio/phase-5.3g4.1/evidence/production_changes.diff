@@ -1,0 +1,145 @@
+--- a/src/blatifa/account/__init__.py
++++ b/src/blatifa/account/__init__.py
+@@ -1 +1 @@
+-"""Read-only account identity and credit detection (no account switching)."""
++"""Account identity and credit detection (no account switching). `reader.read_credits` clicks: see reader."""
+--- a/src/blatifa/account/reader.py
++++ b/src/blatifa/account/reader.py
+@@ -1,7 +1,11 @@
+-"""Read-only account identity and credit balance, taken from the visible Flow UI.
++"""Account identity and credit balance, taken from the visible Flow UI.
+ 
+ Only accessible names and visible text are read. No cookies, storage,
+ network traffic or private APIs are touched.
++
++Not read-only (wording corrected in Phase 5.3g.4.1): `read_identity` scrolls to the top, and `read_credits`
++clicks the account button to open the account panel and closes it again. A `CreditSnapshot` is diagnostic only
++and never credit authorization; production credit evidence goes only through `production.gates.credit_evidence`.
+ """
+ 
+ from __future__ import annotations
+--- a/src/blatifa/cli.py
++++ b/src/blatifa/cli.py
+@@ -1,4 +1,4 @@
+-"""`blatifa` command line: browser foundation, inspector, read-only account, local production tools, readiness and control UI."""
++"""`blatifa` command line: browser foundation, inspector, account diagnostics, local production tools, readiness and control UI."""
+ 
+ from __future__ import annotations
+ 
+@@ -213,7 +213,11 @@
+ 
+ 
+ def cmd_preflight(args: argparse.Namespace) -> int:
+-    """Read-only spending gate check: identity, credits, disk, UI health, confirmation policy. Never generates."""
++    """Spending gate check: identity, credits, disk, UI health, confirmation policy. Never generates.
++
++    Not read-only: `run_preflight` opens and closes the account panel (`read_credits`). That balance is diagnostic
++    only; the gate's credit input comes from `gates.credit_evidence` and is CREDIT_UNKNOWN for a click-derived read.
++    """
+     engine = _engine(args)
+     page = _attached(engine)
+     if page is None:
+--- a/src/blatifa/production/gates.py
++++ b/src/blatifa/production/gates.py
+@@ -17,6 +17,7 @@
+ 
+ from blatifa.account.balance import BalanceReading, BalanceStatus, parse_time
+ from blatifa.account.reader import CreditSnapshot, ReadStatus
++from blatifa.simulation import SimulatedFlow
+ 
+ # Observed wording (E-FLOW-12): "Would you like me to kick off this 1 video generation, costing 10 credits?"
+ # and "I'll generate 1 video animating … using your default model, Veo 3.1 - Lite." The agent writes free
+@@ -148,14 +149,27 @@
+     return ReadStatus.VERIFIED, reading.verified_balance, "fresh reading without interaction"
+ 
+ 
+-def approval_balance(value: object, *, simulated_adapter: bool, now: datetime | None = None) -> int | None:
+-    """The balance `approval_gate` may compare against (Phase 5.3g.4).
++def is_simulated_adapter(adapter: object) -> bool:
++    """Phase 5.3g.4.1: the only simulation trust in Blatifa. True only for an instance whose exact type is the
++    built-in `blatifa.simulation.SimulatedFlow` (the offline stand-in that never talks to Flow, a browser or the
++    network).
+ 
+-    A bare non-negative int is accepted only for a simulated adapter (offline runs; nothing is spent). For every
+-    other adapter, the value must be a `BalanceReading` and goes through `credit_evidence`; anything else is None,
+-    which makes `approval_gate` block with COST_OVER_BALANCE.
++    Fail-closed: every other adapter is production / untrusted, whatever its module, package, class name, base
++    class or attributes (`is_simulated = True` is ignored). `type()` is used, so a subclass or an object that fakes
++    `__class__` is not trusted. There is no registration API and no caller-supplied flag.
+     """
+-    if simulated_adapter and type(value) is int and value >= 0:
++    return type(adapter) is SimulatedFlow
++
++
++def approval_balance(value: object, *, adapter: object, now: datetime | None = None) -> int | None:
++    """The balance `approval_gate` may compare against (Phase 5.3g.4, trust made explicit in 5.3g.4.1).
++
++    `adapter` is the adapter that would click Approve (the runner passes its own). A bare non-negative int is
++    accepted only when `is_simulated_adapter(adapter)`, i.e. the exact built-in `SimulatedFlow` (offline runs;
++    nothing is spent). For every other adapter the value must be a `BalanceReading` and goes through
++    `credit_evidence`; anything else is None, which makes `approval_gate` block with COST_OVER_BALANCE.
++    """
++    if is_simulated_adapter(adapter) and type(value) is int and value >= 0:
+         return value
+     status, balance, _ = credit_evidence(value, now=now)
+     return balance if status is ReadStatus.VERIFIED else None
+--- a/src/blatifa/production/preflight.py
++++ b/src/blatifa/production/preflight.py
+@@ -1,8 +1,12 @@
+-"""Collect the live inputs of the preflight gate from the Flow page. Read-only: Phase 1 states only.
++"""Collect the live inputs of the preflight gate from the Flow page. Phase 1 states only; never generates.
+ 
+-Phase 5.3g.4 (F-1): the credit balance read by `read_credits` (which opens and closes the account panel) is kept
+-for diagnostics only. The gate's credit input comes from `gates.credit_evidence`, which never accepts that legacy
+-read, so the preflight reports CREDIT_UNKNOWN until a provenance-carrying balance exists.
++NOT read-only (wording corrected in Phase 5.3g.4.1): `read_identity` scrolls to the top and `read_credits` clicks
++the account button to open the account panel, reads it and closes it again. Running `blatifa preflight` therefore
++interacts with the browser and must not be treated as a passive check.
++
++Diagnostics are not authorization (Phase 5.3g.4, F-1): the balance `read_credits` returns is kept for display only.
++`gates.credit_evidence` is the only production credit-authorization path, and it never accepts that legacy
++click-derived read, so the preflight reports CREDIT_UNKNOWN until a provenance-carrying `BalanceReading` exists.
+ """
+ 
+ from __future__ import annotations
+--- a/src/blatifa/production/runner.py
++++ b/src/blatifa/production/runner.py
+@@ -77,25 +77,12 @@
+     download_retries: int = 3
+     now: Callable[[], float] = time.monotonic
+     sleep: Callable[[float], None] = time.sleep
+-
+-
+-def is_simulated_adapter(adapter: object) -> bool:
+-    """Phase 5.3g.4: may this adapter's runner use a bare-number balance?
+-
+-    Inside the blatifa package exactly one adapter is a simulation: `blatifa.simulation.SimulatedFlow`. Every other
+-    in-package adapter (today `flow.adapter.GoogleFlowAgentAdapter`, and any future one) is treated as live and
+-    gets no bare numbers. Test doubles defined outside the package are simulations.
+-    """
+-    cls = type(adapter)
+-    if cls.__module__ == "blatifa.simulation" and cls.__qualname__ == "SimulatedFlow":
+-        return True
+-    return not (cls.__module__ == "blatifa" or cls.__module__.startswith("blatifa."))
+ 
+ 
+ class SceneRunner:
+     def __init__(self, store: Store, adapter: FlowAdapter, root: Path, policy: SpendingPolicy,
+                  preflight: Callable[[], GateResult], confirm: Callable[[CostQuote], bool],
+-                 balance: Callable[[], object], timing: Timing | None = None,  # BalanceReading; int: simulation only
++                 balance: Callable[[], object], timing: Timing | None = None,  # BalanceReading; int: SimulatedFlow only
+                  on_media_unresolved: Callable[[str, str], object] | None = None,
+                  nonce_binding: BindingContext | None = None) -> None:
+         self.store, self.adapter, self.root, self.policy = store, adapter, root, policy
+@@ -197,8 +184,9 @@
+         return prepared(self.store, a.id).final_prompt
+ 
+     def _gate_balance(self) -> int | None:
+-        """Phase 5.3g.4: every balance goes through gates.approval_balance → credit_evidence (no bare numbers live)."""
+-        return approval_balance(self.balance(), simulated_adapter=is_simulated_adapter(self.adapter))
++        """Every balance goes through gates.approval_balance → credit_evidence (5.3g.4). Bare numbers only for the
++        exact built-in SimulatedFlow, judged from the adapter this runner would approve with (5.3g.4.1)."""
++        return approval_balance(self.balance(), adapter=self.adapter)
+ 
+     def _decide_on_quote(self, a: Attempt, quote: CostQuote) -> None:
+         gate = approval_gate(quote, self.policy, self._gate_balance(), user_confirmed=False)

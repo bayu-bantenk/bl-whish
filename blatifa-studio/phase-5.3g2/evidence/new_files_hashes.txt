@@ -1,0 +1,2 @@
+5f1dfedcb6557f2b2d0f82cb86e99036037d68488ea7ddb15d66f0cf9de73760  tests/unit/test_phase5_3g2_credit_discovery.py
+c294bf47de94254abc6b2907d9bf0bbde490af3a21c67913416028dbaebb0930  docs/phase-5.3g2/tools/credit_dom_discovery.py

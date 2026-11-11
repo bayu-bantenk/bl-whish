@@ -1,0 +1,137 @@
+--- a/src/blatifa/account/reader.py
++++ b/src/blatifa/account/reader.py
+@@ -15,13 +15,16 @@
+ from playwright.sync_api import Error as PlaywrightError
+ from playwright.sync_api import Page
+ 
++from blatifa.account.balance import parse_balance
+ from blatifa.inspector.actions import StepError, perform
+ from blatifa.inspector.registry import Registry, Rule, Step
+ from blatifa.inspector.validator import ResultStatus, build_locator, validate
+ from blatifa.redaction import mask_email
+ 
+ IDENTITY = re.compile(r"^Google Account: (?P<name>.+) \((?P<email>[^()\s]+@[^()\s]+)\)$")
+-CREDITS = re.compile(r"^(?P<n>\d[\d,.]*) Google Flow credits?$")
++# Phase 5.3g.3 (F-2): strict. Plain integer or strict comma grouping only; ASCII digits only. The grammar and the
++# result kinds (VALID / INVALID_FORMAT / AMBIGUOUS / MISSING) live in `account.balance`.
++CREDITS = re.compile(r"^(?P<n>0|[1-9][0-9]{0,8}|[1-9][0-9]{0,2}(?:,[0-9]{3})+) Google Flow credits?$", re.ASCII)
+ ROLE_AND_NAME = re.compile(r'^\w+ "(?P<name>(?:[^"\\]|\\.)*)"')
+ 
+ 
+@@ -78,11 +81,8 @@
+ 
+ 
+ def parse_credits(text: str) -> int | None:
+-    match = CREDITS.match(text.strip())
+-    if not match:
+-        return None
+-    digits = re.sub(r"[,.]", "", match["n"])
+-    return int(digits) if digits.isdigit() else None
++    """The balance in a full "N Google Flow credits" label, or None for anything not VALID (Phase 5.3g.3, F-2)."""
++    return parse_balance(text).value
+ 
+ 
+ def accessible_name(page: Page, registry: Registry, ref: str) -> str | None:
+--- a/src/blatifa/flow/live_probe.py
++++ b/src/blatifa/flow/live_probe.py
+@@ -5,7 +5,8 @@
+   check / upload / drag / navigation methods; locators obtained from it refuse every action method;
+   `evaluate` only runs the vetted read-only scripts in this module; keyboard and mouse are not exposed.
+ - Credit balance is read **without** opening the account panel: only if the text is already in the page's
+-  accessibility tree. Otherwise it is UNAVAILABLE_WITHOUT_CLICK (the live inspection then stops).
++  accessibility tree. Otherwise it is UNAVAILABLE_WITHOUT_CLICK (the live inspection then stops). A balance inside
++  an account panel that is already open is OBSERVED_IN_ALREADY_OPEN_PANEL, never VERIFIED (Phase 5.3g.3).
+ - `src`, `poster`, `href` values are reduced before they leave this module: scheme + host + path segments,
+   with UUIDs kept (candidate identifiers) and every other long token and every query value redacted.
+ - Unknown is never treated as safe: an unrecognised tile is UNKNOWN, a thumbnail alone is not completion,
+@@ -22,7 +23,8 @@
+ from typing import Any
+ from urllib.parse import parse_qsl, urlsplit
+ 
+-from blatifa.account.reader import CREDITS, AccountIdentity, ReadStatus, accessible_name, parse_credits, parse_identity
++from blatifa.account.balance import BalanceReading, read_from_tree
++from blatifa.account.reader import AccountIdentity, ReadStatus, accessible_name, parse_identity
+ from blatifa.flow.aria import AriaNode, AriaParseError, parse
+ from blatifa.flow.media_identity import find_nonces
+ from blatifa.flow.media_ids import MEDIA_ID
+@@ -322,23 +324,19 @@
+     return AccountIdentity(ReadStatus.VERIFIED, display_name=parsed[0], email=parsed[1])
+ 
+ 
+-REFRESH = re.compile(r"^Credits refresh ")
++def credits_without_click(tree: AriaNode | None) -> dict:
++    """The balance only if the idle page already shows it. Never opens or closes the account panel.
+ 
++    Phase 5.3g.3 (F-3): classified by `account.balance.read_from_tree`. "VERIFIED" (= VERIFIED_WITHOUT_INTERACTION)
++    needs a valid balance text outside every dialog while no dialog is open. A balance inside an account panel that
++    is already open is OBSERVED_IN_ALREADY_OPEN_PANEL, with "balance" None; its value is kept apart as
++    "observed_balance". The full contract is `balance_without_click`.
++    """
++    return read_from_tree(tree).legacy()
+ 
+-def credits_without_click(tree: AriaNode | None) -> dict:
+-    """The balance only if the page already shows it. Never opens the account panel."""
+-    if tree is None:
+-        return {"status": "UNKNOWN", "balance": None, "detail": "page accessibility tree unreadable"}
+-    hits = {n.name or n.value for n in tree.walk() if (n.name and CREDITS.match(n.name)) or (n.value and CREDITS.match(n.value))}
+-    if len(hits) == 1:
+-        text = hits.pop()
+-        refresh = sorted({n.value for n in tree.walk() if n.value and REFRESH.match(n.value)})
+-        return {"status": "VERIFIED", "balance": parse_credits(text or ""), "refresh": refresh[0] if len(refresh) == 1 else None,
+-                "detail": "visible without interaction"}
+-    if len(hits) > 1:
+-        return {"status": "AMBIGUOUS", "balance": None, "detail": f"{len(hits)} different credit texts"}
+-    return {"status": "UNAVAILABLE_WITHOUT_CLICK", "balance": None,
+-            "detail": "the balance is only shown inside the account panel, which would need a click"}
++
++def balance_without_click(tree: AriaNode | None) -> BalanceReading:
++    return read_from_tree(tree)
+ 
+ 
+ def dialogs(tree: AriaNode | None) -> list[str]:
+--- a/src/blatifa/production/gates.py
++++ b/src/blatifa/production/gates.py
+@@ -12,8 +12,10 @@
+ 
+ import re
+ from dataclasses import dataclass, field
++from datetime import UTC, datetime
+ from enum import StrEnum
+ 
++from blatifa.account.balance import BalanceReading, BalanceStatus, parse_time
+ from blatifa.account.reader import ReadStatus
+ 
+ # Observed wording (E-FLOW-12): "Would you like me to kick off this 1 video generation, costing 10 credits?"
+@@ -105,6 +107,31 @@
+     return GateResult(blocks, details)
+ 
+ 
++# A balance older than this is history, not a current balance (Phase 5.3g.3).
++CREDIT_EVIDENCE_MAX_AGE_S = 300
++CREDIT_EVIDENCE_MAX_CLOCK_SKEW_S = 5
++
++
++def credit_evidence(reading: BalanceReading | None, *, now: datetime | None = None,
++                    max_age_s: int = CREDIT_EVIDENCE_MAX_AGE_S) -> tuple[ReadStatus, int | None, str]:
++    """(credit_status, balance, why) for `PreflightInputs`, from a provenance-carrying balance reading.
++
++    Fail-closed: only a fresh VERIFIED_WITHOUT_INTERACTION reading yields (VERIFIED, balance). USER_REPORTED,
++    OBSERVED_IN_ALREADY_OPEN_PANEL, UNAVAILABLE, a missing reading and a stale or future-dated reading all yield
++    (UNKNOWN, None), which `preflight_gate` turns into CREDIT_UNKNOWN. There is no default and no fallback value.
++    """
++    if reading is None:
++        return ReadStatus.UNKNOWN, None, "no reading"
++    if reading.status is not BalanceStatus.VERIFIED_WITHOUT_INTERACTION or reading.verified_balance is None:
++        return ReadStatus.UNKNOWN, None, f"{reading.status.value} is not verified evidence"
++    age = ((now or datetime.now(UTC)) - parse_time(reading.read_at)).total_seconds()
++    if age < -CREDIT_EVIDENCE_MAX_CLOCK_SKEW_S:
++        return ReadStatus.UNKNOWN, None, "reading is dated in the future"
++    if age > max_age_s:
++        return ReadStatus.UNKNOWN, None, f"reading is {age:.0f} s old (> {max_age_s} s): not a current balance"
++    return ReadStatus.VERIFIED, reading.verified_balance, "fresh reading without interaction"
++
++
+ @dataclass(frozen=True)
+ class CostQuote:
+     raw: str
+--- new file: src/blatifa/account/balance.py (see new_files_hashes.txt)

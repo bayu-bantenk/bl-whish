@@ -1,0 +1,17 @@
+== resource gate 2026-11-10T01:30:03Z
+disk free: 9.77 GiB
+vm.swapusage: total = 2048.00M  used = 1334.56M  free = 713.44M  (encrypted)
+System-wide memory free percentage: 31%
+test/automation processes: none
+== after targeted run 2026-11-10T01:38:25Z
+disk free: 13.92 GiB
+vm.swapusage: total = 3072.00M  used = 2062.50M  free = 1009.50M  (encrypted)
+System-wide memory free percentage: 32%
+== resource gate for full run 2026-11-10T01:38:40Z
+disk free: 13.91 GiB
+vm.swapusage: total = 3072.00M  used = 2046.50M  free = 1025.50M  (encrypted)
+System-wide memory free percentage: 35%
+== after full run 2026-11-10T01:49:15Z
+disk free: 11.13 GiB
+vm.swapusage: total = 3072.00M  used = 2775.00M  free = 297.00M  (encrypted)
+System-wide memory free percentage: 44%

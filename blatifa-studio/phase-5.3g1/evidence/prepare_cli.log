@@ -1,0 +1,24 @@
+{
+ "id": 1,
+ "experiment_id": "EXP-P53G-20261110-56C3",
+ "db_realpath": "/Users/bayu.rieswanto_mdp/BlatifaStudio/experiments/phase-5.3g/p53g.db",
+ "project_id": "562eec3d-9c48-4802-b152-3ed1d8c91ebd",
+ "account_fingerprint": "d6c9f4583fa6",
+ "purpose": "Phase 5.3g.1 strict manual-submission experiment (one video, user submits by hand)",
+ "created_at": "2026-11-10T01:29:42.934+00:00"
+}
+exit=0
+attempt 4ae102de6bbb4612b9b862449fbd993c PREPARED (not submitted)
+status:        PREPARED
+  attempt       4ae102de6bbb4612b9b862449fbd993c
+  state         READY/-
+  experiment    EXP-P53G-20261110-56C3
+  scene         EXP-P53G/EXP-P53G-S01 v1 #1
+  project       562eec3d-9c48-4802-b152-3ed1d8c91ebd
+  account       d6c9f4583fa6
+  nonce         [blatifa-exp-1e05d92f]
+  prompt sha256 f45e9887b2ec1cad11589f620409654596c1d72429db969fee3cee8ba87735c5
+  prompt bytes  996
+  attestation   False
+  media id      -
+exit=0

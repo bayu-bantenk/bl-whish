@@ -1,0 +1,14 @@
+## baseline 2026-11-03 15:50:13 WIB
+/dev/disk3s1s1   460Gi    12Gi    16Gi    42%    459k  172M    0%   /
+/dev/disk3s1s1    494G     13G     18G    42%    459k  172M    0%   /
+vm.swapusage: total = 1024.00M  used = 571.62M  free = 452.38M  (encrypted)
+       1
+## processes (Chrome for Testing / Blatifa profiles / pytest)
+(end of process list)
+browser: NOT_RUNNING  process_alive=False cdp=False page_responsive=None  chrome=None  url=None
+  detail: no session file
+## temp folders
+ls: <TMPDIR>/blatifa-pytest-runs: No such file or directory
+ls: <TMPDIR>/pytest-of-bayu.rieswanto_mdp: No such file or directory
+du: <TMPDIR>/pytest-of-bayu.rieswanto_mdp: No such file or directory
+du: <TMPDIR>/blatifa-pytest-runs: No such file or directory

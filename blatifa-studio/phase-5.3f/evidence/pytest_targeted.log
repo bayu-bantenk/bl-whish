@@ -1,0 +1,11 @@
+Fri Nov  6 07:49:58 UTC 2026
+/dev/disk3s1s1   460Gi    12Gi   7.0Gi    63%    459k   74M    1%   /
+vm.swapusage: total = 6144.00M  used = 5331.31M  free = 812.69M  (encrypted)
+........................................................................ [ 43%]
+........................................................................ [ 65%]
+........................................................................ [ 87%]
+.........................................                                [100%]
+329 passed in 51.63s
+--- separately (same session): tests/unit/test_episode_e2e.py tests/unit/test_phase4_ui.py tests/unit/test_phase4_readiness.py -> 46 passed in 271.25s
+All checks passed!
+47

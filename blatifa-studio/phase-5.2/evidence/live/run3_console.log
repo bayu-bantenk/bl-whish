@@ -1,0 +1,13 @@
+browser: HEALTHY  process_alive=True cdp=True page_responsive=True  chrome=Chrome/156.0.8078.74  url=https://flow.google.com/project/562eec3d…
+probe 1: identity=VERIFIED credits=UNAVAILABLE_WITHOUT_CLICK balance=None tiles=9 dialogs=[] confirmation=ABSENT stop=[]
+probe 2: identity=VERIFIED credits=UNAVAILABLE_WITHOUT_CLICK balance=None tiles=9 dialogs=[] confirmation=ABSENT stop=[]
+detail 1: media=17 videos=0 dialogs=[] route_id_found_in=[] stop=[]
+detail 2: media=17 videos=0 dialogs=[] route_id_found_in=[] stop=[]
+grid after return 1: identity=VERIFIED tiles=9 dialogs=[]
+grid after return 2: identity=VERIFIED tiles=9 dialogs=[]
+grid after return 3: identity=VERIFIED tiles=9 dialogs=[]
+grid after return 4: identity=VERIFIED tiles=9 dialogs=[]
+grid after return 5: identity=VERIFIED tiles=9 dialogs=[]
+grid after return 6: identity=VERIFIED tiles=9 dialogs=[]
+report: /Users/bayu.rieswanto_mdp/BlatifaStudio/inspections/20261103T141714Z-live-probe
+stop reasons: ['CREDIT_BALANCE_UNREADABLE_WITHOUT_CLICK']

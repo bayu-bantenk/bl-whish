@@ -1,0 +1,5 @@
+# Live read-only probe
+
+- probes: 1
+- balances: [None]
+- stop: ['CREDIT_BALANCE_UNREADABLE_WITHOUT_CLICK', 'IDENTITY_UNREADABLE_OR_AMBIGUOUS', 'UNEXPECTED_DIALOG']

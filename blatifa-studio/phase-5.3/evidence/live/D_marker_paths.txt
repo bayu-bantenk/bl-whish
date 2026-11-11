@@ -1,0 +1,12 @@
+root:'' > main:'' > text:'' | text_len 764
+region link 'Skip to main content' has_nonce False []
+region main '' has_nonce True ['button:Back button to go to previous page', 'heading:Pink octopus waving in water', 'button:Pink octopus waving in water', 'button:Whisk_u2yivwz5ejzyqtzl1iy0udotcdnirtl2mgnz0sz.png', 'button:Cat waving to camera', 'button:Blumaro', 'button:blahiro', 'button:Cat character wearing cute clothes', 'button:Blatifa', 'button:Favorite', 'button:Share', 'button:Download media', 'button:Move to trash', 'button:Hide history']
+Would you like me False
+Permission options False
+What do you want to create? False
+costing False
+Approve False
+Agent instructions False
+roles ['/placeholder', '/url', 'button', 'heading', 'img', 'link', 'main', 'navigation', 'paragraph', 'root', 'scrollbar', 'text', 'textbox']
+nonce nodes 1 url /project/562eec3d-9c48-4802-b152-3ed1d8c91ebd/edit/ade6bb57-7fbb-4b34-a66a-c65a27bfcd50
+{'One small pink octopus floats ': ['text'], 'The Octopus has a very importa': ['text']}

@@ -1,0 +1,69 @@
+{
+ "composer": [
+  {
+   "role": "textbox",
+   "name": "What do you want to create?",
+   "value_len": 0,
+   "value_head": "",
+   "attrs": []
+  },
+  {
+   "role": "paragraph",
+   "name": "",
+   "value_len": 999,
+   "value_head": "Octopus [STYLE] Soft 3D animated family-friendly style, warm cozy lighting, cons",
+   "attrs": []
+  },
+  {
+   "role": "button",
+   "name": "Add ingredients to the prompt box",
+   "value_len": 0,
+   "value_head": "",
+   "attrs": []
+  },
+  {
+   "role": "button",
+   "name": "Agent instructions",
+   "value_len": 0,
+   "value_head": "",
+   "attrs": []
+  },
+  {
+   "role": "button",
+   "name": "Settings",
+   "value_len": 0,
+   "value_head": "",
+   "attrs": []
+  },
+  {
+   "role": "button",
+   "name": "Start generation",
+   "value_len": 0,
+   "value_head": "",
+   "attrs": []
+  },
+  {
+   "role": "paragraph",
+   "name": "",
+   "value_len": 49,
+   "value_head": "Google Flow can make mistakes, so double check it",
+   "attrs": []
+  }
+ ],
+ "markers": {
+  "[blatifa-exp-164d4283]": [
+   "paragraph"
+  ],
+  "Octopus": [
+   "group",
+   "text",
+   "img",
+   "paragraph"
+  ],
+  "[STYLE] Soft 3D animated family-friendly style, warm cozy lighting, consistent character design across all scenes, no text, no subtitles, no watermark overlays. [CHARACTERS] The Octopus has a very important facial characteristic: its mouth is a small rounded protruding circular pout. ABSOLUTELY PRESERVE THIS OCTOPUS MOUTH. Do NOT turn the Octopus mouth into a normal smiling mouth. Do NOT make the mouth wide. Do NOT flatten the mouth. Do NOT remove the protruding circular pout. [SCENE] The pink octopus from the referenced Octopus image floats gently in calm, clear blue water against a plain, simple background and slowly waves one tentacle at the camera. Keep its appearance exactly as in the reference image. No other characters, no other objects. [CAMERA] Static camera, medium shot. [AVOID] no text or subtitles in the video; no extra characters [FORMAT] One video, 9:16, about 8 seconds. Experiment reference, metadata only, never shown as text in the video: [blatifa-exp-164d4283]": [
+   "paragraph"
+  ]
+ },
+ "hovered": [],
+ "dialogs": []
+}

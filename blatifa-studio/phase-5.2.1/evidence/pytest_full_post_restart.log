@@ -1,0 +1,51 @@
+# before: 2026-11-05 15:50:27
+/dev/disk3s5   460Gi   423Gi    13Gi    97%    5.6M  138M    4%   /System/Volumes/Data
+vm.swapusage: total = 0.00M  used = 0.00M  free = 0.00M  (encrypted)
+BLATIFA_LIVE=<unset>
+============================= test session starts ==============================
+platform darwin -- Python 3.12.14, pytest-9.2.0, pluggy-1.7.0
+rootdir: /Users/bayu.rieswanto_mdp/Developments/My Project/blatifa-studio
+configfile: pyproject.toml
+testpaths: tests
+collected 369 items
+
+tests/browser/test_account_and_capture.py .......                        [  1%]
+tests/browser/test_adapter_v2_grid.py ......                             [  3%]
+tests/browser/test_control_ui.py .                                       [  3%]
+tests/browser/test_engine_recovery.py .....                              [  5%]
+tests/browser/test_flow_adapter.py .....                                 [  6%]
+tests/browser/test_live_probe_fixture.py ....                            [  7%]
+tests/browser/test_validator_and_health.py ..............                [ 11%]
+tests/browser/test_video_properties_fixture.py .                         [ 11%]
+tests/live/test_flow_live.py sssssss                                     [ 13%]
+tests/unit/test_core.py ........................................         [ 24%]
+tests/unit/test_devserver_tool.py ...                                    [ 25%]
+tests/unit/test_episode_e2e.py ....................                      [ 30%]
+tests/unit/test_flow_readers.py ............................             [ 38%]
+tests/unit/test_media.py .....                                           [ 39%]
+tests/unit/test_phase4_authorization.py ..........                       [ 42%]
+tests/unit/test_phase4_locks.py ........                                 [ 44%]
+tests/unit/test_phase4_media_ids.py ....                                 [ 45%]
+tests/unit/test_phase4_readiness.py ...........                          [ 48%]
+tests/unit/test_phase4_ui.py ...............                             [ 52%]
+tests/unit/test_phase5_1_recognition.py .............................    [ 60%]
+tests/unit/test_phase5_1_runner_compat.py ........                       [ 62%]
+tests/unit/test_phase5_2_1_registry_correction.py .........              [ 65%]
+tests/unit/test_phase5_2_live_evidence.py .............                  [ 68%]
+tests/unit/test_phase5_2_observation.py .............                    [ 72%]
+tests/unit/test_phase5_live_evidence.py .......                          [ 73%]
+tests/unit/test_phase5_probe.py ...............                          [ 78%]
+tests/unit/test_production.py ....................................       [ 87%]
+tests/unit/test_pytest_isolation.py .......                              [ 89%]
+tests/unit/test_runner_simulation.py .................                   [ 94%]
+tests/unit/test_scene_and_crash_sweep.py .....................           [100%]
+
+==================================== PASSES ====================================
+=========================== short test summary info ============================
+SKIPPED [1] tests/live/test_flow_live.py:36: live Flow checks are opt-in (BLATIFA_LIVE=1)
+SKIPPED [6] tests/live/test_flow_live.py:43: live Flow checks are opt-in (BLATIFA_LIVE=1)
+================== 362 passed, 7 skipped in 396.45s (0:06:36) ==================
+exit=0
+# after: 2026-11-05 15:57:05
+/dev/disk3s5   460Gi   423Gi    11Gi    98%    5.6M  117M    5%   /System/Volumes/Data
+vm.swapusage: total = 2048.00M  used = 852.25M  free = 1195.75M  (encrypted)

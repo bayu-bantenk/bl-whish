@@ -1,0 +1,10 @@
+== resource gate 2026-11-09T07:29:26Z
+disk free: 11.73 GiB
+vm.swapusage: total = 1024.00M  used = 566.19M  free = 457.81M  (encrypted)
+System-wide memory free percentage: 37%
+test/automation processes:
+none
+== after full regression 2026-11-09T07:36:25Z
+disk free: 11.70 GiB
+vm.swapusage: total = 1024.00M  used = 704.31M  free = 319.69M  (encrypted)
+System-wide memory free percentage: 41%

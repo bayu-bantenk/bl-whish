@@ -1,0 +1,32 @@
+{
+ "label": "A0_ui_baseline",
+ "at": "2026-11-06T01:29:13+00:00",
+ "url": "/project/562eec3d-9c48-4802-b152-3ed1d8c91ebd",
+ "identity": {
+  "status": "UNKNOWN",
+  "fingerprint": null,
+  "read_at": "2026-11-06T01:29:18+00:00",
+  "detail": "identity button BROKEN: not found"
+ },
+ "dialogs": [
+  "dialog:10"
+ ],
+ "nodes": [
+  {
+   "role": "dialog",
+   "name": "What's new",
+   "attrs": []
+  },
+  {
+   "role": "button",
+   "name": "View all changelogs",
+   "attrs": []
+  },
+  {
+   "role": "button",
+   "name": "Get started",
+   "attrs": []
+  }
+ ],
+ "paragraph_texts": []
+}

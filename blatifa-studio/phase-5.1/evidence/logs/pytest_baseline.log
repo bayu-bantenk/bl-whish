@@ -1,0 +1,16 @@
+## baseline (before Phase 5.1 changes) 2026-11-03 15:51:50 WIB
+/dev/disk3s1s1   460Gi    12Gi    16Gi    42%    459k  171M    0%   /
+vm.swapusage: total = 1024.00M  used = 563.62M  free = 460.38M  (encrypted)
+=========================== short test summary info ============================
+SKIPPED [1] tests/live/test_flow_live.py:36: live Flow checks are opt-in (BLATIFA_LIVE=1)
+SKIPPED [6] tests/live/test_flow_live.py:43: live Flow checks are opt-in (BLATIFA_LIVE=1)
+283 passed, 7 skipped in 448.14s (0:07:28)
+## after 2026-11-03 15:59:18 WIB
+/dev/disk3s1s1   460Gi    12Gi    13Gi    48%    459k  134M    0%   /
+vm.swapusage: total = 5120.00M  used = 3686.12M  free = 1433.88M  (encrypted)
+<TMPDIR>/blatifa-pytest-runs:
+run-20261103T085341-8599-e4727f9b
+
+<TMPDIR>/pytest-of-bayu.rieswanto_mdp:
+pytest-sentinel-p51
+4.0K	<TMPDIR>/blatifa-pytest-runs

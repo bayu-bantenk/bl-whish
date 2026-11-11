@@ -1,0 +1,237 @@
+--- a/src/blatifa/cli.py
++++ b/src/blatifa/cli.py
+@@ -25,7 +25,7 @@
+ from blatifa.media.video import Expectations, MediaToolError, check_asset, decode_errors, extract_last_frame, probe
+ from blatifa.persistence.store import Store
+ from blatifa.production.episode import EpisodeEngine, EpisodeProgress, RunMode, StorageThresholds
+-from blatifa.production.gates import GateResult, SpendingPolicy
++from blatifa.production.gates import GateResult, SpendingPolicy, credit_evidence
+ from blatifa.production.handoff import HandoffService
+ from blatifa.production.nonce_binding import BindingContext
+ from blatifa.production.preflight import run_preflight
+@@ -192,11 +192,17 @@
+     public = identity.public()
+     print(f"identity: {public['status']}  {identity.masked_email or '-'}  fingerprint={public['fingerprint']}  {identity.detail}")
+     print(f"credits:  {credits.status}  balance={credits.balance}  refresh={credits.refresh_text!r}  {credits.detail}")
++    # Phase 5.3g.4 (F-1): this read opened and closed the account panel. It is shown for diagnostics only.
++    authorization = credit_evidence(credits)[2]
++    print(f"credit authorization: NOT GRANTED ({authorization})")
+     out = new_report_dir(_settings(args).inspections_dir(), "account")
+     try:
+-        md = "# Account read\n\n" + "".join(f"- identity.{k}: {v if v is not None else '-'}\n" for k, v in public.items())
++        md = "# Account read (diagnostic only)\n\n"
++        md += "".join(f"- identity.{k}: {v if v is not None else '-'}\n" for k, v in public.items())
+         md += "".join(f"- credits.{k}: {v if v is not None else '-'}\n" for k, v in asdict(credits).items())
+-        write_report(out, "account", {"identity": public, "credits": asdict(credits)}, md, redactor)
++        md += f"- credit_authorization: NOT GRANTED ({authorization})\n"
++        write_report(out, "account", {"identity": public, "credits": asdict(credits),
++                                      "credit_authorization": {"granted": False, "why": authorization}}, md, redactor)
+     except LeakError as exc:
+         print(f"LEAK CHECK FAILED: {exc}")
+         return EXIT_LEAK
+@@ -217,7 +223,8 @@
+     engine.detach()
+     result = rep.gate
+     print(f"identity: {rep.identity.status} fingerprint={rep.identity.fingerprint}  "
+-          f"credits: {rep.credits.status} balance={rep.credits.balance}")
++          f"credits (diagnostic only): {rep.credits.status} balance={rep.credits.balance}")
++    print(f"credit evidence for the gate: {rep.credit_authorization}")
+     print("ui: " + " ".join(f"{k}={v}" for k, v in rep.states.items()) + f"  free disk: {rep.free_disk_bytes / 1024**3:.1f} GiB")
+     print("preflight: " + ("PASS (a generation would still need your explicit confirmation)" if result.allowed
+                            else "BLOCKED " + ", ".join(result.blocks)))
+@@ -698,11 +705,14 @@
+     h.add_argument("--registry", type=Path, help="alternative registry YAML")
+     h.set_defaults(func=cmd_health)
+ 
+-    a = with_profile(sub.add_parser("account", help="read identity and credit balance (read-only)"))
++    a = with_profile(sub.add_parser(
++        "account", help="read identity and credit balance (opens and closes the account panel; diagnostic only, "
++                        "never credit authorization)"))
+     a.add_argument("--registry", type=Path)
+     a.set_defaults(func=cmd_account)
+ 
+-    pf = with_profile(sub.add_parser("preflight", help="read-only check of every gate a generation would need"))
++    pf = with_profile(sub.add_parser("preflight", help="check of every gate a generation would need (never generates; "
++                                                     "the click-read balance is never credit evidence)"))
+     pf.add_argument("--expect-fingerprint", help="12-hex identity fingerprint this profile must be signed in as")
+     pf.add_argument("--expected-cost", type=int, default=10)
+     pf.add_argument("--max-cost", type=int, default=10)
+--- a/src/blatifa/production/gates.py
++++ b/src/blatifa/production/gates.py
+@@ -16,7 +16,7 @@
+ from enum import StrEnum
+ 
+ from blatifa.account.balance import BalanceReading, BalanceStatus, parse_time
+-from blatifa.account.reader import ReadStatus
++from blatifa.account.reader import CreditSnapshot, ReadStatus
+ 
+ # Observed wording (E-FLOW-12): "Would you like me to kick off this 1 video generation, costing 10 credits?"
+ # and "I'll generate 1 video animating … using your default model, Veo 3.1 - Lite." The agent writes free
+@@ -112,16 +112,32 @@
+ CREDIT_EVIDENCE_MAX_CLOCK_SKEW_S = 5
+ 
+ 
+-def credit_evidence(reading: BalanceReading | None, *, now: datetime | None = None,
++class CreditEvidenceError(TypeError):
++    """Raised only for programming errors at the boundary (never for a missing or unreadable balance)."""
++
++
++LEGACY_CLICK_READ = ("legacy click-derived read (read_credits) carries no provenance: diagnostic only, never "
++                     "credit evidence; confirm the balance manually")
++
++
++def credit_evidence(reading: object, *, now: datetime | None = None,
+                     max_age_s: int = CREDIT_EVIDENCE_MAX_AGE_S) -> tuple[ReadStatus, int | None, str]:
+-    """(credit_status, balance, why) for `PreflightInputs`, from a provenance-carrying balance reading.
++    """(credit_status, balance, why): THE boundary every production credit decision goes through.
+ 
+-    Fail-closed: only a fresh VERIFIED_WITHOUT_INTERACTION reading yields (VERIFIED, balance). USER_REPORTED,
+-    OBSERVED_IN_ALREADY_OPEN_PANEL, UNAVAILABLE, a missing reading and a stale or future-dated reading all yield
+-    (UNKNOWN, None), which `preflight_gate` turns into CREDIT_UNKNOWN. There is no default and no fallback value.
++    Fail-closed: only a fresh VERIFIED_WITHOUT_INTERACTION `BalanceReading` yields (VERIFIED, balance). Everything
++    else yields (UNKNOWN, None), which `preflight_gate` turns into CREDIT_UNKNOWN and `approval_gate` into
++    COST_OVER_BALANCE:
++    - USER_REPORTED, OBSERVED_IN_ALREADY_OPEN_PANEL, UNAVAILABLE, a missing reading, a stale or future-dated reading;
++    - (Phase 5.3g.4, F-1) a legacy `CreditSnapshot` from `read_credits`, whatever its status;
++    - any other object: a bare number, a `ReadStatus`, a string, a dict.
++    There is no default and no fallback value.
+     """
+     if reading is None:
+         return ReadStatus.UNKNOWN, None, "no reading"
++    if isinstance(reading, CreditSnapshot):
++        return ReadStatus.UNKNOWN, None, LEGACY_CLICK_READ
++    if not isinstance(reading, BalanceReading):
++        return ReadStatus.UNKNOWN, None, f"unsupported credit evidence type {type(reading).__name__}"
+     if reading.status is not BalanceStatus.VERIFIED_WITHOUT_INTERACTION or reading.verified_balance is None:
+         return ReadStatus.UNKNOWN, None, f"{reading.status.value} is not verified evidence"
+     age = ((now or datetime.now(UTC)) - parse_time(reading.read_at)).total_seconds()
+@@ -132,6 +148,19 @@
+     return ReadStatus.VERIFIED, reading.verified_balance, "fresh reading without interaction"
+ 
+ 
++def approval_balance(value: object, *, simulated_adapter: bool, now: datetime | None = None) -> int | None:
++    """The balance `approval_gate` may compare against (Phase 5.3g.4).
++
++    A bare non-negative int is accepted only for a simulated adapter (offline runs; nothing is spent). For every
++    other adapter, the value must be a `BalanceReading` and goes through `credit_evidence`; anything else is None,
++    which makes `approval_gate` block with COST_OVER_BALANCE.
++    """
++    if simulated_adapter and type(value) is int and value >= 0:
++        return value
++    status, balance, _ = credit_evidence(value, now=now)
++    return balance if status is ReadStatus.VERIFIED else None
++
++
+ @dataclass(frozen=True)
+ class CostQuote:
+     raw: str
+--- a/src/blatifa/production/preflight.py
++++ b/src/blatifa/production/preflight.py
+@@ -1,5 +1,10 @@
+-"""Collect the live inputs of the preflight gate from the Flow page. Read-only: Phase 1 states only."""
++"""Collect the live inputs of the preflight gate from the Flow page. Read-only: Phase 1 states only.
+ 
++Phase 5.3g.4 (F-1): the credit balance read by `read_credits` (which opens and closes the account panel) is kept
++for diagnostics only. The gate's credit input comes from `gates.credit_evidence`, which never accepts that legacy
++read, so the preflight reports CREDIT_UNKNOWN until a provenance-carrying balance exists.
++"""
++
+ from __future__ import annotations
+ 
+ from dataclasses import dataclass
+@@ -11,7 +16,7 @@
+ from blatifa.inspector.health import HealthStatus, run_state
+ from blatifa.inspector.registry import Registry
+ from blatifa.media.files import free_bytes
+-from blatifa.production.gates import GateResult, PreflightInputs, SpendingPolicy, preflight_gate
++from blatifa.production.gates import GateResult, PreflightInputs, SpendingPolicy, credit_evidence, preflight_gate
+ 
+ PREFLIGHT_STATES = ("project_idle", "agent_settings")
+ 
+@@ -23,18 +28,20 @@
+     states: dict[str, HealthStatus]
+     free_disk_bytes: int
+     gate: GateResult
++    credit_authorization: str = ""   # why the gate's credit input is what it is (diagnostics ≠ authorization)
+ 
+ 
+ def run_preflight(page: Page, registry: Registry, workspace: Path, expected_fingerprint: str | None,
+                   policy: SpendingPolicy) -> PreflightReport:
+     identity = read_identity(page, registry)
+-    credits = read_credits(page, registry)
++    credits = read_credits(page, registry)            # diagnostic only (F-1); never credit evidence
++    credit_status, balance, why = credit_evidence(credits)
+     states = {name: run_state(page, registry, name, {}).status for name in PREFLIGHT_STATES}
+     free = free_bytes(workspace)
+     gate = preflight_gate(PreflightInputs(
+         identity_status=identity.status, identity_fingerprint=identity.fingerprint, expected_fingerprint=expected_fingerprint,
+-        credit_status=credits.status, balance=credits.balance, free_disk_bytes=free,
++        credit_status=credit_status, balance=balance, free_disk_bytes=free,
+         ui_healthy=states["project_idle"] is HealthStatus.HEALTHY,
+         confirm_policy_always=states["agent_settings"] is HealthStatus.HEALTHY,
+     ), policy)
+-    return PreflightReport(identity, credits, states, free, gate)
++    return PreflightReport(identity, credits, states, free, gate, why)
+--- a/src/blatifa/production/runner.py
++++ b/src/blatifa/production/runner.py
+@@ -19,7 +19,15 @@
+ from blatifa.media.files import attempt_dir, place_atomically, sha256_file
+ from blatifa.media.video import Expectations, MediaToolError, check_asset, decode_errors, extract_last_frame, probe
+ from blatifa.persistence.store import Attempt, Store
+-from blatifa.production.gates import Block, CostQuote, GateResult, SpendingPolicy, approval_gate, parse_cost_quote
++from blatifa.production.gates import (
++    Block,
++    CostQuote,
++    GateResult,
++    SpendingPolicy,
++    approval_balance,
++    approval_gate,
++    parse_cost_quote,
++)
+ from blatifa.production.nonce_binding import BindingContext, NonceBindingError, prepare_attempt, prepared, verify_preparation
+ from blatifa.production.reconcile import MEDIA_ID_REASON, FlowObservation, LedgerOutcome, ReconcileInput, Tile, decide
+ from blatifa.production.states import TERMINAL, SceneState
+@@ -71,10 +79,23 @@
+     sleep: Callable[[float], None] = time.sleep
+ 
+ 
++def is_simulated_adapter(adapter: object) -> bool:
++    """Phase 5.3g.4: may this adapter's runner use a bare-number balance?
++
++    Inside the blatifa package exactly one adapter is a simulation: `blatifa.simulation.SimulatedFlow`. Every other
++    in-package adapter (today `flow.adapter.GoogleFlowAgentAdapter`, and any future one) is treated as live and
++    gets no bare numbers. Test doubles defined outside the package are simulations.
++    """
++    cls = type(adapter)
++    if cls.__module__ == "blatifa.simulation" and cls.__qualname__ == "SimulatedFlow":
++        return True
++    return not (cls.__module__ == "blatifa" or cls.__module__.startswith("blatifa."))
++
++
+ class SceneRunner:
+     def __init__(self, store: Store, adapter: FlowAdapter, root: Path, policy: SpendingPolicy,
+                  preflight: Callable[[], GateResult], confirm: Callable[[CostQuote], bool],
+-                 balance: Callable[[], int | None], timing: Timing | None = None,
++                 balance: Callable[[], object], timing: Timing | None = None,  # BalanceReading; int: simulation only
+                  on_media_unresolved: Callable[[str, str], object] | None = None,
+                  nonce_binding: BindingContext | None = None) -> None:
+         self.store, self.adapter, self.root, self.policy = store, adapter, root, policy
+@@ -175,12 +196,16 @@
+             return None
+         return prepared(self.store, a.id).final_prompt
+ 
++    def _gate_balance(self) -> int | None:
++        """Phase 5.3g.4: every balance goes through gates.approval_balance → credit_evidence (no bare numbers live)."""
++        return approval_balance(self.balance(), simulated_adapter=is_simulated_adapter(self.adapter))
++
+     def _decide_on_quote(self, a: Attempt, quote: CostQuote) -> None:
+-        gate = approval_gate(quote, self.policy, self.balance(), user_confirmed=False)
++        gate = approval_gate(quote, self.policy, self._gate_balance(), user_confirmed=False)
+         # Ask the user only when everything except the confirmation itself is acceptable.
+         only_needs_user = gate.blocks == [Block.NOT_CONFIRMED_BY_USER]
+         if only_needs_user and self.confirm(quote):
+-            gate = approval_gate(quote, self.policy, self.balance(), user_confirmed=True)
++            gate = approval_gate(quote, self.policy, self._gate_balance(), user_confirmed=True)
+         if not gate.allowed:
+             self.adapter.reject()
+             self.store.ledger_write(a.id, LedgerOutcome.REJECTED, quote.cost)

@@ -1,0 +1,173 @@
+{
+ "started_at": "2026-11-10T04:05:51+00:00",
+ "health": {
+  "state": "HEALTHY",
+  "chrome": "Chrome/157.0.8103.40"
+ },
+ "stop": [
+  "unexpected dialog ['dialog:16']"
+ ],
+ "url_before": {
+  "kind": "https",
+  "host": "flow.google.com",
+  "path": "/project/562eec3d-9c48-4802-b152-3ed1d8c91ebd",
+  "query": {},
+  "uuids": [
+   "562eec3d-9c48-4802-b152-3ed1d8c91ebd"
+  ],
+  "fingerprint": "10ec201f826d",
+  "path_fingerprint": "cb2f3323c484"
+ },
+ "identity": {
+  "status": "VERIFIED",
+  "fingerprint_matches": true
+ },
+ "aria_tree": {
+  "node_count": 112,
+  "roles": {
+   "button": 31,
+   "link": 14,
+   "/url": 14,
+   "text": 13,
+   "group": 12,
+   "img": 10,
+   "heading": 4,
+   "textbox": 3,
+   "navigation": 2,
+   "separator": 2,
+   "paragraph": 2,
+   "root": 1,
+   "main": 1,
+   "/placeholder": 1,
+   "dialog": 1,
+   "switch": 1
+  },
+  "credit_word_nodes": [
+   {
+    "role": "link",
+    "name": "50 Google Flow credits",
+    "value": null,
+    "matches_balance_pattern": true
+   },
+   {
+    "role": "/url",
+    "name": null,
+    "value": "<text:205>",
+    "matches_balance_pattern": false
+   },
+   {
+    "role": "text",
+    "name": null,
+    "value": "Credits refresh daily at 3:37 PM",
+    "matches_balance_pattern": false
+   }
+  ],
+  "number_with_credits_nodes": 1,
+  "refresh_nodes": 1,
+  "dialogs": [
+   "dialog:16"
+  ],
+  "button_names_redacted": [
+   {
+    "name": "<text:4>"
+   },
+   {
+    "name": "<text:28>"
+   },
+   {
+    "name": "<text:6>"
+   },
+   {
+    "name": "<text:29>"
+   },
+   {
+    "name": "<text:14>"
+   },
+   {
+    "name": "<text:12>"
+   },
+   {
+    "name": "<text:8>"
+   },
+   {
+    "name": "<text:12>"
+   },
+   {
+    "name": "<text:15>"
+   },
+   {
+    "name": "<redacted:54>"
+   },
+   {
+    "name": "<text:9>"
+   },
+   {
+    "name": "<text:6>"
+   },
+   {
+    "name": "<text:6>"
+   },
+   {
+    "name": "<text:10>"
+   },
+   {
+    "name": "<text:6>"
+   },
+   {
+    "name": "<text:7>"
+   },
+   {
+    "name": "<text:17>"
+   },
+   {
+    "name": "<text:8>"
+   },
+   {
+    "name": "<text:20>"
+   },
+   {
+    "name": "<text:17>"
+   },
+   {
+    "name": "<text:5>"
+   },
+   {
+    "name": "<text:33>"
+   },
+   {
+    "name": "<text:22>"
+   },
+   {
+    "name": "<text:33>"
+   },
+   {
+    "name": "<text:33>"
+   },
+   {
+    "name": "<text:18>"
+   },
+   {
+    "name": "<text:8>"
+   },
+   {
+    "name": "<text:16>"
+   },
+   {
+    "name": "<text:19>"
+   },
+   {
+    "name": "<text:13>"
+   },
+   {
+    "name": "<text:24>"
+   }
+  ],
+  "credits_without_click": {
+   "status": "VERIFIED",
+   "balance": 50,
+   "refresh": "Credits refresh daily at 3:37 PM",
+   "detail": "visible without interaction"
+  }
+ },
+ "finished_at": "2026-11-10T04:05:51+00:00"
+}

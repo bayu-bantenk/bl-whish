@@ -1,0 +1,7 @@
+Chrome started: profile=main pid=52749 port=127.0.0.1:62321 version=Chrome/156.0.8078.74
+Sign in to Google yourself in that window if needed. Blatifa never types credentials.
+browser: HEALTHY  process_alive=True cdp=True page_responsive=True  chrome=Chrome/156.0.8078.74  url=https://flow.google.com/
+browser: HEALTHY  process_alive=True cdp=True page_responsive=True  chrome=Chrome/156.0.8078.74  url=https://flow.google.com/project/562eec3d-9c48-4802-b152-3ed1d8c91ebd
+Chrome stopped.
+browser: NOT_RUNNING  process_alive=False cdp=False page_responsive=None  chrome=None  url=None
+  detail: no session file

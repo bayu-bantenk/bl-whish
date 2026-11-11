@@ -1,0 +1,35 @@
+## before 2026-11-03 21:43:49 WIB
+/dev/disk3s1s1   460Gi    12Gi   7.8Gi    60%    459k   82M    1%   /
+vm.swapusage: total = 8192.00M  used = 7075.19M  free = 1116.81M  (encrypted)
+<TMPDIR>/blatifa-pytest-runs:
+run-20261103T085341-8599-e4727f9b
+run-20261103T090024-16541-bd3a1c20
+run-20261103T090107-17137-885c63d8
+run-20261103T093704-51716-359f4547
+run-20261103T093726-52041-eddb2a58
+run-20261103T144142-363-3ba9cb7d
+
+<TMPDIR>/pytest-of-bayu.rieswanto_mdp:
+pytest-sentinel-p51
+## lint
+All checks passed!
+## run
+=========================== short test summary info ============================
+SKIPPED [1] tests/live/test_flow_live.py:36: live Flow checks are opt-in (BLATIFA_LIVE=1)
+SKIPPED [6] tests/live/test_flow_live.py:43: live Flow checks are opt-in (BLATIFA_LIVE=1)
+353 passed, 7 skipped in 405.22s (0:06:45)
+## after 2026-11-03 21:50:35 WIB
+/dev/disk3s1s1   460Gi    12Gi   7.9Gi    60%    459k   83M    1%   /
+vm.swapusage: total = 8192.00M  used = 7090.38M  free = 1101.62M  (encrypted)
+<TMPDIR>/blatifa-pytest-runs:
+run-20261103T085341-8599-e4727f9b
+run-20261103T090024-16541-bd3a1c20
+run-20261103T090107-17137-885c63d8
+run-20261103T093704-51716-359f4547
+run-20261103T093726-52041-eddb2a58
+run-20261103T144142-363-3ba9cb7d
+
+<TMPDIR>/pytest-of-bayu.rieswanto_mdp:
+pytest-sentinel-p51
+ 27M	<TMPDIR>/blatifa-pytest-runs
+keep

@@ -1,0 +1,4 @@
+e8867f9e5fa3eb288d6238a27e5672f72b6f390eec3ea923f526966b64836e46  src/blatifa/production/handoff.py
+4bd23c93ade5effcd2e2e46328c660e7396a7ab35ad524bea2feda188eb13e9f  src/blatifa/production/runner.py
+a5556a291d62ffe141fafd28c16eba83575edd268805eebb896e9a1a92f62eaa  src/blatifa/persistence/store.py
+08e7820c1baf2a3af4a27049e54a80ca24d848bc23dcd0df293ad9db7bf4fd6e  src/blatifa/cli.py

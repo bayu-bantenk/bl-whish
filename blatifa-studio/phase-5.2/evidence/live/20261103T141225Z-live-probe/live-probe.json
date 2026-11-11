@@ -1,0 +1,5522 @@
+{
+ "health": {
+  "state": "HEALTHY",
+  "chrome": "Chrome/156.0.8078.74",
+  "page_responsive": true
+ },
+ "url_shape": {
+  "kind": "https",
+  "host": "flow.google.com",
+  "path": "/project/562eec3d-9c48-4802-b152-3ed1d8c91ebd",
+  "query": {},
+  "uuids": [
+   "562eec3d-9c48-4802-b152-3ed1d8c91ebd"
+  ],
+  "fingerprint": "10ec201f826d",
+  "path_fingerprint": "cb2f3323c484"
+ },
+ "probes": [
+  {
+   "url_shape": {
+    "kind": "https",
+    "host": "flow.google.com",
+    "path": "/project/562eec3d-9c48-4802-b152-3ed1d8c91ebd",
+    "query": {},
+    "uuids": [
+     "562eec3d-9c48-4802-b152-3ed1d8c91ebd"
+    ],
+    "fingerprint": "10ec201f826d",
+    "path_fingerprint": "cb2f3323c484"
+   },
+   "identity": {
+    "status": "VERIFIED",
+    "fingerprint": "d6c9f4583fa6",
+    "read_at": "2026-11-03T14:09:27+00:00",
+    "detail": ""
+   },
+   "credits": {
+    "status": "UNAVAILABLE_WITHOUT_CLICK",
+    "balance": null,
+    "detail": "the balance is only shown inside the account panel, which would need a click"
+   },
+   "dialogs": [],
+   "confirmation": {
+    "problem": "OK",
+    "state": "ABSENT",
+    "cost": null,
+    "cost_status": "NOT_APPLICABLE",
+    "blocking": false
+   },
+   "tiles": [
+    {
+     "title": "Sea Lion",
+     "type": "UNKNOWN",
+     "status": "UNKNOWN",
+     "status_reason": "no recognised thumbnail and no progress text",
+     "in_viewport": true,
+     "lazy_unloaded": false,
+     "candidates": [
+      {
+       "element": "img[alt=Character thumbnail]",
+       "attribute": "src.url",
+       "value": "84d1952e-b45a-40cc-b950-aa0a9ee732bb",
+       "route_known": false
+      }
+     ],
+     "data_media_ids": [],
+     "urls": [
+      {
+       "kind": "https",
+       "host": "flow-content.google",
+       "path": "/image/84d1952e-b45a-40cc-b950-aa0a9ee732bb",
+       "query": {
+        "Expires": "<redacted>",
+        "KeyName": "<redacted>",
+        "Signature": "<redacted>"
+       },
+       "uuids": [
+        "84d1952e-b45a-40cc-b950-aa0a9ee732bb"
+       ],
+       "fingerprint": "7ec9a3835075",
+       "path_fingerprint": "033a95186aa2",
+       "element": "img[alt=Character thumbnail]",
+       "attribute": "src"
+      }
+     ],
+     "texts": [
+      "<text:8>",
+      "<text:17>",
+      "<text:8>",
+      "<text:9>"
+     ],
+     "signature": [
+      "flow-grid-tile-container[aria-label,role]",
+      "flow-tile-container[]",
+      "div[]",
+      "flow-character-tile[]",
+      "div[]",
+      "img[alt,draggable,src]",
+      "div[]",
+      "div[]",
+      "span[]",
+      "div[]",
+      "mat-icon[aria-hidden,data-mat-icon-type,role]",
+      "div[]",
+      "div[]",
+      "div[hoveroverlay]",
+      "flow-character-hotbar[]",
+      "flow-hotbar-container[]",
+      "div[]",
+      "button[aria-label,flowhotbarbutton,type]",
+      "mat-icon[aria-hidden,data-mat-icon-type,role]",
+      "button[aria-describedby,aria-expanded,aria-haspopup,aria-label,cdk-describedby-host,flowhotbarbutton,type]",
+      "mat-icon[aria-hidden,data-mat-icon-type,role]",
+      "mat-menu[]"
+     ],
+     "videos": []
+    },
+    {
+     "title": "Octopus",
+     "type": "UNKNOWN",
+     "status": "UNKNOWN",
+     "status_reason": "no recognised thumbnail and no progress text",
+     "in_viewport": true,
+     "lazy_unloaded": false,
+     "candidates": [
+      {
+       "element": "img[alt=Character thumbnail]",
+       "attribute": "src.url",
+       "value": "dbe0c200-d7b6-4d60-905d-dc8bc77e2d78",
+       "route_known": false
+      }
+     ],
+     "data_media_ids": [],
+     "urls": [
+      {
+       "kind": "https",
+       "host": "flow-content.google",
+       "path": "/image/dbe0c200-d7b6-4d60-905d-dc8bc77e2d78",
+       "query": {
+        "Expires": "<redacted>",
+        "KeyName": "<redacted>",
+        "Signature": "<redacted>"
+       },
+       "uuids": [
+        "dbe0c200-d7b6-4d60-905d-dc8bc77e2d78"
+       ],
+       "fingerprint": "0100777aa26b",
+       "path_fingerprint": "6d97481be632",
+       "element": "img[alt=Character thumbnail]",
+       "attribute": "src"
+      }
+     ],
+     "texts": [
+      "<text:7>",
+      "<text:17>",
+      "<text:8>",
+      "<text:9>"
+     ],
+     "signature": [
+      "flow-grid-tile-container[aria-label,role]",
+      "flow-tile-container[]",
+      "div[]",
+      "flow-character-tile[]",
+      "div[]",
+      "img[alt,draggable,src]",
+      "div[]",
+      "div[]",
+      "span[]",
+      "div[]",
+      "mat-icon[aria-hidden,data-mat-icon-type,role]",
+      "div[]",
+      "div[]",
+      "div[hoveroverlay]",
+      "flow-character-hotbar[]",
+      "flow-hotbar-container[]",
+      "div[]",
+      "button[aria-label,flowhotbarbutton,type]",
+      "mat-icon[aria-hidden,data-mat-icon-type,role]",
+      "button[aria-describedby,aria-expanded,aria-haspopup,aria-label,cdk-describedby-host,flowhotbarbutton,type]",
+      "mat-icon[aria-hidden,data-mat-icon-type,role]",
+      "mat-menu[]"
+     ],
+     "videos": []
+    },
+    {
+     "title": "Dolphin",
+     "type": "UNKNOWN",
+     "status": "UNKNOWN",
+     "status_reason": "no recognised thumbnail and no progress text",
+     "in_viewport": true,
+     "lazy_unloaded": false,
+     "candidates": [
+      {
+       "element": "img[alt=Character thumbnail]",
+       "attribute": "src.url",
+       "value": "bd0cadda-e0d2-4a14-add9-1b2c1808e390",
+       "route_known": false
+      }
+     ],
+     "data_media_ids": [],
+     "urls": [
+      {
+       "kind": "https",
+       "host": "flow-content.google",
+       "path": "/image/bd0cadda-e0d2-4a14-add9-1b2c1808e390",
+       "query": {
+        "Expires": "<redacted>",
+        "KeyName": "<redacted>",
+        "Signature": "<redacted>"
+       },
+       "uuids": [
+        "bd0cadda-e0d2-4a14-add9-1b2c1808e390"
+       ],
+       "fingerprint": "7fef9bb00f30",
+       "path_fingerprint": "ccbf0ecf04e4",
+       "element": "img[alt=Character thumbnail]",
+       "attribute": "src"
+      }
+     ],
+     "texts": [
+      "<text:7>",
+      "<text:17>",
+      "<text:8>",
+      "<text:9>"
+     ],
+     "signature": [
+      "flow-grid-tile-container[aria-label,role]",
+      "flow-tile-container[]",
+      "div[]",
+      "flow-character-tile[]",
+      "div[]",
+      "img[alt,draggable,src]",
+      "div[]",
+      "div[]",
+      "span[]",
+      "div[]",
+      "mat-icon[aria-hidden,data-mat-icon-type,role]",
+      "div[]",
+      "div[]",
+      "div[hoveroverlay]",
+      "flow-character-hotbar[]",
+      "flow-hotbar-container[]",
+      "div[]",
+      "button[aria-label,flowhotbarbutton,type]",
+      "mat-icon[aria-hidden,data-mat-icon-type,role]",
+      "button[aria-describedby,aria-expanded,aria-haspopup,aria-label,cdk-describedby-host,flowhotbarbutton,type]",
+      "mat-icon[aria-hidden,data-mat-icon-type,role]",
+      "mat-menu[]"
+     ],
+     "videos": []
+    },
+    {
+     "title": "Whisk_u2yivwz5ejzyqtzl1iy0udotcdnirtl2mgnz0sz.png",
+     "type": "IMAGE",
+     "status": "NOT_APPLICABLE",
+     "status_reason": "image tile",
+     "in_viewport": true,
+     "lazy_unloaded": false,
+     "candidates": [
+      {
+       "element": "img[alt=Tile displaying a user's image]",
+       "attribute": "data-media-id",
+       "value": "a1166f7e-9203-4c27-b977-17cbd8fdca2c",
+       "route_known": false
+      }
+     ],
+     "data_media_ids": [
+      "a1166f7e-9203-4c27-b977-17cbd8fdca2c"
+     ],
+     "urls": [
+      {
+       "kind": "https",
+       "host": "flow.google.com",
+       "path": "/asb/<tok:183>",
+       "query": {},
+       "uuids": [],
+       "fingerprint": "34b414ff912c",
+       "path_fingerprint": "7844ba403923",
+       "element": "img[alt=Tile displaying a user's image]",
+       "attribute": "src"
+      }
+     ],
+     "texts": [
+      "<text:8>",
+      "<text:9>",
+      "<text:5>",
+      "<text:49>"
+     ],
+     "signature": [
+      "flow-grid-tile-container[aria-label,role]",
+      "flow-tile-container[]",
+      "div[]",
+      "flow-image-tile[]",
+      "div[]",
+      "img[alt,data-media-id,draggable,src]",
+      "div[]",
+      "div[]",
+      "div[hoveroverlay]",
+      "flow-image-hotbar[]",
+      "flow-hotbar-container[]",
+      "div[]",
+      "button[aria-label,flowhotbarbutton,type]",
+      "mat-icon[aria-hidden,data-mat-icon-type,role]",
+      "button[aria-describedby,aria-expanded,aria-haspopup,aria-label,cdk-describedby-host,flowhotbarbutton,type]",
+      "mat-icon[aria-hidden,data-mat-icon-type,role]",
+      "mat-menu[]",
+      "div[]",
+      "flow-tile-hover-footer[]",
+      "button[aria-expanded,aria-haspopup,aria-label,cdkoverlayorigin,type]",
+      "mat-icon[aria-hidden,data-mat-icon-type,role]",
+      "span[]"
+     ],
+     "videos": []
+    },
+    {
+     "title": "Cat waving to camera",
+     "type": "VIDEO",
+     "status": "UNKNOWN",
+     "status_reason": "no recognised thumbnail and no progress text",
+     "in_viewport": true,
+     "lazy_unloaded": false,
+     "candidates": [],
+     "data_media_ids": [],
+     "urls": [
+      {
+       "kind": "https",
+       "host": "flow.google.com",
+       "path": "/asb/<tok:181>",
+       "query": {},
+       "uuids": [],
+       "fingerprint": "85a10a69f42c",
+       "path_fingerprint": "cff7b3ec05de",
+       "element": "video",
+       "attribute": "src"
+      }
+     ],
+     "texts": [
+      "<text:11>",
+      "<text:8>",
+      "<text:4>",
+      "<text:9>",
+      "<text:11>",
+      "<text:20>"
+     ],
+     "signature": [
+      "flow-grid-tile-container[aria-label,role]",
+      "flow-tile-container[]",
+      "div[]",
+      "flow-video-tile[]",
+      "div[]",
+      "video[aria-label,controlslist,disablepictureinpicture,loop,src]",
+      "div[]",
+      "div[]",
+      "mat-icon[aria-hidden,data-mat-icon-type,role]",
+      "div[]",
+      "div[hoveroverlay]",
+      "flow-video-hotbar[]",
+      "flow-hotbar-container[]",
+      "div[]",
+      "button[aria-label,flowhotbarbutton,type]",
+      "mat-icon[aria-hidden,data-mat-icon-type,role]",
+      "button[aria-label,flowhotbarbutton,type]",
+      "mat-icon[aria-hidden,data-mat-icon-type,role]",
+      "button[aria-describedby,aria-expanded,aria-haspopup,aria-label,cdk-describedby-host,flowhotbarbutton,type]",
+      "mat-icon[aria-hidden,data-mat-icon-type,role]",
+      "mat-menu[]",
+      "div[]",
+      "flow-tile-hover-footer[]",
+      "button[aria-expanded,aria-haspopup,aria-label,cdkoverlayorigin,type]",
+      "mat-icon[aria-hidden,data-mat-icon-type,role]",
+      "span[]",
+      "div[]",
+      "div[]",
+      "div[]",
+      "div[]"
+     ],
+     "videos": [
+      {
+       "ready_state": 4,
+       "network_state": 1,
+       "duration": 7.918005,
+       "current_time": 0.076535,
+       "paused": true,
+       "ended": false,
+       "video_width": 720,
+       "video_height": 1280,
+       "autoplay": false,
+       "muted": true,
+       "current_src": {
+        "kind": "https",
+        "host": "flow.google.com",
+        "path": "/asb/<tok:181>",
+        "query": {},
+        "uuids": [],
+        "fingerprint": "85a10a69f42c",
+        "path_fingerprint": "cff7b3ec05de"
+       },
+       "attributes": [
+        "_ngcontent-ng-c3621283428",
+        "aria-label",
+        "controlslist",
+        "disablepictureinpicture",
+        "loop",
+        "src"
+       ],
+       "aria_label_is_title": false
+      }
+     ]
+    },
+    {
+     "title": "Blumaro",
+     "type": "IMAGE",
+     "status": "NOT_APPLICABLE",
+     "status_reason": "image tile",
+     "in_viewport": true,
+     "lazy_unloaded": false,
+     "candidates": [
+      {
+       "element": "img[alt=Tile displaying a user's image]",
+       "attribute": "data-media-id",
+       "value": "1ffdc2af-bd49-4422-b4bb-5e2b956e2772",
+       "route_known": false
+      }
+     ],
+     "data_media_ids": [
+      "1ffdc2af-bd49-4422-b4bb-5e2b956e2772"
+     ],
+     "urls": [
+      {
+       "kind": "https",
+       "host": "flow.google.com",
+       "path": "/asb/<tok:182>",
+       "query": {},
+       "uuids": [],
+       "fingerprint": "34ac6b8ca2e3",
+       "path_fingerprint": "298bf0164717",
+       "element": "img[alt=Tile displaying a user's image]",
+       "attribute": "src"
+      }
+     ],
+     "texts": [
+      "<text:8>",
+      "<text:4>",
+      "<text:9>",
+      "<text:5>",
+      "<text:7>"
+     ],
+     "signature": [
+      "flow-grid-tile-container[aria-label,role]",
+      "flow-tile-container[]",
+      "div[]",
+      "flow-image-tile[]",
+      "div[]",
+      "img[alt,data-media-id,draggable,src]",
+      "div[]",
+      "div[]",
+      "div[hoveroverlay]",
+      "flow-image-hotbar[]",
+      "flow-hotbar-container[]",
+      "div[]",
+      "button[aria-label,flowhotbarbutton,type]",
+      "mat-icon[aria-hidden,data-mat-icon-type,role]",
+      "button[aria-label,flowhotbarbutton,type]",
+      "mat-icon[aria-hidden,data-mat-icon-type,role]",
+      "button[aria-describedby,aria-expanded,aria-haspopup,aria-label,cdk-describedby-host,flowhotbarbutton,type]",
+      "mat-icon[aria-hidden,data-mat-icon-type,role]",
+      "mat-menu[]",
+      "div[]",
+      "flow-tile-hover-footer[]",
+      "button[aria-expanded,aria-haspopup,aria-label,cdkoverlayorigin,type]",
+      "mat-icon[aria-hidden,data-mat-icon-type,role]",
+      "span[]"
+     ],
+     "videos": []
+    },
+    {
+     "title": "blahiro",
+     "type": "IMAGE",
+     "status": "NOT_APPLICABLE",
+     "status_reason": "image tile",
+     "in_viewport": true,
+     "lazy_unloaded": false,
+     "candidates": [
+      {
+       "element": "img[alt=Tile displaying a user's image]",
+       "attribute": "data-media-id",
+       "value": "04609515-3501-4200-8b04-a62e577ba6da",
+       "route_known": false
+      }
+     ],
+     "data_media_ids": [
+      "04609515-3501-4200-8b04-a62e577ba6da"
+     ],
+     "urls": [
+      {
+       "kind": "https",
+       "host": "flow.google.com",
+       "path": "/asb/<tok:182>",
+       "query": {},
+       "uuids": [],
+       "fingerprint": "18235edff937",
+       "path_fingerprint": "1fbe116a2a9d",
+       "element": "img[alt=Tile displaying a user's image]",
+       "attribute": "src"
+      }
+     ],
+     "texts": [
+      "<text:8>",
+      "<text:4>",
+      "<text:9>",
+      "<text:5>",
+      "<text:7>"
+     ],
+     "signature": [
+      "flow-grid-tile-container[aria-label,role]",
+      "flow-tile-container[]",
+      "div[]",
+      "flow-image-tile[]",
+      "div[]",
+      "img[alt,data-media-id,draggable,src]",
+      "div[]",
+      "div[]",
+      "div[hoveroverlay]",
+      "flow-image-hotbar[]",
+      "flow-hotbar-container[]",
+      "div[]",
+      "button[aria-label,flowhotbarbutton,type]",
+      "mat-icon[aria-hidden,data-mat-icon-type,role]",
+      "button[aria-label,flowhotbarbutton,type]",
+      "mat-icon[aria-hidden,data-mat-icon-type,role]",
+      "button[aria-describedby,aria-expanded,aria-haspopup,aria-label,cdk-describedby-host,flowhotbarbutton,type]",
+      "mat-icon[aria-hidden,data-mat-icon-type,role]",
+      "mat-menu[]",
+      "div[]",
+      "flow-tile-hover-footer[]",
+      "button[aria-expanded,aria-haspopup,aria-label,cdkoverlayorigin,type]",
+      "mat-icon[aria-hidden,data-mat-icon-type,role]",
+      "span[]"
+     ],
+     "videos": []
+    },
+    {
+     "title": "Cat character wearing cute clothes",
+     "type": "IMAGE",
+     "status": "NOT_APPLICABLE",
+     "status_reason": "image tile",
+     "in_viewport": true,
+     "lazy_unloaded": false,
+     "candidates": [
+      {
+       "element": "img[alt=Tile displaying a user's image]",
+       "attribute": "data-media-id",
+       "value": "ad48115d-c4c6-4cef-b460-61d660bb58a1",
+       "route_known": false
+      }
+     ],
+     "data_media_ids": [
+      "ad48115d-c4c6-4cef-b460-61d660bb58a1"
+     ],
+     "urls": [
+      {
+       "kind": "https",
+       "host": "flow.google.com",
+       "path": "/asb/<tok:182>",
+       "query": {},
+       "uuids": [],
+       "fingerprint": "86595991adcc",
+       "path_fingerprint": "1f71ef3c253a",
+       "element": "img[alt=Tile displaying a user's image]",
+       "attribute": "src"
+      }
+     ],
+     "texts": [
+      "<text:6>",
+      "<text:8>",
+      "<text:4>",
+      "<text:9>",
+      "<text:5>",
+      "<text:34>"
+     ],
+     "signature": [
+      "flow-grid-tile-container[aria-label,role]",
+      "flow-tile-container[]",
+      "div[]",
+      "flow-image-tile[]",
+      "div[]",
+      "img[alt,data-media-id,draggable,src]",
+      "div[]",
+      "div[]",
+      "mat-icon[aria-hidden,data-mat-icon-type,role]",
+      "div[]",
+      "div[hoveroverlay]",
+      "flow-image-hotbar[]",
+      "flow-hotbar-container[]",
+      "div[]",
+      "button[aria-label,flowhotbarbutton,type]",
+      "mat-icon[aria-hidden,data-mat-icon-type,role]",
+      "button[aria-label,flowhotbarbutton,type]",
+      "mat-icon[aria-hidden,data-mat-icon-type,role]",
+      "button[aria-describedby,aria-expanded,aria-haspopup,aria-label,cdk-describedby-host,flowhotbarbutton,type]",
+      "mat-icon[aria-hidden,data-mat-icon-type,role]",
+      "mat-menu[]",
+      "div[]",
+      "flow-tile-hover-footer[]",
+      "button[aria-expanded,aria-haspopup,aria-label,cdkoverlayorigin,type]",
+      "mat-icon[aria-hidden,data-mat-icon-type,role]",
+      "span[]"
+     ],
+     "videos": []
+    },
+    {
+     "title": "Blatifa",
+     "type": "IMAGE",
+     "status": "NOT_APPLICABLE",
+     "status_reason": "image tile",
+     "in_viewport": true,
+     "lazy_unloaded": false,
+     "candidates": [
+      {
+       "element": "img[alt=Tile displaying a user's image]",
+       "attribute": "data-media-id",
+       "value": "991d411b-7c18-4105-a40e-ed8999546606",
+       "route_known": false
+      }
+     ],
+     "data_media_ids": [
+      "991d411b-7c18-4105-a40e-ed8999546606"
+     ],
+     "urls": [
+      {
+       "kind": "https",
+       "host": "flow.google.com",
+       "path": "/asb/<tok:182>",
+       "query": {},
+       "uuids": [],
+       "fingerprint": "5ccc92a90774",
+       "path_fingerprint": "7f8bc855f2d9",
+       "element": "img[alt=Tile displaying a user's image]",
+       "attribute": "src"
+      }
+     ],
+     "texts": [
+      "<text:6>",
+      "<text:8>",
+      "<text:4>",
+      "<text:9>",
+      "<text:5>",
+      "<text:7>"
+     ],
+     "signature": [
+      "flow-grid-tile-container[aria-label,role]",
+      "flow-tile-container[]",
+      "div[]",
+      "flow-image-tile[]",
+      "div[]",
+      "img[alt,data-media-id,draggable,src]",
+      "div[]",
+      "div[]",
+      "mat-icon[aria-hidden,data-mat-icon-type,role]",
+      "div[]",
+      "div[hoveroverlay]",
+      "flow-image-hotbar[]",
+      "flow-hotbar-container[]",
+      "div[]",
+      "button[aria-label,flowhotbarbutton,type]",
+      "mat-icon[aria-hidden,data-mat-icon-type,role]",
+      "button[aria-label,flowhotbarbutton,type]",
+      "mat-icon[aria-hidden,data-mat-icon-type,role]",
+      "button[aria-describedby,aria-expanded,aria-haspopup,aria-label,cdk-describedby-host,flowhotbarbutton,type]",
+      "mat-icon[aria-hidden,data-mat-icon-type,role]",
+      "mat-menu[]",
+      "div[]",
+      "flow-tile-hover-footer[]",
+      "button[aria-expanded,aria-haspopup,aria-label,cdkoverlayorigin,type]",
+      "mat-icon[aria-hidden,data-mat-icon-type,role]",
+      "span[]"
+     ],
+     "videos": []
+    }
+   ],
+   "locators": [
+    {
+     "ref": "navigation.project_nav",
+     "registry_status": "VERIFIED",
+     "registry_confidence": "high",
+     "deny": false,
+     "credit_sensitive": false,
+     "live_result": "HEALTHY",
+     "count": 1,
+     "failed_rule": null,
+     "detail": ""
+    },
+    {
+     "ref": "account.account_button",
+     "registry_status": "VERIFIED",
+     "registry_confidence": "high",
+     "deny": false,
+     "credit_sensitive": false,
+     "live_result": "HEALTHY",
+     "count": 1,
+     "failed_rule": null,
+     "detail": ""
+    },
+    {
+     "ref": "account.identity_button",
+     "registry_status": "VERIFIED",
+     "registry_confidence": "high",
+     "deny": true,
+     "credit_sensitive": false,
+     "live_result": "HEALTHY",
+     "count": 1,
+     "failed_rule": null,
+     "detail": ""
+    },
+    {
+     "ref": "composer.prompt_input",
+     "registry_status": "VERIFIED",
+     "registry_confidence": "high",
+     "deny": false,
+     "credit_sensitive": false,
+     "live_result": "HEALTHY",
+     "count": 1,
+     "failed_rule": null,
+     "detail": ""
+    },
+    {
+     "ref": "composer.add_ingredient",
+     "registry_status": "VERIFIED",
+     "registry_confidence": "high",
+     "deny": false,
+     "credit_sensitive": false,
+     "live_result": "HEALTHY",
+     "count": 1,
+     "failed_rule": null,
+     "detail": ""
+    },
+    {
+     "ref": "composer.agent_instructions",
+     "registry_status": "VERIFIED",
+     "registry_confidence": "high",
+     "deny": false,
+     "credit_sensitive": false,
+     "live_result": "HEALTHY",
+     "count": 1,
+     "failed_rule": null,
+     "detail": ""
+    },
+    {
+     "ref": "composer.send",
+     "registry_status": "VERIFIED",
+     "registry_confidence": "high",
+     "deny": false,
+     "credit_sensitive": true,
+     "live_result": "HEALTHY",
+     "count": 1,
+     "failed_rule": null,
+     "detail": ""
+    },
+    {
+     "ref": "grid.tile",
+     "registry_status": "VERIFIED",
+     "registry_confidence": "medium",
+     "deny": false,
+     "credit_sensitive": false,
+     "live_result": "HEALTHY",
+     "count": 9,
+     "failed_rule": null,
+     "detail": ""
+    },
+    {
+     "ref": "grid.video_thumbnail",
+     "registry_status": "BROKEN",
+     "registry_confidence": "low",
+     "deny": false,
+     "credit_sensitive": false,
+     "live_result": "BROKEN",
+     "count": 0,
+     "failed_rule": "present",
+     "detail": "not found"
+    },
+    {
+     "ref": "grid.image_thumbnail",
+     "registry_status": "VERIFIED",
+     "registry_confidence": "medium",
+     "deny": false,
+     "credit_sensitive": false,
+     "live_result": "HEALTHY",
+     "count": 5,
+     "failed_rule": null,
+     "detail": ""
+    },
+    {
+     "ref": "grid.progress_text",
+     "registry_status": "PARTIALLY_VERIFIED",
+     "registry_confidence": "low",
+     "deny": false,
+     "credit_sensitive": false,
+     "live_result": "BROKEN",
+     "count": 0,
+     "failed_rule": "present",
+     "detail": "not found"
+    },
+    {
+     "ref": "cost_confirmation.permission_group",
+     "registry_status": "VERIFIED",
+     "registry_confidence": "medium",
+     "deny": false,
+     "credit_sensitive": true,
+     "live_result": "BROKEN",
+     "count": 0,
+     "failed_rule": "present",
+     "detail": "not found"
+    },
+    {
+     "ref": "cost_confirmation.approve",
+     "registry_status": "VERIFIED",
+     "registry_confidence": "medium",
+     "deny": false,
+     "credit_sensitive": true,
+     "live_result": "BROKEN",
+     "count": null,
+     "failed_rule": "within",
+     "detail": "scope cost_confirmation.permission_group: not found"
+    },
+    {
+     "ref": "cost_confirmation.reject",
+     "registry_status": "VERIFIED",
+     "registry_confidence": "medium",
+     "deny": true,
+     "credit_sensitive": false,
+     "live_result": "BROKEN",
+     "count": null,
+     "failed_rule": "within",
+     "detail": "scope cost_confirmation.permission_group: not found"
+    },
+    {
+     "ref": "cost_confirmation.always_approve",
+     "registry_status": "VERIFIED",
+     "registry_confidence": "medium",
+     "deny": true,
+     "credit_sensitive": false,
+     "live_result": "BROKEN",
+     "count": null,
+     "failed_rule": "within",
+     "detail": "scope cost_confirmation.permission_group: not found"
+    }
+   ],
+   "stop_reasons": []
+  },
+  {
+   "url_shape": {
+    "kind": "https",
+    "host": "flow.google.com",
+    "path": "/project/562eec3d-9c48-4802-b152-3ed1d8c91ebd",
+    "query": {},
+    "uuids": [
+     "562eec3d-9c48-4802-b152-3ed1d8c91ebd"
+    ],
+    "fingerprint": "10ec201f826d",
+    "path_fingerprint": "cb2f3323c484"
+   },
+   "identity": {
+    "status": "VERIFIED",
+    "fingerprint": "d6c9f4583fa6",
+    "read_at": "2026-11-03T14:10:07+00:00",
+    "detail": ""
+   },
+   "credits": {
+    "status": "UNAVAILABLE_WITHOUT_CLICK",
+    "balance": null,
+    "detail": "the balance is only shown inside the account panel, which would need a click"
+   },
+   "dialogs": [],
+   "confirmation": {
+    "problem": "OK",
+    "state": "ABSENT",
+    "cost": null,
+    "cost_status": "NOT_APPLICABLE",
+    "blocking": false
+   },
+   "tiles": [
+    {
+     "title": "Sea Lion",
+     "type": "UNKNOWN",
+     "status": "UNKNOWN",
+     "status_reason": "no recognised thumbnail and no progress text",
+     "in_viewport": true,
+     "lazy_unloaded": false,
+     "candidates": [
+      {
+       "element": "img[alt=Character thumbnail]",
+       "attribute": "src.url",
+       "value": "84d1952e-b45a-40cc-b950-aa0a9ee732bb",
+       "route_known": false
+      }
+     ],
+     "data_media_ids": [],
+     "urls": [
+      {
+       "kind": "https",
+       "host": "flow-content.google",
+       "path": "/image/84d1952e-b45a-40cc-b950-aa0a9ee732bb",
+       "query": {
+        "Expires": "<redacted>",
+        "KeyName": "<redacted>",
+        "Signature": "<redacted>"
+       },
+       "uuids": [
+        "84d1952e-b45a-40cc-b950-aa0a9ee732bb"
+       ],
+       "fingerprint": "7ec9a3835075",
+       "path_fingerprint": "033a95186aa2",
+       "element": "img[alt=Character thumbnail]",
+       "attribute": "src"
+      }
+     ],
+     "texts": [
+      "<text:8>",
+      "<text:17>",
+      "<text:8>",
+      "<text:9>"
+     ],
+     "signature": [
+      "flow-grid-tile-container[aria-label,role]",
+      "flow-tile-container[]",
+      "div[]",
+      "flow-character-tile[]",
+      "div[]",
+      "img[alt,draggable,src]",
+      "div[]",
+      "div[]",
+      "span[]",
+      "div[]",
+      "mat-icon[aria-hidden,data-mat-icon-type,role]",
+      "div[]",
+      "div[]",
+      "div[hoveroverlay]",
+      "flow-character-hotbar[]",
+      "flow-hotbar-container[]",
+      "div[]",
+      "button[aria-label,flowhotbarbutton,type]",
+      "mat-icon[aria-hidden,data-mat-icon-type,role]",
+      "button[aria-describedby,aria-expanded,aria-haspopup,aria-label,cdk-describedby-host,flowhotbarbutton,type]",
+      "mat-icon[aria-hidden,data-mat-icon-type,role]",
+      "mat-menu[]"
+     ],
+     "videos": []
+    },
+    {
+     "title": "Octopus",
+     "type": "UNKNOWN",
+     "status": "UNKNOWN",
+     "status_reason": "no recognised thumbnail and no progress text",
+     "in_viewport": true,
+     "lazy_unloaded": false,
+     "candidates": [
+      {
+       "element": "img[alt=Character thumbnail]",
+       "attribute": "src.url",
+       "value": "dbe0c200-d7b6-4d60-905d-dc8bc77e2d78",
+       "route_known": false
+      }
+     ],
+     "data_media_ids": [],
+     "urls": [
+      {
+       "kind": "https",
+       "host": "flow-content.google",
+       "path": "/image/dbe0c200-d7b6-4d60-905d-dc8bc77e2d78",
+       "query": {
+        "Expires": "<redacted>",
+        "KeyName": "<redacted>",
+        "Signature": "<redacted>"
+       },
+       "uuids": [
+        "dbe0c200-d7b6-4d60-905d-dc8bc77e2d78"
+       ],
+       "fingerprint": "0100777aa26b",
+       "path_fingerprint": "6d97481be632",
+       "element": "img[alt=Character thumbnail]",
+       "attribute": "src"
+      }
+     ],
+     "texts": [
+      "<text:7>",
+      "<text:17>",
+      "<text:8>",
+      "<text:9>"
+     ],
+     "signature": [
+      "flow-grid-tile-container[aria-label,role]",
+      "flow-tile-container[]",
+      "div[]",
+      "flow-character-tile[]",
+      "div[]",
+      "img[alt,draggable,src]",
+      "div[]",
+      "div[]",
+      "span[]",
+      "div[]",
+      "mat-icon[aria-hidden,data-mat-icon-type,role]",
+      "div[]",
+      "div[]",
+      "div[hoveroverlay]",
+      "flow-character-hotbar[]",
+      "flow-hotbar-container[]",
+      "div[]",
+      "button[aria-label,flowhotbarbutton,type]",
+      "mat-icon[aria-hidden,data-mat-icon-type,role]",
+      "button[aria-describedby,aria-expanded,aria-haspopup,aria-label,cdk-describedby-host,flowhotbarbutton,type]",
+      "mat-icon[aria-hidden,data-mat-icon-type,role]",
+      "mat-menu[]"
+     ],
+     "videos": []
+    },
+    {
+     "title": "Dolphin",
+     "type": "UNKNOWN",
+     "status": "UNKNOWN",
+     "status_reason": "no recognised thumbnail and no progress text",
+     "in_viewport": true,
+     "lazy_unloaded": false,
+     "candidates": [
+      {
+       "element": "img[alt=Character thumbnail]",
+       "attribute": "src.url",
+       "value": "bd0cadda-e0d2-4a14-add9-1b2c1808e390",
+       "route_known": false
+      }
+     ],
+     "data_media_ids": [],
+     "urls": [
+      {
+       "kind": "https",
+       "host": "flow-content.google",
+       "path": "/image/bd0cadda-e0d2-4a14-add9-1b2c1808e390",
+       "query": {
+        "Expires": "<redacted>",
+        "KeyName": "<redacted>",
+        "Signature": "<redacted>"
+       },
+       "uuids": [
+        "bd0cadda-e0d2-4a14-add9-1b2c1808e390"
+       ],
+       "fingerprint": "7fef9bb00f30",
+       "path_fingerprint": "ccbf0ecf04e4",
+       "element": "img[alt=Character thumbnail]",
+       "attribute": "src"
+      }
+     ],
+     "texts": [
+      "<text:7>",
+      "<text:17>",
+      "<text:8>",
+      "<text:9>"
+     ],
+     "signature": [
+      "flow-grid-tile-container[aria-label,role]",
+      "flow-tile-container[]",
+      "div[]",
+      "flow-character-tile[]",
+      "div[]",
+      "img[alt,draggable,src]",
+      "div[]",
+      "div[]",
+      "span[]",
+      "div[]",
+      "mat-icon[aria-hidden,data-mat-icon-type,role]",
+      "div[]",
+      "div[]",
+      "div[hoveroverlay]",
+      "flow-character-hotbar[]",
+      "flow-hotbar-container[]",
+      "div[]",
+      "button[aria-label,flowhotbarbutton,type]",
+      "mat-icon[aria-hidden,data-mat-icon-type,role]",
+      "button[aria-describedby,aria-expanded,aria-haspopup,aria-label,cdk-describedby-host,flowhotbarbutton,type]",
+      "mat-icon[aria-hidden,data-mat-icon-type,role]",
+      "mat-menu[]"
+     ],
+     "videos": []
+    },
+    {
+     "title": "Whisk_u2yivwz5ejzyqtzl1iy0udotcdnirtl2mgnz0sz.png",
+     "type": "IMAGE",
+     "status": "NOT_APPLICABLE",
+     "status_reason": "image tile",
+     "in_viewport": true,
+     "lazy_unloaded": false,
+     "candidates": [
+      {
+       "element": "img[alt=Tile displaying a user's image]",
+       "attribute": "data-media-id",
+       "value": "a1166f7e-9203-4c27-b977-17cbd8fdca2c",
+       "route_known": false
+      }
+     ],
+     "data_media_ids": [
+      "a1166f7e-9203-4c27-b977-17cbd8fdca2c"
+     ],
+     "urls": [
+      {
+       "kind": "https",
+       "host": "flow.google.com",
+       "path": "/asb/<tok:183>",
+       "query": {},
+       "uuids": [],
+       "fingerprint": "34b414ff912c",
+       "path_fingerprint": "7844ba403923",
+       "element": "img[alt=Tile displaying a user's image]",
+       "attribute": "src"
+      }
+     ],
+     "texts": [
+      "<text:8>",
+      "<text:9>",
+      "<text:5>",
+      "<text:49>"
+     ],
+     "signature": [
+      "flow-grid-tile-container[aria-label,role]",
+      "flow-tile-container[]",
+      "div[]",
+      "flow-image-tile[]",
+      "div[]",
+      "img[alt,data-media-id,draggable,src]",
+      "div[]",
+      "div[]",
+      "div[hoveroverlay]",
+      "flow-image-hotbar[]",
+      "flow-hotbar-container[]",
+      "div[]",
+      "button[aria-label,flowhotbarbutton,type]",
+      "mat-icon[aria-hidden,data-mat-icon-type,role]",
+      "button[aria-describedby,aria-expanded,aria-haspopup,aria-label,cdk-describedby-host,flowhotbarbutton,type]",
+      "mat-icon[aria-hidden,data-mat-icon-type,role]",
+      "mat-menu[]",
+      "div[]",
+      "flow-tile-hover-footer[]",
+      "button[aria-expanded,aria-haspopup,aria-label,cdkoverlayorigin,type]",
+      "mat-icon[aria-hidden,data-mat-icon-type,role]",
+      "span[]"
+     ],
+     "videos": []
+    },
+    {
+     "title": "Cat waving to camera",
+     "type": "VIDEO",
+     "status": "UNKNOWN",
+     "status_reason": "no recognised thumbnail and no progress text",
+     "in_viewport": true,
+     "lazy_unloaded": false,
+     "candidates": [],
+     "data_media_ids": [],
+     "urls": [
+      {
+       "kind": "https",
+       "host": "flow.google.com",
+       "path": "/asb/<tok:181>",
+       "query": {},
+       "uuids": [],
+       "fingerprint": "85a10a69f42c",
+       "path_fingerprint": "cff7b3ec05de",
+       "element": "video",
+       "attribute": "src"
+      }
+     ],
+     "texts": [
+      "<text:11>",
+      "<text:8>",
+      "<text:4>",
+      "<text:9>",
+      "<text:11>",
+      "<text:20>"
+     ],
+     "signature": [
+      "flow-grid-tile-container[aria-label,role]",
+      "flow-tile-container[]",
+      "div[]",
+      "flow-video-tile[]",
+      "div[]",
+      "video[aria-label,controlslist,disablepictureinpicture,loop,src]",
+      "div[]",
+      "div[]",
+      "mat-icon[aria-hidden,data-mat-icon-type,role]",
+      "div[]",
+      "div[hoveroverlay]",
+      "flow-video-hotbar[]",
+      "flow-hotbar-container[]",
+      "div[]",
+      "button[aria-label,flowhotbarbutton,type]",
+      "mat-icon[aria-hidden,data-mat-icon-type,role]",
+      "button[aria-label,flowhotbarbutton,type]",
+      "mat-icon[aria-hidden,data-mat-icon-type,role]",
+      "button[aria-describedby,aria-expanded,aria-haspopup,aria-label,cdk-describedby-host,flowhotbarbutton,type]",
+      "mat-icon[aria-hidden,data-mat-icon-type,role]",
+      "mat-menu[]",
+      "div[]",
+      "flow-tile-hover-footer[]",
+      "button[aria-expanded,aria-haspopup,aria-label,cdkoverlayorigin,type]",
+      "mat-icon[aria-hidden,data-mat-icon-type,role]",
+      "span[]",
+      "div[]",
+      "div[]",
+      "div[]",
+      "div[]"
+     ],
+     "videos": [
+      {
+       "ready_state": 4,
+       "network_state": 1,
+       "duration": 7.918005,
+       "current_time": 0.076535,
+       "paused": true,
+       "ended": false,
+       "video_width": 720,
+       "video_height": 1280,
+       "autoplay": false,
+       "muted": true,
+       "current_src": {
+        "kind": "https",
+        "host": "flow.google.com",
+        "path": "/asb/<tok:181>",
+        "query": {},
+        "uuids": [],
+        "fingerprint": "85a10a69f42c",
+        "path_fingerprint": "cff7b3ec05de"
+       },
+       "attributes": [
+        "_ngcontent-ng-c3621283428",
+        "aria-label",
+        "controlslist",
+        "disablepictureinpicture",
+        "loop",
+        "src"
+       ],
+       "aria_label_is_title": false
+      }
+     ]
+    },
+    {
+     "title": "Blumaro",
+     "type": "IMAGE",
+     "status": "NOT_APPLICABLE",
+     "status_reason": "image tile",
+     "in_viewport": true,
+     "lazy_unloaded": false,
+     "candidates": [
+      {
+       "element": "img[alt=Tile displaying a user's image]",
+       "attribute": "data-media-id",
+       "value": "1ffdc2af-bd49-4422-b4bb-5e2b956e2772",
+       "route_known": false
+      }
+     ],
+     "data_media_ids": [
+      "1ffdc2af-bd49-4422-b4bb-5e2b956e2772"
+     ],
+     "urls": [
+      {
+       "kind": "https",
+       "host": "flow.google.com",
+       "path": "/asb/<tok:182>",
+       "query": {},
+       "uuids": [],
+       "fingerprint": "34ac6b8ca2e3",
+       "path_fingerprint": "298bf0164717",
+       "element": "img[alt=Tile displaying a user's image]",
+       "attribute": "src"
+      }
+     ],
+     "texts": [
+      "<text:8>",
+      "<text:4>",
+      "<text:9>",
+      "<text:5>",
+      "<text:7>"
+     ],
+     "signature": [
+      "flow-grid-tile-container[aria-label,role]",
+      "flow-tile-container[]",
+      "div[]",
+      "flow-image-tile[]",
+      "div[]",
+      "img[alt,data-media-id,draggable,src]",
+      "div[]",
+      "div[]",
+      "div[hoveroverlay]",
+      "flow-image-hotbar[]",
+      "flow-hotbar-container[]",
+      "div[]",
+      "button[aria-label,flowhotbarbutton,type]",
+      "mat-icon[aria-hidden,data-mat-icon-type,role]",
+      "button[aria-label,flowhotbarbutton,type]",
+      "mat-icon[aria-hidden,data-mat-icon-type,role]",
+      "button[aria-describedby,aria-expanded,aria-haspopup,aria-label,cdk-describedby-host,flowhotbarbutton,type]",
+      "mat-icon[aria-hidden,data-mat-icon-type,role]",
+      "mat-menu[]",
+      "div[]",
+      "flow-tile-hover-footer[]",
+      "button[aria-expanded,aria-haspopup,aria-label,cdkoverlayorigin,type]",
+      "mat-icon[aria-hidden,data-mat-icon-type,role]",
+      "span[]"
+     ],
+     "videos": []
+    },
+    {
+     "title": "blahiro",
+     "type": "IMAGE",
+     "status": "NOT_APPLICABLE",
+     "status_reason": "image tile",
+     "in_viewport": true,
+     "lazy_unloaded": false,
+     "candidates": [
+      {
+       "element": "img[alt=Tile displaying a user's image]",
+       "attribute": "data-media-id",
+       "value": "04609515-3501-4200-8b04-a62e577ba6da",
+       "route_known": false
+      }
+     ],
+     "data_media_ids": [
+      "04609515-3501-4200-8b04-a62e577ba6da"
+     ],
+     "urls": [
+      {
+       "kind": "https",
+       "host": "flow.google.com",
+       "path": "/asb/<tok:182>",
+       "query": {},
+       "uuids": [],
+       "fingerprint": "18235edff937",
+       "path_fingerprint": "1fbe116a2a9d",
+       "element": "img[alt=Tile displaying a user's image]",
+       "attribute": "src"
+      }
+     ],
+     "texts": [
+      "<text:8>",
+      "<text:4>",
+      "<text:9>",
+      "<text:5>",
+      "<text:7>"
+     ],
+     "signature": [
+      "flow-grid-tile-container[aria-label,role]",
+      "flow-tile-container[]",
+      "div[]",
+      "flow-image-tile[]",
+      "div[]",
+      "img[alt,data-media-id,draggable,src]",
+      "div[]",
+      "div[]",
+      "div[hoveroverlay]",
+      "flow-image-hotbar[]",
+      "flow-hotbar-container[]",
+      "div[]",
+      "button[aria-label,flowhotbarbutton,type]",
+      "mat-icon[aria-hidden,data-mat-icon-type,role]",
+      "button[aria-label,flowhotbarbutton,type]",
+      "mat-icon[aria-hidden,data-mat-icon-type,role]",
+      "button[aria-describedby,aria-expanded,aria-haspopup,aria-label,cdk-describedby-host,flowhotbarbutton,type]",
+      "mat-icon[aria-hidden,data-mat-icon-type,role]",
+      "mat-menu[]",
+      "div[]",
+      "flow-tile-hover-footer[]",
+      "button[aria-expanded,aria-haspopup,aria-label,cdkoverlayorigin,type]",
+      "mat-icon[aria-hidden,data-mat-icon-type,role]",
+      "span[]"
+     ],
+     "videos": []
+    },
+    {
+     "title": "Cat character wearing cute clothes",
+     "type": "IMAGE",
+     "status": "NOT_APPLICABLE",
+     "status_reason": "image tile",
+     "in_viewport": true,
+     "lazy_unloaded": false,
+     "candidates": [
+      {
+       "element": "img[alt=Tile displaying a user's image]",
+       "attribute": "data-media-id",
+       "value": "ad48115d-c4c6-4cef-b460-61d660bb58a1",
+       "route_known": false
+      }
+     ],
+     "data_media_ids": [
+      "ad48115d-c4c6-4cef-b460-61d660bb58a1"
+     ],
+     "urls": [
+      {
+       "kind": "https",
+       "host": "flow.google.com",
+       "path": "/asb/<tok:182>",
+       "query": {},
+       "uuids": [],
+       "fingerprint": "86595991adcc",
+       "path_fingerprint": "1f71ef3c253a",
+       "element": "img[alt=Tile displaying a user's image]",
+       "attribute": "src"
+      }
+     ],
+     "texts": [
+      "<text:6>",
+      "<text:8>",
+      "<text:4>",
+      "<text:9>",
+      "<text:5>",
+      "<text:34>"
+     ],
+     "signature": [
+      "flow-grid-tile-container[aria-label,role]",
+      "flow-tile-container[]",
+      "div[]",
+      "flow-image-tile[]",
+      "div[]",
+      "img[alt,data-media-id,draggable,src]",
+      "div[]",
+      "div[]",
+      "mat-icon[aria-hidden,data-mat-icon-type,role]",
+      "div[]",
+      "div[hoveroverlay]",
+      "flow-image-hotbar[]",
+      "flow-hotbar-container[]",
+      "div[]",
+      "button[aria-label,flowhotbarbutton,type]",
+      "mat-icon[aria-hidden,data-mat-icon-type,role]",
+      "button[aria-label,flowhotbarbutton,type]",
+      "mat-icon[aria-hidden,data-mat-icon-type,role]",
+      "button[aria-describedby,aria-expanded,aria-haspopup,aria-label,cdk-describedby-host,flowhotbarbutton,type]",
+      "mat-icon[aria-hidden,data-mat-icon-type,role]",
+      "mat-menu[]",
+      "div[]",
+      "flow-tile-hover-footer[]",
+      "button[aria-expanded,aria-haspopup,aria-label,cdkoverlayorigin,type]",
+      "mat-icon[aria-hidden,data-mat-icon-type,role]",
+      "span[]"
+     ],
+     "videos": []
+    },
+    {
+     "title": "Blatifa",
+     "type": "IMAGE",
+     "status": "NOT_APPLICABLE",
+     "status_reason": "image tile",
+     "in_viewport": true,
+     "lazy_unloaded": false,
+     "candidates": [
+      {
+       "element": "img[alt=Tile displaying a user's image]",
+       "attribute": "data-media-id",
+       "value": "991d411b-7c18-4105-a40e-ed8999546606",
+       "route_known": false
+      }
+     ],
+     "data_media_ids": [
+      "991d411b-7c18-4105-a40e-ed8999546606"
+     ],
+     "urls": [
+      {
+       "kind": "https",
+       "host": "flow.google.com",
+       "path": "/asb/<tok:182>",
+       "query": {},
+       "uuids": [],
+       "fingerprint": "5ccc92a90774",
+       "path_fingerprint": "7f8bc855f2d9",
+       "element": "img[alt=Tile displaying a user's image]",
+       "attribute": "src"
+      }
+     ],
+     "texts": [
+      "<text:6>",
+      "<text:8>",
+      "<text:4>",
+      "<text:9>",
+      "<text:5>",
+      "<text:7>"
+     ],
+     "signature": [
+      "flow-grid-tile-container[aria-label,role]",
+      "flow-tile-container[]",
+      "div[]",
+      "flow-image-tile[]",
+      "div[]",
+      "img[alt,data-media-id,draggable,src]",
+      "div[]",
+      "div[]",
+      "mat-icon[aria-hidden,data-mat-icon-type,role]",
+      "div[]",
+      "div[hoveroverlay]",
+      "flow-image-hotbar[]",
+      "flow-hotbar-container[]",
+      "div[]",
+      "button[aria-label,flowhotbarbutton,type]",
+      "mat-icon[aria-hidden,data-mat-icon-type,role]",
+      "button[aria-label,flowhotbarbutton,type]",
+      "mat-icon[aria-hidden,data-mat-icon-type,role]",
+      "button[aria-describedby,aria-expanded,aria-haspopup,aria-label,cdk-describedby-host,flowhotbarbutton,type]",
+      "mat-icon[aria-hidden,data-mat-icon-type,role]",
+      "mat-menu[]",
+      "div[]",
+      "flow-tile-hover-footer[]",
+      "button[aria-expanded,aria-haspopup,aria-label,cdkoverlayorigin,type]",
+      "mat-icon[aria-hidden,data-mat-icon-type,role]",
+      "span[]"
+     ],
+     "videos": []
+    }
+   ],
+   "locators": [
+    {
+     "ref": "navigation.project_nav",
+     "registry_status": "VERIFIED",
+     "registry_confidence": "high",
+     "deny": false,
+     "credit_sensitive": false,
+     "live_result": "HEALTHY",
+     "count": 1,
+     "failed_rule": null,
+     "detail": ""
+    },
+    {
+     "ref": "account.account_button",
+     "registry_status": "VERIFIED",
+     "registry_confidence": "high",
+     "deny": false,
+     "credit_sensitive": false,
+     "live_result": "HEALTHY",
+     "count": 1,
+     "failed_rule": null,
+     "detail": ""
+    },
+    {
+     "ref": "account.identity_button",
+     "registry_status": "VERIFIED",
+     "registry_confidence": "high",
+     "deny": true,
+     "credit_sensitive": false,
+     "live_result": "HEALTHY",
+     "count": 1,
+     "failed_rule": null,
+     "detail": ""
+    },
+    {
+     "ref": "composer.prompt_input",
+     "registry_status": "VERIFIED",
+     "registry_confidence": "high",
+     "deny": false,
+     "credit_sensitive": false,
+     "live_result": "HEALTHY",
+     "count": 1,
+     "failed_rule": null,
+     "detail": ""
+    },
+    {
+     "ref": "composer.add_ingredient",
+     "registry_status": "VERIFIED",
+     "registry_confidence": "high",
+     "deny": false,
+     "credit_sensitive": false,
+     "live_result": "HEALTHY",
+     "count": 1,
+     "failed_rule": null,
+     "detail": ""
+    },
+    {
+     "ref": "composer.agent_instructions",
+     "registry_status": "VERIFIED",
+     "registry_confidence": "high",
+     "deny": false,
+     "credit_sensitive": false,
+     "live_result": "HEALTHY",
+     "count": 1,
+     "failed_rule": null,
+     "detail": ""
+    },
+    {
+     "ref": "composer.send",
+     "registry_status": "VERIFIED",
+     "registry_confidence": "high",
+     "deny": false,
+     "credit_sensitive": true,
+     "live_result": "HEALTHY",
+     "count": 1,
+     "failed_rule": null,
+     "detail": ""
+    },
+    {
+     "ref": "grid.tile",
+     "registry_status": "VERIFIED",
+     "registry_confidence": "medium",
+     "deny": false,
+     "credit_sensitive": false,
+     "live_result": "HEALTHY",
+     "count": 9,
+     "failed_rule": null,
+     "detail": ""
+    },
+    {
+     "ref": "grid.video_thumbnail",
+     "registry_status": "BROKEN",
+     "registry_confidence": "low",
+     "deny": false,
+     "credit_sensitive": false,
+     "live_result": "BROKEN",
+     "count": 0,
+     "failed_rule": "present",
+     "detail": "not found"
+    },
+    {
+     "ref": "grid.image_thumbnail",
+     "registry_status": "VERIFIED",
+     "registry_confidence": "medium",
+     "deny": false,
+     "credit_sensitive": false,
+     "live_result": "HEALTHY",
+     "count": 5,
+     "failed_rule": null,
+     "detail": ""
+    },
+    {
+     "ref": "grid.progress_text",
+     "registry_status": "PARTIALLY_VERIFIED",
+     "registry_confidence": "low",
+     "deny": false,
+     "credit_sensitive": false,
+     "live_result": "BROKEN",
+     "count": 0,
+     "failed_rule": "present",
+     "detail": "not found"
+    },
+    {
+     "ref": "cost_confirmation.permission_group",
+     "registry_status": "VERIFIED",
+     "registry_confidence": "medium",
+     "deny": false,
+     "credit_sensitive": true,
+     "live_result": "BROKEN",
+     "count": 0,
+     "failed_rule": "present",
+     "detail": "not found"
+    },
+    {
+     "ref": "cost_confirmation.approve",
+     "registry_status": "VERIFIED",
+     "registry_confidence": "medium",
+     "deny": false,
+     "credit_sensitive": true,
+     "live_result": "BROKEN",
+     "count": null,
+     "failed_rule": "within",
+     "detail": "scope cost_confirmation.permission_group: not found"
+    },
+    {
+     "ref": "cost_confirmation.reject",
+     "registry_status": "VERIFIED",
+     "registry_confidence": "medium",
+     "deny": true,
+     "credit_sensitive": false,
+     "live_result": "BROKEN",
+     "count": null,
+     "failed_rule": "within",
+     "detail": "scope cost_confirmation.permission_group: not found"
+    },
+    {
+     "ref": "cost_confirmation.always_approve",
+     "registry_status": "VERIFIED",
+     "registry_confidence": "medium",
+     "deny": true,
+     "credit_sensitive": false,
+     "live_result": "BROKEN",
+     "count": null,
+     "failed_rule": "within",
+     "detail": "scope cost_confirmation.permission_group: not found"
+    }
+   ],
+   "stop_reasons": []
+  },
+  {
+   "url_shape": {
+    "kind": "https",
+    "host": "flow.google.com",
+    "path": "/project/562eec3d-9c48-4802-b152-3ed1d8c91ebd",
+    "query": {},
+    "uuids": [
+     "562eec3d-9c48-4802-b152-3ed1d8c91ebd"
+    ],
+    "fingerprint": "10ec201f826d",
+    "path_fingerprint": "cb2f3323c484"
+   },
+   "identity": {
+    "status": "VERIFIED",
+    "fingerprint": "d6c9f4583fa6",
+    "read_at": "2026-11-03T14:10:47+00:00",
+    "detail": ""
+   },
+   "credits": {
+    "status": "UNAVAILABLE_WITHOUT_CLICK",
+    "balance": null,
+    "detail": "the balance is only shown inside the account panel, which would need a click"
+   },
+   "dialogs": [],
+   "confirmation": {
+    "problem": "OK",
+    "state": "ABSENT",
+    "cost": null,
+    "cost_status": "NOT_APPLICABLE",
+    "blocking": false
+   },
+   "tiles": [
+    {
+     "title": "Sea Lion",
+     "type": "UNKNOWN",
+     "status": "UNKNOWN",
+     "status_reason": "no recognised thumbnail and no progress text",
+     "in_viewport": true,
+     "lazy_unloaded": false,
+     "candidates": [
+      {
+       "element": "img[alt=Character thumbnail]",
+       "attribute": "src.url",
+       "value": "84d1952e-b45a-40cc-b950-aa0a9ee732bb",
+       "route_known": false
+      }
+     ],
+     "data_media_ids": [],
+     "urls": [
+      {
+       "kind": "https",
+       "host": "flow-content.google",
+       "path": "/image/84d1952e-b45a-40cc-b950-aa0a9ee732bb",
+       "query": {
+        "Expires": "<redacted>",
+        "KeyName": "<redacted>",
+        "Signature": "<redacted>"
+       },
+       "uuids": [
+        "84d1952e-b45a-40cc-b950-aa0a9ee732bb"
+       ],
+       "fingerprint": "7ec9a3835075",
+       "path_fingerprint": "033a95186aa2",
+       "element": "img[alt=Character thumbnail]",
+       "attribute": "src"
+      }
+     ],
+     "texts": [
+      "<text:8>",
+      "<text:17>",
+      "<text:8>",
+      "<text:9>"
+     ],
+     "signature": [
+      "flow-grid-tile-container[aria-label,role]",
+      "flow-tile-container[]",
+      "div[]",
+      "flow-character-tile[]",
+      "div[]",
+      "img[alt,draggable,src]",
+      "div[]",
+      "div[]",
+      "span[]",
+      "div[]",
+      "mat-icon[aria-hidden,data-mat-icon-type,role]",
+      "div[]",
+      "div[]",
+      "div[hoveroverlay]",
+      "flow-character-hotbar[]",
+      "flow-hotbar-container[]",
+      "div[]",
+      "button[aria-label,flowhotbarbutton,type]",
+      "mat-icon[aria-hidden,data-mat-icon-type,role]",
+      "button[aria-describedby,aria-expanded,aria-haspopup,aria-label,cdk-describedby-host,flowhotbarbutton,type]",
+      "mat-icon[aria-hidden,data-mat-icon-type,role]",
+      "mat-menu[]"
+     ],
+     "videos": []
+    },
+    {
+     "title": "Octopus",
+     "type": "UNKNOWN",
+     "status": "UNKNOWN",
+     "status_reason": "no recognised thumbnail and no progress text",
+     "in_viewport": true,
+     "lazy_unloaded": false,
+     "candidates": [
+      {
+       "element": "img[alt=Character thumbnail]",
+       "attribute": "src.url",
+       "value": "dbe0c200-d7b6-4d60-905d-dc8bc77e2d78",
+       "route_known": false
+      }
+     ],
+     "data_media_ids": [],
+     "urls": [
+      {
+       "kind": "https",
+       "host": "flow-content.google",
+       "path": "/image/dbe0c200-d7b6-4d60-905d-dc8bc77e2d78",
+       "query": {
+        "Expires": "<redacted>",
+        "KeyName": "<redacted>",
+        "Signature": "<redacted>"
+       },
+       "uuids": [
+        "dbe0c200-d7b6-4d60-905d-dc8bc77e2d78"
+       ],
+       "fingerprint": "0100777aa26b",
+       "path_fingerprint": "6d97481be632",
+       "element": "img[alt=Character thumbnail]",
+       "attribute": "src"
+      }
+     ],
+     "texts": [
+      "<text:7>",
+      "<text:17>",
+      "<text:8>",
+      "<text:9>"
+     ],
+     "signature": [
+      "flow-grid-tile-container[aria-label,role]",
+      "flow-tile-container[]",
+      "div[]",
+      "flow-character-tile[]",
+      "div[]",
+      "img[alt,draggable,src]",
+      "div[]",
+      "div[]",
+      "span[]",
+      "div[]",
+      "mat-icon[aria-hidden,data-mat-icon-type,role]",
+      "div[]",
+      "div[]",
+      "div[hoveroverlay]",
+      "flow-character-hotbar[]",
+      "flow-hotbar-container[]",
+      "div[]",
+      "button[aria-label,flowhotbarbutton,type]",
+      "mat-icon[aria-hidden,data-mat-icon-type,role]",
+      "button[aria-describedby,aria-expanded,aria-haspopup,aria-label,cdk-describedby-host,flowhotbarbutton,type]",
+      "mat-icon[aria-hidden,data-mat-icon-type,role]",
+      "mat-menu[]"
+     ],
+     "videos": []
+    },
+    {
+     "title": "Dolphin",
+     "type": "UNKNOWN",
+     "status": "UNKNOWN",
+     "status_reason": "no recognised thumbnail and no progress text",
+     "in_viewport": true,
+     "lazy_unloaded": false,
+     "candidates": [
+      {
+       "element": "img[alt=Character thumbnail]",
+       "attribute": "src.url",
+       "value": "bd0cadda-e0d2-4a14-add9-1b2c1808e390",
+       "route_known": false
+      }
+     ],
+     "data_media_ids": [],
+     "urls": [
+      {
+       "kind": "https",
+       "host": "flow-content.google",
+       "path": "/image/bd0cadda-e0d2-4a14-add9-1b2c1808e390",
+       "query": {
+        "Expires": "<redacted>",
+        "KeyName": "<redacted>",
+        "Signature": "<redacted>"
+       },
+       "uuids": [
+        "bd0cadda-e0d2-4a14-add9-1b2c1808e390"
+       ],
+       "fingerprint": "7fef9bb00f30",
+       "path_fingerprint": "ccbf0ecf04e4",
+       "element": "img[alt=Character thumbnail]",
+       "attribute": "src"
+      }
+     ],
+     "texts": [
+      "<text:7>",
+      "<text:17>",
+      "<text:8>",
+      "<text:9>"
+     ],
+     "signature": [
+      "flow-grid-tile-container[aria-label,role]",
+      "flow-tile-container[]",
+      "div[]",
+      "flow-character-tile[]",
+      "div[]",
+      "img[alt,draggable,src]",
+      "div[]",
+      "div[]",
+      "span[]",
+      "div[]",
+      "mat-icon[aria-hidden,data-mat-icon-type,role]",
+      "div[]",
+      "div[]",
+      "div[hoveroverlay]",
+      "flow-character-hotbar[]",
+      "flow-hotbar-container[]",
+      "div[]",
+      "button[aria-label,flowhotbarbutton,type]",
+      "mat-icon[aria-hidden,data-mat-icon-type,role]",
+      "button[aria-describedby,aria-expanded,aria-haspopup,aria-label,cdk-describedby-host,flowhotbarbutton,type]",
+      "mat-icon[aria-hidden,data-mat-icon-type,role]",
+      "mat-menu[]"
+     ],
+     "videos": []
+    },
+    {
+     "title": "Whisk_u2yivwz5ejzyqtzl1iy0udotcdnirtl2mgnz0sz.png",
+     "type": "IMAGE",
+     "status": "NOT_APPLICABLE",
+     "status_reason": "image tile",
+     "in_viewport": true,
+     "lazy_unloaded": false,
+     "candidates": [
+      {
+       "element": "img[alt=Tile displaying a user's image]",
+       "attribute": "data-media-id",
+       "value": "a1166f7e-9203-4c27-b977-17cbd8fdca2c",
+       "route_known": false
+      }
+     ],
+     "data_media_ids": [
+      "a1166f7e-9203-4c27-b977-17cbd8fdca2c"
+     ],
+     "urls": [
+      {
+       "kind": "https",
+       "host": "flow.google.com",
+       "path": "/asb/<tok:183>",
+       "query": {},
+       "uuids": [],
+       "fingerprint": "34b414ff912c",
+       "path_fingerprint": "7844ba403923",
+       "element": "img[alt=Tile displaying a user's image]",
+       "attribute": "src"
+      }
+     ],
+     "texts": [
+      "<text:8>",
+      "<text:9>",
+      "<text:5>",
+      "<text:49>"
+     ],
+     "signature": [
+      "flow-grid-tile-container[aria-label,role]",
+      "flow-tile-container[]",
+      "div[]",
+      "flow-image-tile[]",
+      "div[]",
+      "img[alt,data-media-id,draggable,src]",
+      "div[]",
+      "div[]",
+      "div[hoveroverlay]",
+      "flow-image-hotbar[]",
+      "flow-hotbar-container[]",
+      "div[]",
+      "button[aria-label,flowhotbarbutton,type]",
+      "mat-icon[aria-hidden,data-mat-icon-type,role]",
+      "button[aria-describedby,aria-expanded,aria-haspopup,aria-label,cdk-describedby-host,flowhotbarbutton,type]",
+      "mat-icon[aria-hidden,data-mat-icon-type,role]",
+      "mat-menu[]",
+      "div[]",
+      "flow-tile-hover-footer[]",
+      "button[aria-expanded,aria-haspopup,aria-label,cdkoverlayorigin,type]",
+      "mat-icon[aria-hidden,data-mat-icon-type,role]",
+      "span[]"
+     ],
+     "videos": []
+    },
+    {
+     "title": "Cat waving to camera",
+     "type": "VIDEO",
+     "status": "UNKNOWN",
+     "status_reason": "no recognised thumbnail and no progress text",
+     "in_viewport": true,
+     "lazy_unloaded": false,
+     "candidates": [],
+     "data_media_ids": [],
+     "urls": [
+      {
+       "kind": "https",
+       "host": "flow.google.com",
+       "path": "/asb/<tok:181>",
+       "query": {},
+       "uuids": [],
+       "fingerprint": "85a10a69f42c",
+       "path_fingerprint": "cff7b3ec05de",
+       "element": "video",
+       "attribute": "src"
+      }
+     ],
+     "texts": [
+      "<text:11>",
+      "<text:8>",
+      "<text:4>",
+      "<text:9>",
+      "<text:11>",
+      "<text:20>"
+     ],
+     "signature": [
+      "flow-grid-tile-container[aria-label,role]",
+      "flow-tile-container[]",
+      "div[]",
+      "flow-video-tile[]",
+      "div[]",
+      "video[aria-label,controlslist,disablepictureinpicture,loop,src]",
+      "div[]",
+      "div[]",
+      "mat-icon[aria-hidden,data-mat-icon-type,role]",
+      "div[]",
+      "div[hoveroverlay]",
+      "flow-video-hotbar[]",
+      "flow-hotbar-container[]",
+      "div[]",
+      "button[aria-label,flowhotbarbutton,type]",
+      "mat-icon[aria-hidden,data-mat-icon-type,role]",
+      "button[aria-label,flowhotbarbutton,type]",
+      "mat-icon[aria-hidden,data-mat-icon-type,role]",
+      "button[aria-describedby,aria-expanded,aria-haspopup,aria-label,cdk-describedby-host,flowhotbarbutton,type]",
+      "mat-icon[aria-hidden,data-mat-icon-type,role]",
+      "mat-menu[]",
+      "div[]",
+      "flow-tile-hover-footer[]",
+      "button[aria-expanded,aria-haspopup,aria-label,cdkoverlayorigin,type]",
+      "mat-icon[aria-hidden,data-mat-icon-type,role]",
+      "span[]",
+      "div[]",
+      "div[]",
+      "div[]",
+      "div[]"
+     ],
+     "videos": [
+      {
+       "ready_state": 4,
+       "network_state": 1,
+       "duration": 7.918005,
+       "current_time": 0.076535,
+       "paused": true,
+       "ended": false,
+       "video_width": 720,
+       "video_height": 1280,
+       "autoplay": false,
+       "muted": true,
+       "current_src": {
+        "kind": "https",
+        "host": "flow.google.com",
+        "path": "/asb/<tok:181>",
+        "query": {},
+        "uuids": [],
+        "fingerprint": "85a10a69f42c",
+        "path_fingerprint": "cff7b3ec05de"
+       },
+       "attributes": [
+        "_ngcontent-ng-c3621283428",
+        "aria-label",
+        "controlslist",
+        "disablepictureinpicture",
+        "loop",
+        "src"
+       ],
+       "aria_label_is_title": false
+      }
+     ]
+    },
+    {
+     "title": "Blumaro",
+     "type": "IMAGE",
+     "status": "NOT_APPLICABLE",
+     "status_reason": "image tile",
+     "in_viewport": true,
+     "lazy_unloaded": false,
+     "candidates": [
+      {
+       "element": "img[alt=Tile displaying a user's image]",
+       "attribute": "data-media-id",
+       "value": "1ffdc2af-bd49-4422-b4bb-5e2b956e2772",
+       "route_known": false
+      }
+     ],
+     "data_media_ids": [
+      "1ffdc2af-bd49-4422-b4bb-5e2b956e2772"
+     ],
+     "urls": [
+      {
+       "kind": "https",
+       "host": "flow.google.com",
+       "path": "/asb/<tok:182>",
+       "query": {},
+       "uuids": [],
+       "fingerprint": "34ac6b8ca2e3",
+       "path_fingerprint": "298bf0164717",
+       "element": "img[alt=Tile displaying a user's image]",
+       "attribute": "src"
+      }
+     ],
+     "texts": [
+      "<text:8>",
+      "<text:4>",
+      "<text:9>",
+      "<text:5>",
+      "<text:7>"
+     ],
+     "signature": [
+      "flow-grid-tile-container[aria-label,role]",
+      "flow-tile-container[]",
+      "div[]",
+      "flow-image-tile[]",
+      "div[]",
+      "img[alt,data-media-id,draggable,src]",
+      "div[]",
+      "div[]",
+      "div[hoveroverlay]",
+      "flow-image-hotbar[]",
+      "flow-hotbar-container[]",
+      "div[]",
+      "button[aria-label,flowhotbarbutton,type]",
+      "mat-icon[aria-hidden,data-mat-icon-type,role]",
+      "button[aria-label,flowhotbarbutton,type]",
+      "mat-icon[aria-hidden,data-mat-icon-type,role]",
+      "button[aria-describedby,aria-expanded,aria-haspopup,aria-label,cdk-describedby-host,flowhotbarbutton,type]",
+      "mat-icon[aria-hidden,data-mat-icon-type,role]",
+      "mat-menu[]",
+      "div[]",
+      "flow-tile-hover-footer[]",
+      "button[aria-expanded,aria-haspopup,aria-label,cdkoverlayorigin,type]",
+      "mat-icon[aria-hidden,data-mat-icon-type,role]",
+      "span[]"
+     ],
+     "videos": []
+    },
+    {
+     "title": "blahiro",
+     "type": "IMAGE",
+     "status": "NOT_APPLICABLE",
+     "status_reason": "image tile",
+     "in_viewport": true,
+     "lazy_unloaded": false,
+     "candidates": [
+      {
+       "element": "img[alt=Tile displaying a user's image]",
+       "attribute": "data-media-id",
+       "value": "04609515-3501-4200-8b04-a62e577ba6da",
+       "route_known": false
+      }
+     ],
+     "data_media_ids": [
+      "04609515-3501-4200-8b04-a62e577ba6da"
+     ],
+     "urls": [
+      {
+       "kind": "https",
+       "host": "flow.google.com",
+       "path": "/asb/<tok:182>",
+       "query": {},
+       "uuids": [],
+       "fingerprint": "18235edff937",
+       "path_fingerprint": "1fbe116a2a9d",
+       "element": "img[alt=Tile displaying a user's image]",
+       "attribute": "src"
+      }
+     ],
+     "texts": [
+      "<text:8>",
+      "<text:4>",
+      "<text:9>",
+      "<text:5>",
+      "<text:7>"
+     ],
+     "signature": [
+      "flow-grid-tile-container[aria-label,role]",
+      "flow-tile-container[]",
+      "div[]",
+      "flow-image-tile[]",
+      "div[]",
+      "img[alt,data-media-id,draggable,src]",
+      "div[]",
+      "div[]",
+      "div[hoveroverlay]",
+      "flow-image-hotbar[]",
+      "flow-hotbar-container[]",
+      "div[]",
+      "button[aria-label,flowhotbarbutton,type]",
+      "mat-icon[aria-hidden,data-mat-icon-type,role]",
+      "button[aria-label,flowhotbarbutton,type]",
+      "mat-icon[aria-hidden,data-mat-icon-type,role]",
+      "button[aria-describedby,aria-expanded,aria-haspopup,aria-label,cdk-describedby-host,flowhotbarbutton,type]",
+      "mat-icon[aria-hidden,data-mat-icon-type,role]",
+      "mat-menu[]",
+      "div[]",
+      "flow-tile-hover-footer[]",
+      "button[aria-expanded,aria-haspopup,aria-label,cdkoverlayorigin,type]",
+      "mat-icon[aria-hidden,data-mat-icon-type,role]",
+      "span[]"
+     ],
+     "videos": []
+    },
+    {
+     "title": "Cat character wearing cute clothes",
+     "type": "IMAGE",
+     "status": "NOT_APPLICABLE",
+     "status_reason": "image tile",
+     "in_viewport": true,
+     "lazy_unloaded": false,
+     "candidates": [
+      {
+       "element": "img[alt=Tile displaying a user's image]",
+       "attribute": "data-media-id",
+       "value": "ad48115d-c4c6-4cef-b460-61d660bb58a1",
+       "route_known": false
+      }
+     ],
+     "data_media_ids": [
+      "ad48115d-c4c6-4cef-b460-61d660bb58a1"
+     ],
+     "urls": [
+      {
+       "kind": "https",
+       "host": "flow.google.com",
+       "path": "/asb/<tok:182>",
+       "query": {},
+       "uuids": [],
+       "fingerprint": "86595991adcc",
+       "path_fingerprint": "1f71ef3c253a",
+       "element": "img[alt=Tile displaying a user's image]",
+       "attribute": "src"
+      }
+     ],
+     "texts": [
+      "<text:6>",
+      "<text:8>",
+      "<text:4>",
+      "<text:9>",
+      "<text:5>",
+      "<text:34>"
+     ],
+     "signature": [
+      "flow-grid-tile-container[aria-label,role]",
+      "flow-tile-container[]",
+      "div[]",
+      "flow-image-tile[]",
+      "div[]",
+      "img[alt,data-media-id,draggable,src]",
+      "div[]",
+      "div[]",
+      "mat-icon[aria-hidden,data-mat-icon-type,role]",
+      "div[]",
+      "div[hoveroverlay]",
+      "flow-image-hotbar[]",
+      "flow-hotbar-container[]",
+      "div[]",
+      "button[aria-label,flowhotbarbutton,type]",
+      "mat-icon[aria-hidden,data-mat-icon-type,role]",
+      "button[aria-label,flowhotbarbutton,type]",
+      "mat-icon[aria-hidden,data-mat-icon-type,role]",
+      "button[aria-describedby,aria-expanded,aria-haspopup,aria-label,cdk-describedby-host,flowhotbarbutton,type]",
+      "mat-icon[aria-hidden,data-mat-icon-type,role]",
+      "mat-menu[]",
+      "div[]",
+      "flow-tile-hover-footer[]",
+      "button[aria-expanded,aria-haspopup,aria-label,cdkoverlayorigin,type]",
+      "mat-icon[aria-hidden,data-mat-icon-type,role]",
+      "span[]"
+     ],
+     "videos": []
+    },
+    {
+     "title": "Blatifa",
+     "type": "IMAGE",
+     "status": "NOT_APPLICABLE",
+     "status_reason": "image tile",
+     "in_viewport": true,
+     "lazy_unloaded": false,
+     "candidates": [
+      {
+       "element": "img[alt=Tile displaying a user's image]",
+       "attribute": "data-media-id",
+       "value": "991d411b-7c18-4105-a40e-ed8999546606",
+       "route_known": false
+      }
+     ],
+     "data_media_ids": [
+      "991d411b-7c18-4105-a40e-ed8999546606"
+     ],
+     "urls": [
+      {
+       "kind": "https",
+       "host": "flow.google.com",
+       "path": "/asb/<tok:182>",
+       "query": {},
+       "uuids": [],
+       "fingerprint": "5ccc92a90774",
+       "path_fingerprint": "7f8bc855f2d9",
+       "element": "img[alt=Tile displaying a user's image]",
+       "attribute": "src"
+      }
+     ],
+     "texts": [
+      "<text:6>",
+      "<text:8>",
+      "<text:4>",
+      "<text:9>",
+      "<text:5>",
+      "<text:7>"
+     ],
+     "signature": [
+      "flow-grid-tile-container[aria-label,role]",
+      "flow-tile-container[]",
+      "div[]",
+      "flow-image-tile[]",
+      "div[]",
+      "img[alt,data-media-id,draggable,src]",
+      "div[]",
+      "div[]",
+      "mat-icon[aria-hidden,data-mat-icon-type,role]",
+      "div[]",
+      "div[hoveroverlay]",
+      "flow-image-hotbar[]",
+      "flow-hotbar-container[]",
+      "div[]",
+      "button[aria-label,flowhotbarbutton,type]",
+      "mat-icon[aria-hidden,data-mat-icon-type,role]",
+      "button[aria-label,flowhotbarbutton,type]",
+      "mat-icon[aria-hidden,data-mat-icon-type,role]",
+      "button[aria-describedby,aria-expanded,aria-haspopup,aria-label,cdk-describedby-host,flowhotbarbutton,type]",
+      "mat-icon[aria-hidden,data-mat-icon-type,role]",
+      "mat-menu[]",
+      "div[]",
+      "flow-tile-hover-footer[]",
+      "button[aria-expanded,aria-haspopup,aria-label,cdkoverlayorigin,type]",
+      "mat-icon[aria-hidden,data-mat-icon-type,role]",
+      "span[]"
+     ],
+     "videos": []
+    }
+   ],
+   "locators": [
+    {
+     "ref": "navigation.project_nav",
+     "registry_status": "VERIFIED",
+     "registry_confidence": "high",
+     "deny": false,
+     "credit_sensitive": false,
+     "live_result": "HEALTHY",
+     "count": 1,
+     "failed_rule": null,
+     "detail": ""
+    },
+    {
+     "ref": "account.account_button",
+     "registry_status": "VERIFIED",
+     "registry_confidence": "high",
+     "deny": false,
+     "credit_sensitive": false,
+     "live_result": "HEALTHY",
+     "count": 1,
+     "failed_rule": null,
+     "detail": ""
+    },
+    {
+     "ref": "account.identity_button",
+     "registry_status": "VERIFIED",
+     "registry_confidence": "high",
+     "deny": true,
+     "credit_sensitive": false,
+     "live_result": "HEALTHY",
+     "count": 1,
+     "failed_rule": null,
+     "detail": ""
+    },
+    {
+     "ref": "composer.prompt_input",
+     "registry_status": "VERIFIED",
+     "registry_confidence": "high",
+     "deny": false,
+     "credit_sensitive": false,
+     "live_result": "HEALTHY",
+     "count": 1,
+     "failed_rule": null,
+     "detail": ""
+    },
+    {
+     "ref": "composer.add_ingredient",
+     "registry_status": "VERIFIED",
+     "registry_confidence": "high",
+     "deny": false,
+     "credit_sensitive": false,
+     "live_result": "HEALTHY",
+     "count": 1,
+     "failed_rule": null,
+     "detail": ""
+    },
+    {
+     "ref": "composer.agent_instructions",
+     "registry_status": "VERIFIED",
+     "registry_confidence": "high",
+     "deny": false,
+     "credit_sensitive": false,
+     "live_result": "HEALTHY",
+     "count": 1,
+     "failed_rule": null,
+     "detail": ""
+    },
+    {
+     "ref": "composer.send",
+     "registry_status": "VERIFIED",
+     "registry_confidence": "high",
+     "deny": false,
+     "credit_sensitive": true,
+     "live_result": "HEALTHY",
+     "count": 1,
+     "failed_rule": null,
+     "detail": ""
+    },
+    {
+     "ref": "grid.tile",
+     "registry_status": "VERIFIED",
+     "registry_confidence": "medium",
+     "deny": false,
+     "credit_sensitive": false,
+     "live_result": "HEALTHY",
+     "count": 9,
+     "failed_rule": null,
+     "detail": ""
+    },
+    {
+     "ref": "grid.video_thumbnail",
+     "registry_status": "BROKEN",
+     "registry_confidence": "low",
+     "deny": false,
+     "credit_sensitive": false,
+     "live_result": "BROKEN",
+     "count": 0,
+     "failed_rule": "present",
+     "detail": "not found"
+    },
+    {
+     "ref": "grid.image_thumbnail",
+     "registry_status": "VERIFIED",
+     "registry_confidence": "medium",
+     "deny": false,
+     "credit_sensitive": false,
+     "live_result": "HEALTHY",
+     "count": 5,
+     "failed_rule": null,
+     "detail": ""
+    },
+    {
+     "ref": "grid.progress_text",
+     "registry_status": "PARTIALLY_VERIFIED",
+     "registry_confidence": "low",
+     "deny": false,
+     "credit_sensitive": false,
+     "live_result": "BROKEN",
+     "count": 0,
+     "failed_rule": "present",
+     "detail": "not found"
+    },
+    {
+     "ref": "cost_confirmation.permission_group",
+     "registry_status": "VERIFIED",
+     "registry_confidence": "medium",
+     "deny": false,
+     "credit_sensitive": true,
+     "live_result": "BROKEN",
+     "count": 0,
+     "failed_rule": "present",
+     "detail": "not found"
+    },
+    {
+     "ref": "cost_confirmation.approve",
+     "registry_status": "VERIFIED",
+     "registry_confidence": "medium",
+     "deny": false,
+     "credit_sensitive": true,
+     "live_result": "BROKEN",
+     "count": null,
+     "failed_rule": "within",
+     "detail": "scope cost_confirmation.permission_group: not found"
+    },
+    {
+     "ref": "cost_confirmation.reject",
+     "registry_status": "VERIFIED",
+     "registry_confidence": "medium",
+     "deny": true,
+     "credit_sensitive": false,
+     "live_result": "BROKEN",
+     "count": null,
+     "failed_rule": "within",
+     "detail": "scope cost_confirmation.permission_group: not found"
+    },
+    {
+     "ref": "cost_confirmation.always_approve",
+     "registry_status": "VERIFIED",
+     "registry_confidence": "medium",
+     "deny": true,
+     "credit_sensitive": false,
+     "live_result": "BROKEN",
+     "count": null,
+     "failed_rule": "within",
+     "detail": "scope cost_confirmation.permission_group: not found"
+    }
+   ],
+   "stop_reasons": []
+  },
+  {
+   "url_shape": {
+    "kind": "https",
+    "host": "flow.google.com",
+    "path": "/project/562eec3d-9c48-4802-b152-3ed1d8c91ebd",
+    "query": {},
+    "uuids": [
+     "562eec3d-9c48-4802-b152-3ed1d8c91ebd"
+    ],
+    "fingerprint": "10ec201f826d",
+    "path_fingerprint": "cb2f3323c484"
+   },
+   "identity": {
+    "status": "VERIFIED",
+    "fingerprint": "d6c9f4583fa6",
+    "read_at": "2026-11-03T14:12:00+00:00",
+    "detail": ""
+   },
+   "credits": {
+    "status": "UNAVAILABLE_WITHOUT_CLICK",
+    "balance": null,
+    "detail": "the balance is only shown inside the account panel, which would need a click"
+   },
+   "dialogs": [],
+   "confirmation": {
+    "problem": "OK",
+    "state": "ABSENT",
+    "cost": null,
+    "cost_status": "NOT_APPLICABLE",
+    "blocking": false
+   },
+   "tiles": [
+    {
+     "title": "Sea Lion",
+     "type": "UNKNOWN",
+     "status": "UNKNOWN",
+     "status_reason": "no recognised thumbnail and no progress text",
+     "in_viewport": true,
+     "lazy_unloaded": false,
+     "candidates": [
+      {
+       "element": "img[alt=Character thumbnail]",
+       "attribute": "src.url",
+       "value": "84d1952e-b45a-40cc-b950-aa0a9ee732bb",
+       "route_known": false
+      }
+     ],
+     "data_media_ids": [],
+     "urls": [
+      {
+       "kind": "https",
+       "host": "flow-content.google",
+       "path": "/image/84d1952e-b45a-40cc-b950-aa0a9ee732bb",
+       "query": {
+        "Expires": "<redacted>",
+        "KeyName": "<redacted>",
+        "Signature": "<redacted>"
+       },
+       "uuids": [
+        "84d1952e-b45a-40cc-b950-aa0a9ee732bb"
+       ],
+       "fingerprint": "9aea0a7d0c99",
+       "path_fingerprint": "033a95186aa2",
+       "element": "img[alt=Character thumbnail]",
+       "attribute": "src"
+      }
+     ],
+     "texts": [
+      "<text:8>",
+      "<text:17>",
+      "<text:8>",
+      "<text:9>"
+     ],
+     "signature": [
+      "flow-grid-tile-container[aria-label,role]",
+      "flow-tile-container[]",
+      "div[]",
+      "flow-character-tile[]",
+      "div[]",
+      "img[alt,draggable,src]",
+      "div[]",
+      "div[]",
+      "span[]",
+      "div[]",
+      "mat-icon[aria-hidden,data-mat-icon-type,role]",
+      "div[]",
+      "div[]",
+      "div[hoveroverlay]",
+      "flow-character-hotbar[]",
+      "flow-hotbar-container[]",
+      "div[]",
+      "button[aria-label,flowhotbarbutton,type]",
+      "mat-icon[aria-hidden,data-mat-icon-type,role]",
+      "button[aria-describedby,aria-expanded,aria-haspopup,aria-label,cdk-describedby-host,flowhotbarbutton,type]",
+      "mat-icon[aria-hidden,data-mat-icon-type,role]",
+      "mat-menu[]"
+     ],
+     "videos": []
+    },
+    {
+     "title": "Octopus",
+     "type": "UNKNOWN",
+     "status": "UNKNOWN",
+     "status_reason": "no recognised thumbnail and no progress text",
+     "in_viewport": true,
+     "lazy_unloaded": false,
+     "candidates": [],
+     "data_media_ids": [],
+     "urls": [],
+     "texts": [
+      "<text:7>",
+      "<text:17>",
+      "<text:8>",
+      "<text:9>"
+     ],
+     "signature": [
+      "flow-grid-tile-container[aria-label,role]",
+      "flow-tile-container[]",
+      "div[]",
+      "flow-character-tile[]",
+      "div[]",
+      "div[]",
+      "div[]",
+      "span[]",
+      "div[]",
+      "mat-icon[aria-hidden,data-mat-icon-type,role]",
+      "div[]",
+      "div[]",
+      "div[hoveroverlay]",
+      "flow-character-hotbar[]",
+      "flow-hotbar-container[]",
+      "div[]",
+      "button[aria-label,flowhotbarbutton,type]",
+      "mat-icon[aria-hidden,data-mat-icon-type,role]",
+      "button[aria-describedby,aria-expanded,aria-haspopup,aria-label,cdk-describedby-host,flowhotbarbutton,type]",
+      "mat-icon[aria-hidden,data-mat-icon-type,role]",
+      "mat-menu[]"
+     ],
+     "videos": []
+    },
+    {
+     "title": "Dolphin",
+     "type": "UNKNOWN",
+     "status": "UNKNOWN",
+     "status_reason": "no recognised thumbnail and no progress text",
+     "in_viewport": true,
+     "lazy_unloaded": false,
+     "candidates": [
+      {
+       "element": "img[alt=Character thumbnail]",
+       "attribute": "src.url",
+       "value": "bd0cadda-e0d2-4a14-add9-1b2c1808e390",
+       "route_known": false
+      }
+     ],
+     "data_media_ids": [],
+     "urls": [
+      {
+       "kind": "https",
+       "host": "flow-content.google",
+       "path": "/image/bd0cadda-e0d2-4a14-add9-1b2c1808e390",
+       "query": {
+        "Expires": "<redacted>",
+        "KeyName": "<redacted>",
+        "Signature": "<redacted>"
+       },
+       "uuids": [
+        "bd0cadda-e0d2-4a14-add9-1b2c1808e390"
+       ],
+       "fingerprint": "75ff7d6a5ac6",
+       "path_fingerprint": "ccbf0ecf04e4",
+       "element": "img[alt=Character thumbnail]",
+       "attribute": "src"
+      }
+     ],
+     "texts": [
+      "<text:7>",
+      "<text:17>",
+      "<text:8>",
+      "<text:9>"
+     ],
+     "signature": [
+      "flow-grid-tile-container[aria-label,role]",
+      "flow-tile-container[]",
+      "div[]",
+      "flow-character-tile[]",
+      "div[]",
+      "img[alt,draggable,src]",
+      "div[]",
+      "div[]",
+      "span[]",
+      "div[]",
+      "mat-icon[aria-hidden,data-mat-icon-type,role]",
+      "div[]",
+      "div[]",
+      "div[hoveroverlay]",
+      "flow-character-hotbar[]",
+      "flow-hotbar-container[]",
+      "div[]",
+      "button[aria-label,flowhotbarbutton,type]",
+      "mat-icon[aria-hidden,data-mat-icon-type,role]",
+      "button[aria-describedby,aria-expanded,aria-haspopup,aria-label,cdk-describedby-host,flowhotbarbutton,type]",
+      "mat-icon[aria-hidden,data-mat-icon-type,role]",
+      "mat-menu[]"
+     ],
+     "videos": []
+    },
+    {
+     "title": "Whisk_u2yivwz5ejzyqtzl1iy0udotcdnirtl2mgnz0sz.png",
+     "type": "IMAGE",
+     "status": "NOT_APPLICABLE",
+     "status_reason": "image tile",
+     "in_viewport": true,
+     "lazy_unloaded": false,
+     "candidates": [
+      {
+       "element": "img[alt=Tile displaying a user's image]",
+       "attribute": "data-media-id",
+       "value": "a1166f7e-9203-4c27-b977-17cbd8fdca2c",
+       "route_known": false
+      }
+     ],
+     "data_media_ids": [
+      "a1166f7e-9203-4c27-b977-17cbd8fdca2c"
+     ],
+     "urls": [
+      {
+       "kind": "https",
+       "host": "flow.google.com",
+       "path": "/asb/<tok:183>",
+       "query": {},
+       "uuids": [],
+       "fingerprint": "34b414ff912c",
+       "path_fingerprint": "7844ba403923",
+       "element": "img[alt=Tile displaying a user's image]",
+       "attribute": "src"
+      }
+     ],
+     "texts": [
+      "<text:8>",
+      "<text:9>",
+      "<text:5>",
+      "<text:49>"
+     ],
+     "signature": [
+      "flow-grid-tile-container[aria-label,role]",
+      "flow-tile-container[]",
+      "div[]",
+      "flow-image-tile[]",
+      "div[]",
+      "img[alt,data-media-id,draggable,src]",
+      "div[]",
+      "div[]",
+      "div[hoveroverlay]",
+      "flow-image-hotbar[]",
+      "flow-hotbar-container[]",
+      "div[]",
+      "button[aria-label,flowhotbarbutton,type]",
+      "mat-icon[aria-hidden,data-mat-icon-type,role]",
+      "button[aria-describedby,aria-expanded,aria-haspopup,aria-label,cdk-describedby-host,flowhotbarbutton,type]",
+      "mat-icon[aria-hidden,data-mat-icon-type,role]",
+      "mat-menu[]",
+      "div[]",
+      "flow-tile-hover-footer[]",
+      "button[aria-expanded,aria-haspopup,aria-label,cdkoverlayorigin,type]",
+      "mat-icon[aria-hidden,data-mat-icon-type,role]",
+      "span[]"
+     ],
+     "videos": []
+    },
+    {
+     "title": "Cat waving to camera",
+     "type": "VIDEO",
+     "status": "UNKNOWN",
+     "status_reason": "thumbnail alone is not proof of completion",
+     "in_viewport": true,
+     "lazy_unloaded": false,
+     "candidates": [],
+     "data_media_ids": [],
+     "urls": [
+      {
+       "kind": "https",
+       "host": "flow.google.com",
+       "path": "/asb/<tok:172>",
+       "query": {},
+       "uuids": [],
+       "fingerprint": "4c2ef07492ac",
+       "path_fingerprint": "52b6770c8e4c",
+       "element": "img[alt=Generated video thumbnail]",
+       "attribute": "src"
+      }
+     ],
+     "texts": [
+      "<text:11>",
+      "<text:8>",
+      "<text:4>",
+      "<text:9>",
+      "<text:11>",
+      "<text:20>"
+     ],
+     "signature": [
+      "flow-grid-tile-container[aria-label,role]",
+      "flow-tile-container[]",
+      "div[]",
+      "flow-video-tile[]",
+      "div[]",
+      "img[alt,draggable,src]",
+      "div[]",
+      "div[]",
+      "mat-icon[aria-hidden,data-mat-icon-type,role]",
+      "div[]",
+      "div[hoveroverlay]",
+      "flow-video-hotbar[]",
+      "flow-hotbar-container[]",
+      "div[]",
+      "button[aria-label,flowhotbarbutton,type]",
+      "mat-icon[aria-hidden,data-mat-icon-type,role]",
+      "button[aria-label,flowhotbarbutton,type]",
+      "mat-icon[aria-hidden,data-mat-icon-type,role]",
+      "button[aria-describedby,aria-expanded,aria-haspopup,aria-label,cdk-describedby-host,flowhotbarbutton,type]",
+      "mat-icon[aria-hidden,data-mat-icon-type,role]",
+      "mat-menu[]",
+      "div[]",
+      "flow-tile-hover-footer[]",
+      "button[aria-expanded,aria-haspopup,aria-label,cdkoverlayorigin,type]",
+      "mat-icon[aria-hidden,data-mat-icon-type,role]",
+      "span[]",
+      "div[]",
+      "div[]",
+      "div[]",
+      "div[]"
+     ],
+     "videos": []
+    },
+    {
+     "title": "Blumaro",
+     "type": "IMAGE",
+     "status": "NOT_APPLICABLE",
+     "status_reason": "image tile",
+     "in_viewport": true,
+     "lazy_unloaded": false,
+     "candidates": [
+      {
+       "element": "img[alt=Tile displaying a user's image]",
+       "attribute": "data-media-id",
+       "value": "1ffdc2af-bd49-4422-b4bb-5e2b956e2772",
+       "route_known": false
+      }
+     ],
+     "data_media_ids": [
+      "1ffdc2af-bd49-4422-b4bb-5e2b956e2772"
+     ],
+     "urls": [
+      {
+       "kind": "https",
+       "host": "flow.google.com",
+       "path": "/asb/<tok:182>",
+       "query": {},
+       "uuids": [],
+       "fingerprint": "34ac6b8ca2e3",
+       "path_fingerprint": "298bf0164717",
+       "element": "img[alt=Tile displaying a user's image]",
+       "attribute": "src"
+      }
+     ],
+     "texts": [
+      "<text:8>",
+      "<text:4>",
+      "<text:9>",
+      "<text:5>",
+      "<text:7>"
+     ],
+     "signature": [
+      "flow-grid-tile-container[aria-label,role]",
+      "flow-tile-container[]",
+      "div[]",
+      "flow-image-tile[]",
+      "div[]",
+      "img[alt,data-media-id,draggable,src]",
+      "div[]",
+      "div[]",
+      "div[hoveroverlay]",
+      "flow-image-hotbar[]",
+      "flow-hotbar-container[]",
+      "div[]",
+      "button[aria-label,flowhotbarbutton,type]",
+      "mat-icon[aria-hidden,data-mat-icon-type,role]",
+      "button[aria-label,flowhotbarbutton,type]",
+      "mat-icon[aria-hidden,data-mat-icon-type,role]",
+      "button[aria-describedby,aria-expanded,aria-haspopup,aria-label,cdk-describedby-host,flowhotbarbutton,type]",
+      "mat-icon[aria-hidden,data-mat-icon-type,role]",
+      "mat-menu[]",
+      "div[]",
+      "flow-tile-hover-footer[]",
+      "button[aria-expanded,aria-haspopup,aria-label,cdkoverlayorigin,type]",
+      "mat-icon[aria-hidden,data-mat-icon-type,role]",
+      "span[]"
+     ],
+     "videos": []
+    },
+    {
+     "title": "blahiro",
+     "type": "IMAGE",
+     "status": "NOT_APPLICABLE",
+     "status_reason": "image tile",
+     "in_viewport": true,
+     "lazy_unloaded": false,
+     "candidates": [
+      {
+       "element": "img[alt=Tile displaying a user's image]",
+       "attribute": "data-media-id",
+       "value": "04609515-3501-4200-8b04-a62e577ba6da",
+       "route_known": false
+      }
+     ],
+     "data_media_ids": [
+      "04609515-3501-4200-8b04-a62e577ba6da"
+     ],
+     "urls": [
+      {
+       "kind": "https",
+       "host": "flow.google.com",
+       "path": "/asb/<tok:182>",
+       "query": {},
+       "uuids": [],
+       "fingerprint": "18235edff937",
+       "path_fingerprint": "1fbe116a2a9d",
+       "element": "img[alt=Tile displaying a user's image]",
+       "attribute": "src"
+      }
+     ],
+     "texts": [
+      "<text:8>",
+      "<text:4>",
+      "<text:9>",
+      "<text:5>",
+      "<text:7>"
+     ],
+     "signature": [
+      "flow-grid-tile-container[aria-label,role]",
+      "flow-tile-container[]",
+      "div[]",
+      "flow-image-tile[]",
+      "div[]",
+      "img[alt,data-media-id,draggable,src]",
+      "div[]",
+      "div[]",
+      "div[hoveroverlay]",
+      "flow-image-hotbar[]",
+      "flow-hotbar-container[]",
+      "div[]",
+      "button[aria-label,flowhotbarbutton,type]",
+      "mat-icon[aria-hidden,data-mat-icon-type,role]",
+      "button[aria-label,flowhotbarbutton,type]",
+      "mat-icon[aria-hidden,data-mat-icon-type,role]",
+      "button[aria-describedby,aria-expanded,aria-haspopup,aria-label,cdk-describedby-host,flowhotbarbutton,type]",
+      "mat-icon[aria-hidden,data-mat-icon-type,role]",
+      "mat-menu[]",
+      "div[]",
+      "flow-tile-hover-footer[]",
+      "button[aria-expanded,aria-haspopup,aria-label,cdkoverlayorigin,type]",
+      "mat-icon[aria-hidden,data-mat-icon-type,role]",
+      "span[]"
+     ],
+     "videos": []
+    },
+    {
+     "title": "Cat character wearing cute clothes",
+     "type": "IMAGE",
+     "status": "NOT_APPLICABLE",
+     "status_reason": "image tile",
+     "in_viewport": true,
+     "lazy_unloaded": false,
+     "candidates": [
+      {
+       "element": "img[alt=Tile displaying a user's image]",
+       "attribute": "data-media-id",
+       "value": "ad48115d-c4c6-4cef-b460-61d660bb58a1",
+       "route_known": false
+      }
+     ],
+     "data_media_ids": [
+      "ad48115d-c4c6-4cef-b460-61d660bb58a1"
+     ],
+     "urls": [
+      {
+       "kind": "https",
+       "host": "flow.google.com",
+       "path": "/asb/<tok:182>",
+       "query": {},
+       "uuids": [],
+       "fingerprint": "86595991adcc",
+       "path_fingerprint": "1f71ef3c253a",
+       "element": "img[alt=Tile displaying a user's image]",
+       "attribute": "src"
+      }
+     ],
+     "texts": [
+      "<text:6>",
+      "<text:8>",
+      "<text:4>",
+      "<text:9>",
+      "<text:5>",
+      "<text:34>"
+     ],
+     "signature": [
+      "flow-grid-tile-container[aria-label,role]",
+      "flow-tile-container[]",
+      "div[]",
+      "flow-image-tile[]",
+      "div[]",
+      "img[alt,data-media-id,draggable,src]",
+      "div[]",
+      "div[]",
+      "mat-icon[aria-hidden,data-mat-icon-type,role]",
+      "div[]",
+      "div[hoveroverlay]",
+      "flow-image-hotbar[]",
+      "flow-hotbar-container[]",
+      "div[]",
+      "button[aria-label,flowhotbarbutton,type]",
+      "mat-icon[aria-hidden,data-mat-icon-type,role]",
+      "button[aria-label,flowhotbarbutton,type]",
+      "mat-icon[aria-hidden,data-mat-icon-type,role]",
+      "button[aria-describedby,aria-expanded,aria-haspopup,aria-label,cdk-describedby-host,flowhotbarbutton,type]",
+      "mat-icon[aria-hidden,data-mat-icon-type,role]",
+      "mat-menu[]",
+      "div[]",
+      "flow-tile-hover-footer[]",
+      "button[aria-expanded,aria-haspopup,aria-label,cdkoverlayorigin,type]",
+      "mat-icon[aria-hidden,data-mat-icon-type,role]",
+      "span[]"
+     ],
+     "videos": []
+    },
+    {
+     "title": "Blatifa",
+     "type": "IMAGE",
+     "status": "NOT_APPLICABLE",
+     "status_reason": "image tile",
+     "in_viewport": true,
+     "lazy_unloaded": false,
+     "candidates": [
+      {
+       "element": "img[alt=Tile displaying a user's image]",
+       "attribute": "data-media-id",
+       "value": "991d411b-7c18-4105-a40e-ed8999546606",
+       "route_known": false
+      }
+     ],
+     "data_media_ids": [
+      "991d411b-7c18-4105-a40e-ed8999546606"
+     ],
+     "urls": [
+      {
+       "kind": "https",
+       "host": "flow.google.com",
+       "path": "/asb/<tok:182>",
+       "query": {},
+       "uuids": [],
+       "fingerprint": "5ccc92a90774",
+       "path_fingerprint": "7f8bc855f2d9",
+       "element": "img[alt=Tile displaying a user's image]",
+       "attribute": "src"
+      }
+     ],
+     "texts": [
+      "<text:6>",
+      "<text:8>",
+      "<text:4>",
+      "<text:9>",
+      "<text:5>",
+      "<text:7>"
+     ],
+     "signature": [
+      "flow-grid-tile-container[aria-label,role]",
+      "flow-tile-container[]",
+      "div[]",
+      "flow-image-tile[]",
+      "div[]",
+      "img[alt,data-media-id,draggable,src]",
+      "div[]",
+      "div[]",
+      "mat-icon[aria-hidden,data-mat-icon-type,role]",
+      "div[]",
+      "div[hoveroverlay]",
+      "flow-image-hotbar[]",
+      "flow-hotbar-container[]",
+      "div[]",
+      "button[aria-label,flowhotbarbutton,type]",
+      "mat-icon[aria-hidden,data-mat-icon-type,role]",
+      "button[aria-label,flowhotbarbutton,type]",
+      "mat-icon[aria-hidden,data-mat-icon-type,role]",
+      "button[aria-describedby,aria-expanded,aria-haspopup,aria-label,cdk-describedby-host,flowhotbarbutton,type]",
+      "mat-icon[aria-hidden,data-mat-icon-type,role]",
+      "mat-menu[]",
+      "div[]",
+      "flow-tile-hover-footer[]",
+      "button[aria-expanded,aria-haspopup,aria-label,cdkoverlayorigin,type]",
+      "mat-icon[aria-hidden,data-mat-icon-type,role]",
+      "span[]"
+     ],
+     "videos": []
+    }
+   ],
+   "locators": [
+    {
+     "ref": "navigation.project_nav",
+     "registry_status": "VERIFIED",
+     "registry_confidence": "high",
+     "deny": false,
+     "credit_sensitive": false,
+     "live_result": "HEALTHY",
+     "count": 1,
+     "failed_rule": null,
+     "detail": ""
+    },
+    {
+     "ref": "account.account_button",
+     "registry_status": "VERIFIED",
+     "registry_confidence": "high",
+     "deny": false,
+     "credit_sensitive": false,
+     "live_result": "HEALTHY",
+     "count": 1,
+     "failed_rule": null,
+     "detail": ""
+    },
+    {
+     "ref": "account.identity_button",
+     "registry_status": "VERIFIED",
+     "registry_confidence": "high",
+     "deny": true,
+     "credit_sensitive": false,
+     "live_result": "HEALTHY",
+     "count": 1,
+     "failed_rule": null,
+     "detail": ""
+    },
+    {
+     "ref": "composer.prompt_input",
+     "registry_status": "VERIFIED",
+     "registry_confidence": "high",
+     "deny": false,
+     "credit_sensitive": false,
+     "live_result": "HEALTHY",
+     "count": 1,
+     "failed_rule": null,
+     "detail": ""
+    },
+    {
+     "ref": "composer.add_ingredient",
+     "registry_status": "VERIFIED",
+     "registry_confidence": "high",
+     "deny": false,
+     "credit_sensitive": false,
+     "live_result": "HEALTHY",
+     "count": 1,
+     "failed_rule": null,
+     "detail": ""
+    },
+    {
+     "ref": "composer.agent_instructions",
+     "registry_status": "VERIFIED",
+     "registry_confidence": "high",
+     "deny": false,
+     "credit_sensitive": false,
+     "live_result": "HEALTHY",
+     "count": 1,
+     "failed_rule": null,
+     "detail": ""
+    },
+    {
+     "ref": "composer.send",
+     "registry_status": "VERIFIED",
+     "registry_confidence": "high",
+     "deny": false,
+     "credit_sensitive": true,
+     "live_result": "HEALTHY",
+     "count": 1,
+     "failed_rule": null,
+     "detail": ""
+    },
+    {
+     "ref": "grid.tile",
+     "registry_status": "VERIFIED",
+     "registry_confidence": "medium",
+     "deny": false,
+     "credit_sensitive": false,
+     "live_result": "HEALTHY",
+     "count": 9,
+     "failed_rule": null,
+     "detail": ""
+    },
+    {
+     "ref": "grid.video_thumbnail",
+     "registry_status": "BROKEN",
+     "registry_confidence": "low",
+     "deny": false,
+     "credit_sensitive": false,
+     "live_result": "HEALTHY",
+     "count": 1,
+     "failed_rule": null,
+     "detail": ""
+    },
+    {
+     "ref": "grid.image_thumbnail",
+     "registry_status": "VERIFIED",
+     "registry_confidence": "medium",
+     "deny": false,
+     "credit_sensitive": false,
+     "live_result": "HEALTHY",
+     "count": 5,
+     "failed_rule": null,
+     "detail": ""
+    },
+    {
+     "ref": "grid.progress_text",
+     "registry_status": "PARTIALLY_VERIFIED",
+     "registry_confidence": "low",
+     "deny": false,
+     "credit_sensitive": false,
+     "live_result": "BROKEN",
+     "count": 0,
+     "failed_rule": "present",
+     "detail": "not found"
+    },
+    {
+     "ref": "cost_confirmation.permission_group",
+     "registry_status": "VERIFIED",
+     "registry_confidence": "medium",
+     "deny": false,
+     "credit_sensitive": true,
+     "live_result": "BROKEN",
+     "count": 0,
+     "failed_rule": "present",
+     "detail": "not found"
+    },
+    {
+     "ref": "cost_confirmation.approve",
+     "registry_status": "VERIFIED",
+     "registry_confidence": "medium",
+     "deny": false,
+     "credit_sensitive": true,
+     "live_result": "BROKEN",
+     "count": null,
+     "failed_rule": "within",
+     "detail": "scope cost_confirmation.permission_group: not found"
+    },
+    {
+     "ref": "cost_confirmation.reject",
+     "registry_status": "VERIFIED",
+     "registry_confidence": "medium",
+     "deny": true,
+     "credit_sensitive": false,
+     "live_result": "BROKEN",
+     "count": null,
+     "failed_rule": "within",
+     "detail": "scope cost_confirmation.permission_group: not found"
+    },
+    {
+     "ref": "cost_confirmation.always_approve",
+     "registry_status": "VERIFIED",
+     "registry_confidence": "medium",
+     "deny": true,
+     "credit_sensitive": false,
+     "live_result": "BROKEN",
+     "count": null,
+     "failed_rule": "within",
+     "detail": "scope cost_confirmation.permission_group: not found"
+    }
+   ],
+   "stop_reasons": []
+  }
+ ],
+ "changes_between_probes": [
+  [],
+  [],
+  [
+   "STRUCTURE_CHANGED:Octopus",
+   "IDENTIFIERS_CHANGED:Octopus",
+   "STRUCTURE_CHANGED:Cat waving to camera"
+  ]
+ ],
+ "locator_proposals": [
+  {
+   "ref": "navigation.project_nav",
+   "registry_status": "VERIFIED",
+   "registry_confidence": "high",
+   "deny": false,
+   "credit_sensitive": false,
+   "live_result": "HEALTHY",
+   "count": 1,
+   "failed_rule": null,
+   "detail": "",
+   "live_results": [
+    "HEALTHY",
+    "HEALTHY",
+    "HEALTHY",
+    "HEALTHY"
+   ],
+   "proposal": "high (re-confirmed live read-only in 4 observations)"
+  },
+  {
+   "ref": "account.account_button",
+   "registry_status": "VERIFIED",
+   "registry_confidence": "high",
+   "deny": false,
+   "credit_sensitive": false,
+   "live_result": "HEALTHY",
+   "count": 1,
+   "failed_rule": null,
+   "detail": "",
+   "live_results": [
+    "HEALTHY",
+    "HEALTHY",
+    "HEALTHY",
+    "HEALTHY"
+   ],
+   "proposal": "high (re-confirmed live read-only in 4 observations)"
+  },
+  {
+   "ref": "account.identity_button",
+   "registry_status": "VERIFIED",
+   "registry_confidence": "high",
+   "deny": true,
+   "credit_sensitive": false,
+   "live_result": "HEALTHY",
+   "count": 1,
+   "failed_rule": null,
+   "detail": "",
+   "live_results": [
+    "HEALTHY",
+    "HEALTHY",
+    "HEALTHY",
+    "HEALTHY"
+   ],
+   "proposal": "high (re-confirmed live read-only in 4 observations)"
+  },
+  {
+   "ref": "composer.prompt_input",
+   "registry_status": "VERIFIED",
+   "registry_confidence": "high",
+   "deny": false,
+   "credit_sensitive": false,
+   "live_result": "HEALTHY",
+   "count": 1,
+   "failed_rule": null,
+   "detail": "",
+   "live_results": [
+    "HEALTHY",
+    "HEALTHY",
+    "HEALTHY",
+    "HEALTHY"
+   ],
+   "proposal": "high (re-confirmed live read-only in 4 observations)"
+  },
+  {
+   "ref": "composer.add_ingredient",
+   "registry_status": "VERIFIED",
+   "registry_confidence": "high",
+   "deny": false,
+   "credit_sensitive": false,
+   "live_result": "HEALTHY",
+   "count": 1,
+   "failed_rule": null,
+   "detail": "",
+   "live_results": [
+    "HEALTHY",
+    "HEALTHY",
+    "HEALTHY",
+    "HEALTHY"
+   ],
+   "proposal": "high (re-confirmed live read-only in 4 observations)"
+  },
+  {
+   "ref": "composer.agent_instructions",
+   "registry_status": "VERIFIED",
+   "registry_confidence": "high",
+   "deny": false,
+   "credit_sensitive": false,
+   "live_result": "HEALTHY",
+   "count": 1,
+   "failed_rule": null,
+   "detail": "",
+   "live_results": [
+    "HEALTHY",
+    "HEALTHY",
+    "HEALTHY",
+    "HEALTHY"
+   ],
+   "proposal": "high (re-confirmed live read-only in 4 observations)"
+  },
+  {
+   "ref": "composer.send",
+   "registry_status": "VERIFIED",
+   "registry_confidence": "high",
+   "deny": false,
+   "credit_sensitive": true,
+   "live_result": "HEALTHY",
+   "count": 1,
+   "failed_rule": null,
+   "detail": "",
+   "live_results": [
+    "HEALTHY",
+    "HEALTHY",
+    "HEALTHY",
+    "HEALTHY"
+   ],
+   "proposal": "high (re-confirmed live read-only in 4 observations)"
+  },
+  {
+   "ref": "grid.tile",
+   "registry_status": "VERIFIED",
+   "registry_confidence": "medium",
+   "deny": false,
+   "credit_sensitive": false,
+   "live_result": "HEALTHY",
+   "count": 9,
+   "failed_rule": null,
+   "detail": "",
+   "live_results": [
+    "HEALTHY",
+    "HEALTHY",
+    "HEALTHY",
+    "HEALTHY"
+   ],
+   "proposal": "HIGH candidate (validated live read-only in 4 observations; needs approval)"
+  },
+  {
+   "ref": "grid.video_thumbnail",
+   "registry_status": "BROKEN",
+   "registry_confidence": "low",
+   "deny": false,
+   "credit_sensitive": false,
+   "live_result": "BROKEN",
+   "count": 0,
+   "failed_rule": "present",
+   "detail": "not found",
+   "live_results": [
+    "BROKEN",
+    "BROKEN",
+    "BROKEN",
+    "HEALTHY"
+   ],
+   "proposal": "UNVERIFIED live (not present in the observed state); stays low"
+  },
+  {
+   "ref": "grid.image_thumbnail",
+   "registry_status": "VERIFIED",
+   "registry_confidence": "medium",
+   "deny": false,
+   "credit_sensitive": false,
+   "live_result": "HEALTHY",
+   "count": 5,
+   "failed_rule": null,
+   "detail": "",
+   "live_results": [
+    "HEALTHY",
+    "HEALTHY",
+    "HEALTHY",
+    "HEALTHY"
+   ],
+   "proposal": "HIGH candidate (validated live read-only in 4 observations; needs approval)"
+  },
+  {
+   "ref": "grid.progress_text",
+   "registry_status": "PARTIALLY_VERIFIED",
+   "registry_confidence": "low",
+   "deny": false,
+   "credit_sensitive": false,
+   "live_result": "BROKEN",
+   "count": 0,
+   "failed_rule": "present",
+   "detail": "not found",
+   "live_results": [
+    "BROKEN",
+    "BROKEN",
+    "BROKEN",
+    "BROKEN"
+   ],
+   "proposal": "UNVERIFIED live (not present in the observed state); stays low"
+  },
+  {
+   "ref": "cost_confirmation.permission_group",
+   "registry_status": "VERIFIED",
+   "registry_confidence": "medium",
+   "deny": false,
+   "credit_sensitive": true,
+   "live_result": "BROKEN",
+   "count": 0,
+   "failed_rule": "present",
+   "detail": "not found",
+   "live_results": [
+    "BROKEN",
+    "BROKEN",
+    "BROKEN",
+    "BROKEN"
+   ],
+   "proposal": "UNVERIFIED live (not present in the observed state); stays medium"
+  },
+  {
+   "ref": "cost_confirmation.approve",
+   "registry_status": "VERIFIED",
+   "registry_confidence": "medium",
+   "deny": false,
+   "credit_sensitive": true,
+   "live_result": "BROKEN",
+   "count": null,
+   "failed_rule": "within",
+   "detail": "scope cost_confirmation.permission_group: not found",
+   "live_results": [
+    "BROKEN",
+    "BROKEN",
+    "BROKEN",
+    "BROKEN"
+   ],
+   "proposal": "UNVERIFIED live (not present in the observed state); stays medium"
+  },
+  {
+   "ref": "cost_confirmation.reject",
+   "registry_status": "VERIFIED",
+   "registry_confidence": "medium",
+   "deny": true,
+   "credit_sensitive": false,
+   "live_result": "BROKEN",
+   "count": null,
+   "failed_rule": "within",
+   "detail": "scope cost_confirmation.permission_group: not found",
+   "live_results": [
+    "BROKEN",
+    "BROKEN",
+    "BROKEN",
+    "BROKEN"
+   ],
+   "proposal": "UNVERIFIED live (not present in the observed state); stays medium"
+  },
+  {
+   "ref": "cost_confirmation.always_approve",
+   "registry_status": "VERIFIED",
+   "registry_confidence": "medium",
+   "deny": true,
+   "credit_sensitive": false,
+   "live_result": "BROKEN",
+   "count": null,
+   "failed_rule": "within",
+   "detail": "scope cost_confirmation.permission_group: not found",
+   "live_results": [
+    "BROKEN",
+    "BROKEN",
+    "BROKEN",
+    "BROKEN"
+   ],
+   "proposal": "UNVERIFIED live (not present in the observed state); stays medium"
+  }
+ ],
+ "detail_probes": [
+  {
+   "url_shape": {
+    "kind": "https",
+    "host": "flow.google.com",
+    "path": "/project/562eec3d-9c48-4802-b152-3ed1d8c91ebd/edit/6e7ded7f-6bee-45a6-9202-e15e565abe52",
+    "query": {},
+    "uuids": [
+     "562eec3d-9c48-4802-b152-3ed1d8c91ebd",
+     "6e7ded7f-6bee-45a6-9202-e15e565abe52"
+    ],
+    "fingerprint": "d280a50b7ed6",
+    "path_fingerprint": "21981305f99c"
+   },
+   "route_id": "6e7ded7f-6bee-45a6-9202-e15e565abe52",
+   "identity": {
+    "status": "UNKNOWN",
+    "fingerprint": null,
+    "read_at": "2026-11-03T14:11:26+00:00",
+    "detail": "identity button BROKEN: not found"
+   },
+   "credits": {
+    "status": "UNAVAILABLE_WITHOUT_CLICK",
+    "balance": null,
+    "detail": "the balance is only shown inside the account panel, which would need a click"
+   },
+   "dialogs": [],
+   "media": [
+    {
+     "element": "img",
+     "visible": true,
+     "attributes": [
+      "alt",
+      "aria-hidden",
+      "class",
+      "data-noaft",
+      "src",
+      "srcset"
+     ],
+     "urls": {
+      "src": {
+       "kind": "https",
+       "host": "lh3.google.com",
+       "path": "/u/0/ogw/<tok:59>",
+       "query": {},
+       "uuids": [],
+       "fingerprint": "e7ec91f06a19",
+       "path_fingerprint": "3f0b999fb3b4"
+      },
+      "srcset": {
+       "kind": "https",
+       "host": "lh3.google.com",
+       "path": "/u/0/ogw/<tok:70>/lh3.google.com/u/0/ogw/<tok:63>",
+       "query": {},
+       "uuids": [],
+       "fingerprint": "f2a19421e4f2",
+       "path_fingerprint": "39362b5391e2"
+      },
+      "currentSrc": {
+       "kind": "https",
+       "host": "lh3.google.com",
+       "path": "/u/0/ogw/<tok:59>",
+       "query": {},
+       "uuids": [],
+       "fingerprint": "35a1e9db7b6d",
+       "path_fingerprint": "c979532a2466"
+      }
+     }
+    },
+    {
+     "element": "img[alt=Whisk_u2yivwz5ejzyqtzl1iy0udotcdnirtl2mgnz0sz.png]",
+     "visible": true,
+     "attributes": [
+      "_ngcontent-ng-c3368714219",
+      "alt",
+      "class",
+      "draggable",
+      "src"
+     ],
+     "urls": {
+      "src": {
+       "kind": "https",
+       "host": "flow-content.google",
+       "path": "/image/a1166f7e-9203-4c27-b977-17cbd8fdca2c",
+       "query": {
+        "Expires": "<redacted>",
+        "KeyName": "<redacted>",
+        "Signature": "<redacted>"
+       },
+       "uuids": [
+        "a1166f7e-9203-4c27-b977-17cbd8fdca2c"
+       ],
+       "fingerprint": "4f0ae56778ae",
+       "path_fingerprint": "8cf5eb89d483"
+      },
+      "currentSrc": {
+       "kind": "https",
+       "host": "flow-content.google",
+       "path": "/image/a1166f7e-9203-4c27-b977-17cbd8fdca2c",
+       "query": {
+        "Expires": "<redacted>",
+        "KeyName": "<redacted>",
+        "Signature": "<redacted>"
+       },
+       "uuids": [
+        "a1166f7e-9203-4c27-b977-17cbd8fdca2c"
+       ],
+       "fingerprint": "4f0ae56778ae",
+       "path_fingerprint": "8cf5eb89d483"
+      }
+     }
+    },
+    {
+     "element": "img[alt=Cat waving to camera]",
+     "visible": true,
+     "attributes": [
+      "_ngcontent-ng-c3368714219",
+      "alt",
+      "class",
+      "draggable",
+      "src"
+     ],
+     "urls": {
+      "src": {
+       "kind": "https",
+       "host": "storage.googleapis.com",
+       "path": "/<tok:18>/image/24b5daf0-0332-41af-9443-ed152f26f756",
+       "query": {
+        "GoogleAccessId": "<redacted>",
+        "Expires": "<redacted>",
+        "Signature": "<redacted>"
+       },
+       "uuids": [
+        "24b5daf0-0332-41af-9443-ed152f26f756"
+       ],
+       "fingerprint": "f3729253d441",
+       "path_fingerprint": "743c81535ff6"
+      },
+      "currentSrc": {
+       "kind": "https",
+       "host": "storage.googleapis.com",
+       "path": "/<tok:18>/image/24b5daf0-0332-41af-9443-ed152f26f756",
+       "query": {
+        "GoogleAccessId": "<redacted>",
+        "Expires": "<redacted>",
+        "Signature": "<redacted>"
+       },
+       "uuids": [
+        "24b5daf0-0332-41af-9443-ed152f26f756"
+       ],
+       "fingerprint": "f3729253d441",
+       "path_fingerprint": "743c81535ff6"
+      }
+     }
+    },
+    {
+     "element": "img[alt=Blumaro]",
+     "visible": true,
+     "attributes": [
+      "_ngcontent-ng-c3368714219",
+      "alt",
+      "class",
+      "draggable",
+      "src"
+     ],
+     "urls": {
+      "src": {
+       "kind": "https",
+       "host": "flow-content.google",
+       "path": "/image/1ffdc2af-bd49-4422-b4bb-5e2b956e2772",
+       "query": {
+        "Expires": "<redacted>",
+        "KeyName": "<redacted>",
+        "Signature": "<redacted>"
+       },
+       "uuids": [
+        "1ffdc2af-bd49-4422-b4bb-5e2b956e2772"
+       ],
+       "fingerprint": "ae1ef1b9ad93",
+       "path_fingerprint": "218fff4ebf94"
+      },
+      "currentSrc": {
+       "kind": "https",
+       "host": "flow-content.google",
+       "path": "/image/1ffdc2af-bd49-4422-b4bb-5e2b956e2772",
+       "query": {
+        "Expires": "<redacted>",
+        "KeyName": "<redacted>",
+        "Signature": "<redacted>"
+       },
+       "uuids": [
+        "1ffdc2af-bd49-4422-b4bb-5e2b956e2772"
+       ],
+       "fingerprint": "ae1ef1b9ad93",
+       "path_fingerprint": "218fff4ebf94"
+      }
+     }
+    },
+    {
+     "element": "img[alt=blahiro]",
+     "visible": true,
+     "attributes": [
+      "_ngcontent-ng-c3368714219",
+      "alt",
+      "class",
+      "draggable",
+      "src"
+     ],
+     "urls": {
+      "src": {
+       "kind": "https",
+       "host": "flow-content.google",
+       "path": "/image/04609515-3501-4200-8b04-a62e577ba6da",
+       "query": {
+        "Expires": "<redacted>",
+        "KeyName": "<redacted>",
+        "Signature": "<redacted>"
+       },
+       "uuids": [
+        "04609515-3501-4200-8b04-a62e577ba6da"
+       ],
+       "fingerprint": "4d41568e0df6",
+       "path_fingerprint": "449cbdb603dc"
+      },
+      "currentSrc": {
+       "kind": "https",
+       "host": "flow-content.google",
+       "path": "/image/04609515-3501-4200-8b04-a62e577ba6da",
+       "query": {
+        "Expires": "<redacted>",
+        "KeyName": "<redacted>",
+        "Signature": "<redacted>"
+       },
+       "uuids": [
+        "04609515-3501-4200-8b04-a62e577ba6da"
+       ],
+       "fingerprint": "4d41568e0df6",
+       "path_fingerprint": "449cbdb603dc"
+      }
+     }
+    },
+    {
+     "element": "img[alt=Cat character wearing cute clothes]",
+     "visible": true,
+     "attributes": [
+      "_ngcontent-ng-c3368714219",
+      "alt",
+      "class",
+      "draggable",
+      "src"
+     ],
+     "urls": {
+      "src": {
+       "kind": "https",
+       "host": "flow-content.google",
+       "path": "/image/ad48115d-c4c6-4cef-b460-61d660bb58a1",
+       "query": {
+        "Expires": "<redacted>",
+        "KeyName": "<redacted>",
+        "Signature": "<redacted>"
+       },
+       "uuids": [
+        "ad48115d-c4c6-4cef-b460-61d660bb58a1"
+       ],
+       "fingerprint": "f04e0c71ec46",
+       "path_fingerprint": "061826ab5811"
+      },
+      "currentSrc": {
+       "kind": "https",
+       "host": "flow-content.google",
+       "path": "/image/ad48115d-c4c6-4cef-b460-61d660bb58a1",
+       "query": {
+        "Expires": "<redacted>",
+        "KeyName": "<redacted>",
+        "Signature": "<redacted>"
+       },
+       "uuids": [
+        "ad48115d-c4c6-4cef-b460-61d660bb58a1"
+       ],
+       "fingerprint": "f04e0c71ec46",
+       "path_fingerprint": "061826ab5811"
+      }
+     }
+    },
+    {
+     "element": "img[alt=Blatifa]",
+     "visible": true,
+     "attributes": [
+      "_ngcontent-ng-c3368714219",
+      "alt",
+      "class",
+      "draggable",
+      "src"
+     ],
+     "urls": {
+      "src": {
+       "kind": "https",
+       "host": "flow-content.google",
+       "path": "/image/991d411b-7c18-4105-a40e-ed8999546606",
+       "query": {
+        "Expires": "<redacted>",
+        "KeyName": "<redacted>",
+        "Signature": "<redacted>"
+       },
+       "uuids": [
+        "991d411b-7c18-4105-a40e-ed8999546606"
+       ],
+       "fingerprint": "e728c9c24849",
+       "path_fingerprint": "7ee9ed73662f"
+      },
+      "currentSrc": {
+       "kind": "https",
+       "host": "flow-content.google",
+       "path": "/image/991d411b-7c18-4105-a40e-ed8999546606",
+       "query": {
+        "Expires": "<redacted>",
+        "KeyName": "<redacted>",
+        "Signature": "<redacted>"
+       },
+       "uuids": [
+        "991d411b-7c18-4105-a40e-ed8999546606"
+       ],
+       "fingerprint": "e728c9c24849",
+       "path_fingerprint": "7ee9ed73662f"
+      }
+     }
+    },
+    {
+     "element": "img[alt=Generated video thumbnail]",
+     "visible": true,
+     "attributes": [
+      "_ngcontent-ng-c3621283428",
+      "alt",
+      "class",
+      "draggable",
+      "src"
+     ],
+     "urls": {
+      "src": {
+       "kind": "https",
+       "host": "flow.google.com",
+       "path": "/asb/<tok:172>",
+       "query": {},
+       "uuids": [],
+       "fingerprint": "4c2ef07492ac",
+       "path_fingerprint": "52b6770c8e4c"
+      },
+      "currentSrc": {
+       "kind": "https",
+       "host": "flow.google.com",
+       "path": "/asb/<tok:172>",
+       "query": {},
+       "uuids": [],
+       "fingerprint": "4c2ef07492ac",
+       "path_fingerprint": "52b6770c8e4c"
+      }
+     }
+    },
+    {
+     "element": "img[alt=Ingredient image]",
+     "visible": true,
+     "attributes": [
+      "_ngcontent-ng-c245656320",
+      "alt",
+      "class",
+      "src"
+     ],
+     "urls": {
+      "src": {
+       "kind": "https",
+       "host": "flow-content.google",
+       "path": "/image/991d411b-7c18-4105-a40e-ed8999546606",
+       "query": {
+        "Expires": "<redacted>",
+        "KeyName": "<redacted>",
+        "Signature": "<redacted>"
+       },
+       "uuids": [
+        "991d411b-7c18-4105-a40e-ed8999546606"
+       ],
+       "fingerprint": "e728c9c24849",
+       "path_fingerprint": "7ee9ed73662f"
+      },
+      "currentSrc": {
+       "kind": "https",
+       "host": "flow-content.google",
+       "path": "/image/991d411b-7c18-4105-a40e-ed8999546606",
+       "query": {
+        "Expires": "<redacted>",
+        "KeyName": "<redacted>",
+        "Signature": "<redacted>"
+       },
+       "uuids": [
+        "991d411b-7c18-4105-a40e-ed8999546606"
+       ],
+       "fingerprint": "e728c9c24849",
+       "path_fingerprint": "7ee9ed73662f"
+      }
+     }
+    },
+    {
+     "element": "img",
+     "visible": true,
+     "attributes": [
+      "_ngcontent-ng-c649809404",
+      "alt",
+      "aria-hidden",
+      "class",
+      "src"
+     ],
+     "urls": {
+      "src": {
+       "kind": "data",
+       "mime": "image/jpeg",
+       "length": 3031
+      },
+      "currentSrc": {
+       "kind": "data",
+       "mime": "image/jpeg",
+       "length": 3031
+      }
+     }
+    },
+    {
+     "element": "img",
+     "visible": true,
+     "attributes": [
+      "_ngcontent-ng-c649809404",
+      "alt",
+      "aria-hidden",
+      "class",
+      "src"
+     ],
+     "urls": {
+      "src": {
+       "kind": "data",
+       "mime": "image/jpeg",
+       "length": 3031
+      },
+      "currentSrc": {
+       "kind": "data",
+       "mime": "image/jpeg",
+       "length": 3031
+      }
+     }
+    },
+    {
+     "element": "img",
+     "visible": true,
+     "attributes": [
+      "_ngcontent-ng-c649809404",
+      "alt",
+      "aria-hidden",
+      "class",
+      "src"
+     ],
+     "urls": {
+      "src": {
+       "kind": "data",
+       "mime": "image/jpeg",
+       "length": 3051
+      },
+      "currentSrc": {
+       "kind": "data",
+       "mime": "image/jpeg",
+       "length": 3051
+      }
+     }
+    },
+    {
+     "element": "img",
+     "visible": true,
+     "attributes": [
+      "_ngcontent-ng-c649809404",
+      "alt",
+      "aria-hidden",
+      "class",
+      "src"
+     ],
+     "urls": {
+      "src": {
+       "kind": "data",
+       "mime": "image/jpeg",
+       "length": 3039
+      },
+      "currentSrc": {
+       "kind": "data",
+       "mime": "image/jpeg",
+       "length": 3039
+      }
+     }
+    },
+    {
+     "element": "img",
+     "visible": true,
+     "attributes": [
+      "_ngcontent-ng-c649809404",
+      "alt",
+      "aria-hidden",
+      "class",
+      "src"
+     ],
+     "urls": {
+      "src": {
+       "kind": "data",
+       "mime": "image/jpeg",
+       "length": 3071
+      },
+      "currentSrc": {
+       "kind": "data",
+       "mime": "image/jpeg",
+       "length": 3071
+      }
+     }
+    },
+    {
+     "element": "img",
+     "visible": true,
+     "attributes": [
+      "_ngcontent-ng-c649809404",
+      "alt",
+      "aria-hidden",
+      "class",
+      "src"
+     ],
+     "urls": {
+      "src": {
+       "kind": "data",
+       "mime": "image/jpeg",
+       "length": 3055
+      },
+      "currentSrc": {
+       "kind": "data",
+       "mime": "image/jpeg",
+       "length": 3055
+      }
+     }
+    },
+    {
+     "element": "img",
+     "visible": true,
+     "attributes": [
+      "_ngcontent-ng-c649809404",
+      "alt",
+      "aria-hidden",
+      "class",
+      "src"
+     ],
+     "urls": {
+      "src": {
+       "kind": "data",
+       "mime": "image/jpeg",
+       "length": 3039
+      },
+      "currentSrc": {
+       "kind": "data",
+       "mime": "image/jpeg",
+       "length": 3039
+      }
+     }
+    },
+    {
+     "element": "img",
+     "visible": true,
+     "attributes": [
+      "_ngcontent-ng-c649809404",
+      "alt",
+      "aria-hidden",
+      "class",
+      "src"
+     ],
+     "urls": {
+      "src": {
+       "kind": "data",
+       "mime": "image/jpeg",
+       "length": 3071
+      },
+      "currentSrc": {
+       "kind": "data",
+       "mime": "image/jpeg",
+       "length": 3071
+      }
+     }
+    }
+   ],
+   "route_id_found_in": [],
+   "other_uuids": [
+    {
+     "where": "img[alt=Whisk_u2yivwz5ejzyqtzl1iy0udotcdnirtl2mgnz0sz.png].src",
+     "uuid": "a1166f7e-9203-4c27-b977-17cbd8fdca2c"
+    },
+    {
+     "where": "img[alt=Whisk_u2yivwz5ejzyqtzl1iy0udotcdnirtl2mgnz0sz.png].currentSrc",
+     "uuid": "a1166f7e-9203-4c27-b977-17cbd8fdca2c"
+    },
+    {
+     "where": "img[alt=Cat waving to camera].src",
+     "uuid": "24b5daf0-0332-41af-9443-ed152f26f756"
+    },
+    {
+     "where": "img[alt=Cat waving to camera].currentSrc",
+     "uuid": "24b5daf0-0332-41af-9443-ed152f26f756"
+    },
+    {
+     "where": "img[alt=Blumaro].src",
+     "uuid": "1ffdc2af-bd49-4422-b4bb-5e2b956e2772"
+    },
+    {
+     "where": "img[alt=Blumaro].currentSrc",
+     "uuid": "1ffdc2af-bd49-4422-b4bb-5e2b956e2772"
+    },
+    {
+     "where": "img[alt=blahiro].src",
+     "uuid": "04609515-3501-4200-8b04-a62e577ba6da"
+    },
+    {
+     "where": "img[alt=blahiro].currentSrc",
+     "uuid": "04609515-3501-4200-8b04-a62e577ba6da"
+    },
+    {
+     "where": "img[alt=Cat character wearing cute clothes].src",
+     "uuid": "ad48115d-c4c6-4cef-b460-61d660bb58a1"
+    },
+    {
+     "where": "img[alt=Cat character wearing cute clothes].currentSrc",
+     "uuid": "ad48115d-c4c6-4cef-b460-61d660bb58a1"
+    },
+    {
+     "where": "img[alt=Blatifa].src",
+     "uuid": "991d411b-7c18-4105-a40e-ed8999546606"
+    },
+    {
+     "where": "img[alt=Blatifa].currentSrc",
+     "uuid": "991d411b-7c18-4105-a40e-ed8999546606"
+    },
+    {
+     "where": "img[alt=Ingredient image].src",
+     "uuid": "991d411b-7c18-4105-a40e-ed8999546606"
+    },
+    {
+     "where": "img[alt=Ingredient image].currentSrc",
+     "uuid": "991d411b-7c18-4105-a40e-ed8999546606"
+    }
+   ],
+   "stop_reasons": []
+  },
+  {
+   "url_shape": {
+    "kind": "https",
+    "host": "flow.google.com",
+    "path": "/project/562eec3d-9c48-4802-b152-3ed1d8c91ebd/edit/6e7ded7f-6bee-45a6-9202-e15e565abe52",
+    "query": {},
+    "uuids": [
+     "562eec3d-9c48-4802-b152-3ed1d8c91ebd",
+     "6e7ded7f-6bee-45a6-9202-e15e565abe52"
+    ],
+    "fingerprint": "d280a50b7ed6",
+    "path_fingerprint": "21981305f99c"
+   },
+   "route_id": "6e7ded7f-6bee-45a6-9202-e15e565abe52",
+   "identity": {
+    "status": "UNKNOWN",
+    "fingerprint": null,
+    "read_at": "2026-11-03T14:11:41+00:00",
+    "detail": "identity button BROKEN: not found"
+   },
+   "credits": {
+    "status": "UNAVAILABLE_WITHOUT_CLICK",
+    "balance": null,
+    "detail": "the balance is only shown inside the account panel, which would need a click"
+   },
+   "dialogs": [],
+   "media": [
+    {
+     "element": "img",
+     "visible": true,
+     "attributes": [
+      "alt",
+      "aria-hidden",
+      "class",
+      "data-noaft",
+      "src",
+      "srcset"
+     ],
+     "urls": {
+      "src": {
+       "kind": "https",
+       "host": "lh3.google.com",
+       "path": "/u/0/ogw/<tok:59>",
+       "query": {},
+       "uuids": [],
+       "fingerprint": "e7ec91f06a19",
+       "path_fingerprint": "3f0b999fb3b4"
+      },
+      "srcset": {
+       "kind": "https",
+       "host": "lh3.google.com",
+       "path": "/u/0/ogw/<tok:70>/lh3.google.com/u/0/ogw/<tok:63>",
+       "query": {},
+       "uuids": [],
+       "fingerprint": "f2a19421e4f2",
+       "path_fingerprint": "39362b5391e2"
+      },
+      "currentSrc": {
+       "kind": "https",
+       "host": "lh3.google.com",
+       "path": "/u/0/ogw/<tok:59>",
+       "query": {},
+       "uuids": [],
+       "fingerprint": "35a1e9db7b6d",
+       "path_fingerprint": "c979532a2466"
+      }
+     }
+    },
+    {
+     "element": "img[alt=Whisk_u2yivwz5ejzyqtzl1iy0udotcdnirtl2mgnz0sz.png]",
+     "visible": true,
+     "attributes": [
+      "_ngcontent-ng-c3368714219",
+      "alt",
+      "class",
+      "draggable",
+      "src"
+     ],
+     "urls": {
+      "src": {
+       "kind": "https",
+       "host": "flow-content.google",
+       "path": "/image/a1166f7e-9203-4c27-b977-17cbd8fdca2c",
+       "query": {
+        "Expires": "<redacted>",
+        "KeyName": "<redacted>",
+        "Signature": "<redacted>"
+       },
+       "uuids": [
+        "a1166f7e-9203-4c27-b977-17cbd8fdca2c"
+       ],
+       "fingerprint": "4f0ae56778ae",
+       "path_fingerprint": "8cf5eb89d483"
+      },
+      "currentSrc": {
+       "kind": "https",
+       "host": "flow-content.google",
+       "path": "/image/a1166f7e-9203-4c27-b977-17cbd8fdca2c",
+       "query": {
+        "Expires": "<redacted>",
+        "KeyName": "<redacted>",
+        "Signature": "<redacted>"
+       },
+       "uuids": [
+        "a1166f7e-9203-4c27-b977-17cbd8fdca2c"
+       ],
+       "fingerprint": "4f0ae56778ae",
+       "path_fingerprint": "8cf5eb89d483"
+      }
+     }
+    },
+    {
+     "element": "img[alt=Cat waving to camera]",
+     "visible": true,
+     "attributes": [
+      "_ngcontent-ng-c3368714219",
+      "alt",
+      "class",
+      "draggable",
+      "src"
+     ],
+     "urls": {
+      "src": {
+       "kind": "https",
+       "host": "storage.googleapis.com",
+       "path": "/<tok:18>/image/24b5daf0-0332-41af-9443-ed152f26f756",
+       "query": {
+        "GoogleAccessId": "<redacted>",
+        "Expires": "<redacted>",
+        "Signature": "<redacted>"
+       },
+       "uuids": [
+        "24b5daf0-0332-41af-9443-ed152f26f756"
+       ],
+       "fingerprint": "f3729253d441",
+       "path_fingerprint": "743c81535ff6"
+      },
+      "currentSrc": {
+       "kind": "https",
+       "host": "storage.googleapis.com",
+       "path": "/<tok:18>/image/24b5daf0-0332-41af-9443-ed152f26f756",
+       "query": {
+        "GoogleAccessId": "<redacted>",
+        "Expires": "<redacted>",
+        "Signature": "<redacted>"
+       },
+       "uuids": [
+        "24b5daf0-0332-41af-9443-ed152f26f756"
+       ],
+       "fingerprint": "f3729253d441",
+       "path_fingerprint": "743c81535ff6"
+      }
+     }
+    },
+    {
+     "element": "img[alt=Blumaro]",
+     "visible": true,
+     "attributes": [
+      "_ngcontent-ng-c3368714219",
+      "alt",
+      "class",
+      "draggable",
+      "src"
+     ],
+     "urls": {
+      "src": {
+       "kind": "https",
+       "host": "flow-content.google",
+       "path": "/image/1ffdc2af-bd49-4422-b4bb-5e2b956e2772",
+       "query": {
+        "Expires": "<redacted>",
+        "KeyName": "<redacted>",
+        "Signature": "<redacted>"
+       },
+       "uuids": [
+        "1ffdc2af-bd49-4422-b4bb-5e2b956e2772"
+       ],
+       "fingerprint": "ae1ef1b9ad93",
+       "path_fingerprint": "218fff4ebf94"
+      },
+      "currentSrc": {
+       "kind": "https",
+       "host": "flow-content.google",
+       "path": "/image/1ffdc2af-bd49-4422-b4bb-5e2b956e2772",
+       "query": {
+        "Expires": "<redacted>",
+        "KeyName": "<redacted>",
+        "Signature": "<redacted>"
+       },
+       "uuids": [
+        "1ffdc2af-bd49-4422-b4bb-5e2b956e2772"
+       ],
+       "fingerprint": "ae1ef1b9ad93",
+       "path_fingerprint": "218fff4ebf94"
+      }
+     }
+    },
+    {
+     "element": "img[alt=blahiro]",
+     "visible": true,
+     "attributes": [
+      "_ngcontent-ng-c3368714219",
+      "alt",
+      "class",
+      "draggable",
+      "src"
+     ],
+     "urls": {
+      "src": {
+       "kind": "https",
+       "host": "flow-content.google",
+       "path": "/image/04609515-3501-4200-8b04-a62e577ba6da",
+       "query": {
+        "Expires": "<redacted>",
+        "KeyName": "<redacted>",
+        "Signature": "<redacted>"
+       },
+       "uuids": [
+        "04609515-3501-4200-8b04-a62e577ba6da"
+       ],
+       "fingerprint": "4d41568e0df6",
+       "path_fingerprint": "449cbdb603dc"
+      },
+      "currentSrc": {
+       "kind": "https",
+       "host": "flow-content.google",
+       "path": "/image/04609515-3501-4200-8b04-a62e577ba6da",
+       "query": {
+        "Expires": "<redacted>",
+        "KeyName": "<redacted>",
+        "Signature": "<redacted>"
+       },
+       "uuids": [
+        "04609515-3501-4200-8b04-a62e577ba6da"
+       ],
+       "fingerprint": "4d41568e0df6",
+       "path_fingerprint": "449cbdb603dc"
+      }
+     }
+    },
+    {
+     "element": "img[alt=Cat character wearing cute clothes]",
+     "visible": true,
+     "attributes": [
+      "_ngcontent-ng-c3368714219",
+      "alt",
+      "class",
+      "draggable",
+      "src"
+     ],
+     "urls": {
+      "src": {
+       "kind": "https",
+       "host": "flow-content.google",
+       "path": "/image/ad48115d-c4c6-4cef-b460-61d660bb58a1",
+       "query": {
+        "Expires": "<redacted>",
+        "KeyName": "<redacted>",
+        "Signature": "<redacted>"
+       },
+       "uuids": [
+        "ad48115d-c4c6-4cef-b460-61d660bb58a1"
+       ],
+       "fingerprint": "f04e0c71ec46",
+       "path_fingerprint": "061826ab5811"
+      },
+      "currentSrc": {
+       "kind": "https",
+       "host": "flow-content.google",
+       "path": "/image/ad48115d-c4c6-4cef-b460-61d660bb58a1",
+       "query": {
+        "Expires": "<redacted>",
+        "KeyName": "<redacted>",
+        "Signature": "<redacted>"
+       },
+       "uuids": [
+        "ad48115d-c4c6-4cef-b460-61d660bb58a1"
+       ],
+       "fingerprint": "f04e0c71ec46",
+       "path_fingerprint": "061826ab5811"
+      }
+     }
+    },
+    {
+     "element": "img[alt=Blatifa]",
+     "visible": true,
+     "attributes": [
+      "_ngcontent-ng-c3368714219",
+      "alt",
+      "class",
+      "draggable",
+      "src"
+     ],
+     "urls": {
+      "src": {
+       "kind": "https",
+       "host": "flow-content.google",
+       "path": "/image/991d411b-7c18-4105-a40e-ed8999546606",
+       "query": {
+        "Expires": "<redacted>",
+        "KeyName": "<redacted>",
+        "Signature": "<redacted>"
+       },
+       "uuids": [
+        "991d411b-7c18-4105-a40e-ed8999546606"
+       ],
+       "fingerprint": "e728c9c24849",
+       "path_fingerprint": "7ee9ed73662f"
+      },
+      "currentSrc": {
+       "kind": "https",
+       "host": "flow-content.google",
+       "path": "/image/991d411b-7c18-4105-a40e-ed8999546606",
+       "query": {
+        "Expires": "<redacted>",
+        "KeyName": "<redacted>",
+        "Signature": "<redacted>"
+       },
+       "uuids": [
+        "991d411b-7c18-4105-a40e-ed8999546606"
+       ],
+       "fingerprint": "e728c9c24849",
+       "path_fingerprint": "7ee9ed73662f"
+      }
+     }
+    },
+    {
+     "element": "img[alt=Generated video thumbnail]",
+     "visible": true,
+     "attributes": [
+      "_ngcontent-ng-c3621283428",
+      "alt",
+      "class",
+      "draggable",
+      "src"
+     ],
+     "urls": {
+      "src": {
+       "kind": "https",
+       "host": "flow.google.com",
+       "path": "/asb/<tok:172>",
+       "query": {},
+       "uuids": [],
+       "fingerprint": "4c2ef07492ac",
+       "path_fingerprint": "52b6770c8e4c"
+      },
+      "currentSrc": {
+       "kind": "https",
+       "host": "flow.google.com",
+       "path": "/asb/<tok:172>",
+       "query": {},
+       "uuids": [],
+       "fingerprint": "4c2ef07492ac",
+       "path_fingerprint": "52b6770c8e4c"
+      }
+     }
+    },
+    {
+     "element": "img[alt=Ingredient image]",
+     "visible": true,
+     "attributes": [
+      "_ngcontent-ng-c245656320",
+      "alt",
+      "class",
+      "src"
+     ],
+     "urls": {
+      "src": {
+       "kind": "https",
+       "host": "flow-content.google",
+       "path": "/image/991d411b-7c18-4105-a40e-ed8999546606",
+       "query": {
+        "Expires": "<redacted>",
+        "KeyName": "<redacted>",
+        "Signature": "<redacted>"
+       },
+       "uuids": [
+        "991d411b-7c18-4105-a40e-ed8999546606"
+       ],
+       "fingerprint": "e728c9c24849",
+       "path_fingerprint": "7ee9ed73662f"
+      },
+      "currentSrc": {
+       "kind": "https",
+       "host": "flow-content.google",
+       "path": "/image/991d411b-7c18-4105-a40e-ed8999546606",
+       "query": {
+        "Expires": "<redacted>",
+        "KeyName": "<redacted>",
+        "Signature": "<redacted>"
+       },
+       "uuids": [
+        "991d411b-7c18-4105-a40e-ed8999546606"
+       ],
+       "fingerprint": "e728c9c24849",
+       "path_fingerprint": "7ee9ed73662f"
+      }
+     }
+    },
+    {
+     "element": "img",
+     "visible": true,
+     "attributes": [
+      "_ngcontent-ng-c649809404",
+      "alt",
+      "aria-hidden",
+      "class",
+      "src"
+     ],
+     "urls": {
+      "src": {
+       "kind": "data",
+       "mime": "image/jpeg",
+       "length": 3031
+      },
+      "currentSrc": {
+       "kind": "data",
+       "mime": "image/jpeg",
+       "length": 3031
+      }
+     }
+    },
+    {
+     "element": "img",
+     "visible": true,
+     "attributes": [
+      "_ngcontent-ng-c649809404",
+      "alt",
+      "aria-hidden",
+      "class",
+      "src"
+     ],
+     "urls": {
+      "src": {
+       "kind": "data",
+       "mime": "image/jpeg",
+       "length": 3031
+      },
+      "currentSrc": {
+       "kind": "data",
+       "mime": "image/jpeg",
+       "length": 3031
+      }
+     }
+    },
+    {
+     "element": "img",
+     "visible": true,
+     "attributes": [
+      "_ngcontent-ng-c649809404",
+      "alt",
+      "aria-hidden",
+      "class",
+      "src"
+     ],
+     "urls": {
+      "src": {
+       "kind": "data",
+       "mime": "image/jpeg",
+       "length": 3051
+      },
+      "currentSrc": {
+       "kind": "data",
+       "mime": "image/jpeg",
+       "length": 3051
+      }
+     }
+    },
+    {
+     "element": "img",
+     "visible": true,
+     "attributes": [
+      "_ngcontent-ng-c649809404",
+      "alt",
+      "aria-hidden",
+      "class",
+      "src"
+     ],
+     "urls": {
+      "src": {
+       "kind": "data",
+       "mime": "image/jpeg",
+       "length": 3039
+      },
+      "currentSrc": {
+       "kind": "data",
+       "mime": "image/jpeg",
+       "length": 3039
+      }
+     }
+    },
+    {
+     "element": "img",
+     "visible": true,
+     "attributes": [
+      "_ngcontent-ng-c649809404",
+      "alt",
+      "aria-hidden",
+      "class",
+      "src"
+     ],
+     "urls": {
+      "src": {
+       "kind": "data",
+       "mime": "image/jpeg",
+       "length": 3071
+      },
+      "currentSrc": {
+       "kind": "data",
+       "mime": "image/jpeg",
+       "length": 3071
+      }
+     }
+    },
+    {
+     "element": "img",
+     "visible": true,
+     "attributes": [
+      "_ngcontent-ng-c649809404",
+      "alt",
+      "aria-hidden",
+      "class",
+      "src"
+     ],
+     "urls": {
+      "src": {
+       "kind": "data",
+       "mime": "image/jpeg",
+       "length": 3055
+      },
+      "currentSrc": {
+       "kind": "data",
+       "mime": "image/jpeg",
+       "length": 3055
+      }
+     }
+    },
+    {
+     "element": "img",
+     "visible": true,
+     "attributes": [
+      "_ngcontent-ng-c649809404",
+      "alt",
+      "aria-hidden",
+      "class",
+      "src"
+     ],
+     "urls": {
+      "src": {
+       "kind": "data",
+       "mime": "image/jpeg",
+       "length": 3039
+      },
+      "currentSrc": {
+       "kind": "data",
+       "mime": "image/jpeg",
+       "length": 3039
+      }
+     }
+    },
+    {
+     "element": "img",
+     "visible": true,
+     "attributes": [
+      "_ngcontent-ng-c649809404",
+      "alt",
+      "aria-hidden",
+      "class",
+      "src"
+     ],
+     "urls": {
+      "src": {
+       "kind": "data",
+       "mime": "image/jpeg",
+       "length": 3071
+      },
+      "currentSrc": {
+       "kind": "data",
+       "mime": "image/jpeg",
+       "length": 3071
+      }
+     }
+    }
+   ],
+   "route_id_found_in": [],
+   "other_uuids": [
+    {
+     "where": "img[alt=Whisk_u2yivwz5ejzyqtzl1iy0udotcdnirtl2mgnz0sz.png].src",
+     "uuid": "a1166f7e-9203-4c27-b977-17cbd8fdca2c"
+    },
+    {
+     "where": "img[alt=Whisk_u2yivwz5ejzyqtzl1iy0udotcdnirtl2mgnz0sz.png].currentSrc",
+     "uuid": "a1166f7e-9203-4c27-b977-17cbd8fdca2c"
+    },
+    {
+     "where": "img[alt=Cat waving to camera].src",
+     "uuid": "24b5daf0-0332-41af-9443-ed152f26f756"
+    },
+    {
+     "where": "img[alt=Cat waving to camera].currentSrc",
+     "uuid": "24b5daf0-0332-41af-9443-ed152f26f756"
+    },
+    {
+     "where": "img[alt=Blumaro].src",
+     "uuid": "1ffdc2af-bd49-4422-b4bb-5e2b956e2772"
+    },
+    {
+     "where": "img[alt=Blumaro].currentSrc",
+     "uuid": "1ffdc2af-bd49-4422-b4bb-5e2b956e2772"
+    },
+    {
+     "where": "img[alt=blahiro].src",
+     "uuid": "04609515-3501-4200-8b04-a62e577ba6da"
+    },
+    {
+     "where": "img[alt=blahiro].currentSrc",
+     "uuid": "04609515-3501-4200-8b04-a62e577ba6da"
+    },
+    {
+     "where": "img[alt=Cat character wearing cute clothes].src",
+     "uuid": "ad48115d-c4c6-4cef-b460-61d660bb58a1"
+    },
+    {
+     "where": "img[alt=Cat character wearing cute clothes].currentSrc",
+     "uuid": "ad48115d-c4c6-4cef-b460-61d660bb58a1"
+    },
+    {
+     "where": "img[alt=Blatifa].src",
+     "uuid": "991d411b-7c18-4105-a40e-ed8999546606"
+    },
+    {
+     "where": "img[alt=Blatifa].currentSrc",
+     "uuid": "991d411b-7c18-4105-a40e-ed8999546606"
+    },
+    {
+     "where": "img[alt=Ingredient image].src",
+     "uuid": "991d411b-7c18-4105-a40e-ed8999546606"
+    },
+    {
+     "where": "img[alt=Ingredient image].currentSrc",
+     "uuid": "991d411b-7c18-4105-a40e-ed8999546606"
+    }
+   ],
+   "stop_reasons": []
+  },
+  {
+   "url_shape": {
+    "kind": "https",
+    "host": "flow.google.com",
+    "path": "/project/562eec3d-9c48-4802-b152-3ed1d8c91ebd/edit/6e7ded7f-6bee-45a6-9202-e15e565abe52",
+    "query": {},
+    "uuids": [
+     "562eec3d-9c48-4802-b152-3ed1d8c91ebd",
+     "6e7ded7f-6bee-45a6-9202-e15e565abe52"
+    ],
+    "fingerprint": "d280a50b7ed6",
+    "path_fingerprint": "21981305f99c"
+   },
+   "route_id": "6e7ded7f-6bee-45a6-9202-e15e565abe52",
+   "identity": {
+    "status": "UNKNOWN",
+    "fingerprint": null,
+    "read_at": "2026-11-03T14:11:56+00:00",
+    "detail": "identity button BROKEN: not found"
+   },
+   "credits": {
+    "status": "UNAVAILABLE_WITHOUT_CLICK",
+    "balance": null,
+    "detail": "the balance is only shown inside the account panel, which would need a click"
+   },
+   "dialogs": [],
+   "media": [
+    {
+     "element": "img",
+     "visible": true,
+     "attributes": [
+      "alt",
+      "aria-hidden",
+      "class",
+      "data-noaft",
+      "src",
+      "srcset"
+     ],
+     "urls": {
+      "src": {
+       "kind": "https",
+       "host": "lh3.google.com",
+       "path": "/u/0/ogw/<tok:59>",
+       "query": {},
+       "uuids": [],
+       "fingerprint": "e7ec91f06a19",
+       "path_fingerprint": "3f0b999fb3b4"
+      },
+      "srcset": {
+       "kind": "https",
+       "host": "lh3.google.com",
+       "path": "/u/0/ogw/<tok:70>/lh3.google.com/u/0/ogw/<tok:63>",
+       "query": {},
+       "uuids": [],
+       "fingerprint": "f2a19421e4f2",
+       "path_fingerprint": "39362b5391e2"
+      },
+      "currentSrc": {
+       "kind": "https",
+       "host": "lh3.google.com",
+       "path": "/u/0/ogw/<tok:59>",
+       "query": {},
+       "uuids": [],
+       "fingerprint": "35a1e9db7b6d",
+       "path_fingerprint": "c979532a2466"
+      }
+     }
+    },
+    {
+     "element": "img[alt=Whisk_u2yivwz5ejzyqtzl1iy0udotcdnirtl2mgnz0sz.png]",
+     "visible": true,
+     "attributes": [
+      "_ngcontent-ng-c3368714219",
+      "alt",
+      "class",
+      "draggable",
+      "src"
+     ],
+     "urls": {
+      "src": {
+       "kind": "https",
+       "host": "flow-content.google",
+       "path": "/image/a1166f7e-9203-4c27-b977-17cbd8fdca2c",
+       "query": {
+        "Expires": "<redacted>",
+        "KeyName": "<redacted>",
+        "Signature": "<redacted>"
+       },
+       "uuids": [
+        "a1166f7e-9203-4c27-b977-17cbd8fdca2c"
+       ],
+       "fingerprint": "4f0ae56778ae",
+       "path_fingerprint": "8cf5eb89d483"
+      },
+      "currentSrc": {
+       "kind": "https",
+       "host": "flow-content.google",
+       "path": "/image/a1166f7e-9203-4c27-b977-17cbd8fdca2c",
+       "query": {
+        "Expires": "<redacted>",
+        "KeyName": "<redacted>",
+        "Signature": "<redacted>"
+       },
+       "uuids": [
+        "a1166f7e-9203-4c27-b977-17cbd8fdca2c"
+       ],
+       "fingerprint": "4f0ae56778ae",
+       "path_fingerprint": "8cf5eb89d483"
+      }
+     }
+    },
+    {
+     "element": "img[alt=Cat waving to camera]",
+     "visible": true,
+     "attributes": [
+      "_ngcontent-ng-c3368714219",
+      "alt",
+      "class",
+      "draggable",
+      "src"
+     ],
+     "urls": {
+      "src": {
+       "kind": "https",
+       "host": "storage.googleapis.com",
+       "path": "/<tok:18>/image/24b5daf0-0332-41af-9443-ed152f26f756",
+       "query": {
+        "GoogleAccessId": "<redacted>",
+        "Expires": "<redacted>",
+        "Signature": "<redacted>"
+       },
+       "uuids": [
+        "24b5daf0-0332-41af-9443-ed152f26f756"
+       ],
+       "fingerprint": "f3729253d441",
+       "path_fingerprint": "743c81535ff6"
+      },
+      "currentSrc": {
+       "kind": "https",
+       "host": "storage.googleapis.com",
+       "path": "/<tok:18>/image/24b5daf0-0332-41af-9443-ed152f26f756",
+       "query": {
+        "GoogleAccessId": "<redacted>",
+        "Expires": "<redacted>",
+        "Signature": "<redacted>"
+       },
+       "uuids": [
+        "24b5daf0-0332-41af-9443-ed152f26f756"
+       ],
+       "fingerprint": "f3729253d441",
+       "path_fingerprint": "743c81535ff6"
+      }
+     }
+    },
+    {
+     "element": "img[alt=Blumaro]",
+     "visible": true,
+     "attributes": [
+      "_ngcontent-ng-c3368714219",
+      "alt",
+      "class",
+      "draggable",
+      "src"
+     ],
+     "urls": {
+      "src": {
+       "kind": "https",
+       "host": "flow-content.google",
+       "path": "/image/1ffdc2af-bd49-4422-b4bb-5e2b956e2772",
+       "query": {
+        "Expires": "<redacted>",
+        "KeyName": "<redacted>",
+        "Signature": "<redacted>"
+       },
+       "uuids": [
+        "1ffdc2af-bd49-4422-b4bb-5e2b956e2772"
+       ],
+       "fingerprint": "ae1ef1b9ad93",
+       "path_fingerprint": "218fff4ebf94"
+      },
+      "currentSrc": {
+       "kind": "https",
+       "host": "flow-content.google",
+       "path": "/image/1ffdc2af-bd49-4422-b4bb-5e2b956e2772",
+       "query": {
+        "Expires": "<redacted>",
+        "KeyName": "<redacted>",
+        "Signature": "<redacted>"
+       },
+       "uuids": [
+        "1ffdc2af-bd49-4422-b4bb-5e2b956e2772"
+       ],
+       "fingerprint": "ae1ef1b9ad93",
+       "path_fingerprint": "218fff4ebf94"
+      }
+     }
+    },
+    {
+     "element": "img[alt=blahiro]",
+     "visible": true,
+     "attributes": [
+      "_ngcontent-ng-c3368714219",
+      "alt",
+      "class",
+      "draggable",
+      "src"
+     ],
+     "urls": {
+      "src": {
+       "kind": "https",
+       "host": "flow-content.google",
+       "path": "/image/04609515-3501-4200-8b04-a62e577ba6da",
+       "query": {
+        "Expires": "<redacted>",
+        "KeyName": "<redacted>",
+        "Signature": "<redacted>"
+       },
+       "uuids": [
+        "04609515-3501-4200-8b04-a62e577ba6da"
+       ],
+       "fingerprint": "4d41568e0df6",
+       "path_fingerprint": "449cbdb603dc"
+      },
+      "currentSrc": {
+       "kind": "https",
+       "host": "flow-content.google",
+       "path": "/image/04609515-3501-4200-8b04-a62e577ba6da",
+       "query": {
+        "Expires": "<redacted>",
+        "KeyName": "<redacted>",
+        "Signature": "<redacted>"
+       },
+       "uuids": [
+        "04609515-3501-4200-8b04-a62e577ba6da"
+       ],
+       "fingerprint": "4d41568e0df6",
+       "path_fingerprint": "449cbdb603dc"
+      }
+     }
+    },
+    {
+     "element": "img[alt=Cat character wearing cute clothes]",
+     "visible": true,
+     "attributes": [
+      "_ngcontent-ng-c3368714219",
+      "alt",
+      "class",
+      "draggable",
+      "src"
+     ],
+     "urls": {
+      "src": {
+       "kind": "https",
+       "host": "flow-content.google",
+       "path": "/image/ad48115d-c4c6-4cef-b460-61d660bb58a1",
+       "query": {
+        "Expires": "<redacted>",
+        "KeyName": "<redacted>",
+        "Signature": "<redacted>"
+       },
+       "uuids": [
+        "ad48115d-c4c6-4cef-b460-61d660bb58a1"
+       ],
+       "fingerprint": "f04e0c71ec46",
+       "path_fingerprint": "061826ab5811"
+      },
+      "currentSrc": {
+       "kind": "https",
+       "host": "flow-content.google",
+       "path": "/image/ad48115d-c4c6-4cef-b460-61d660bb58a1",
+       "query": {
+        "Expires": "<redacted>",
+        "KeyName": "<redacted>",
+        "Signature": "<redacted>"
+       },
+       "uuids": [
+        "ad48115d-c4c6-4cef-b460-61d660bb58a1"
+       ],
+       "fingerprint": "f04e0c71ec46",
+       "path_fingerprint": "061826ab5811"
+      }
+     }
+    },
+    {
+     "element": "img[alt=Blatifa]",
+     "visible": true,
+     "attributes": [
+      "_ngcontent-ng-c3368714219",
+      "alt",
+      "class",
+      "draggable",
+      "src"
+     ],
+     "urls": {
+      "src": {
+       "kind": "https",
+       "host": "flow-content.google",
+       "path": "/image/991d411b-7c18-4105-a40e-ed8999546606",
+       "query": {
+        "Expires": "<redacted>",
+        "KeyName": "<redacted>",
+        "Signature": "<redacted>"
+       },
+       "uuids": [
+        "991d411b-7c18-4105-a40e-ed8999546606"
+       ],
+       "fingerprint": "e728c9c24849",
+       "path_fingerprint": "7ee9ed73662f"
+      },
+      "currentSrc": {
+       "kind": "https",
+       "host": "flow-content.google",
+       "path": "/image/991d411b-7c18-4105-a40e-ed8999546606",
+       "query": {
+        "Expires": "<redacted>",
+        "KeyName": "<redacted>",
+        "Signature": "<redacted>"
+       },
+       "uuids": [
+        "991d411b-7c18-4105-a40e-ed8999546606"
+       ],
+       "fingerprint": "e728c9c24849",
+       "path_fingerprint": "7ee9ed73662f"
+      }
+     }
+    },
+    {
+     "element": "img[alt=Generated video thumbnail]",
+     "visible": true,
+     "attributes": [
+      "_ngcontent-ng-c3621283428",
+      "alt",
+      "class",
+      "draggable",
+      "src"
+     ],
+     "urls": {
+      "src": {
+       "kind": "https",
+       "host": "flow.google.com",
+       "path": "/asb/<tok:172>",
+       "query": {},
+       "uuids": [],
+       "fingerprint": "4c2ef07492ac",
+       "path_fingerprint": "52b6770c8e4c"
+      },
+      "currentSrc": {
+       "kind": "https",
+       "host": "flow.google.com",
+       "path": "/asb/<tok:172>",
+       "query": {},
+       "uuids": [],
+       "fingerprint": "4c2ef07492ac",
+       "path_fingerprint": "52b6770c8e4c"
+      }
+     }
+    },
+    {
+     "element": "img[alt=Ingredient image]",
+     "visible": true,
+     "attributes": [
+      "_ngcontent-ng-c245656320",
+      "alt",
+      "class",
+      "src"
+     ],
+     "urls": {
+      "src": {
+       "kind": "https",
+       "host": "flow-content.google",
+       "path": "/image/991d411b-7c18-4105-a40e-ed8999546606",
+       "query": {
+        "Expires": "<redacted>",
+        "KeyName": "<redacted>",
+        "Signature": "<redacted>"
+       },
+       "uuids": [
+        "991d411b-7c18-4105-a40e-ed8999546606"
+       ],
+       "fingerprint": "e728c9c24849",
+       "path_fingerprint": "7ee9ed73662f"
+      },
+      "currentSrc": {
+       "kind": "https",
+       "host": "flow-content.google",
+       "path": "/image/991d411b-7c18-4105-a40e-ed8999546606",
+       "query": {
+        "Expires": "<redacted>",
+        "KeyName": "<redacted>",
+        "Signature": "<redacted>"
+       },
+       "uuids": [
+        "991d411b-7c18-4105-a40e-ed8999546606"
+       ],
+       "fingerprint": "e728c9c24849",
+       "path_fingerprint": "7ee9ed73662f"
+      }
+     }
+    },
+    {
+     "element": "img",
+     "visible": true,
+     "attributes": [
+      "_ngcontent-ng-c649809404",
+      "alt",
+      "aria-hidden",
+      "class",
+      "src"
+     ],
+     "urls": {
+      "src": {
+       "kind": "data",
+       "mime": "image/jpeg",
+       "length": 3031
+      },
+      "currentSrc": {
+       "kind": "data",
+       "mime": "image/jpeg",
+       "length": 3031
+      }
+     }
+    },
+    {
+     "element": "img",
+     "visible": true,
+     "attributes": [
+      "_ngcontent-ng-c649809404",
+      "alt",
+      "aria-hidden",
+      "class",
+      "src"
+     ],
+     "urls": {
+      "src": {
+       "kind": "data",
+       "mime": "image/jpeg",
+       "length": 3031
+      },
+      "currentSrc": {
+       "kind": "data",
+       "mime": "image/jpeg",
+       "length": 3031
+      }
+     }
+    },
+    {
+     "element": "img",
+     "visible": true,
+     "attributes": [
+      "_ngcontent-ng-c649809404",
+      "alt",
+      "aria-hidden",
+      "class",
+      "src"
+     ],
+     "urls": {
+      "src": {
+       "kind": "data",
+       "mime": "image/jpeg",
+       "length": 3051
+      },
+      "currentSrc": {
+       "kind": "data",
+       "mime": "image/jpeg",
+       "length": 3051
+      }
+     }
+    },
+    {
+     "element": "img",
+     "visible": true,
+     "attributes": [
+      "_ngcontent-ng-c649809404",
+      "alt",
+      "aria-hidden",
+      "class",
+      "src"
+     ],
+     "urls": {
+      "src": {
+       "kind": "data",
+       "mime": "image/jpeg",
+       "length": 3039
+      },
+      "currentSrc": {
+       "kind": "data",
+       "mime": "image/jpeg",
+       "length": 3039
+      }
+     }
+    },
+    {
+     "element": "img",
+     "visible": true,
+     "attributes": [
+      "_ngcontent-ng-c649809404",
+      "alt",
+      "aria-hidden",
+      "class",
+      "src"
+     ],
+     "urls": {
+      "src": {
+       "kind": "data",
+       "mime": "image/jpeg",
+       "length": 3071
+      },
+      "currentSrc": {
+       "kind": "data",
+       "mime": "image/jpeg",
+       "length": 3071
+      }
+     }
+    },
+    {
+     "element": "img",
+     "visible": true,
+     "attributes": [
+      "_ngcontent-ng-c649809404",
+      "alt",
+      "aria-hidden",
+      "class",
+      "src"
+     ],
+     "urls": {
+      "src": {
+       "kind": "data",
+       "mime": "image/jpeg",
+       "length": 3055
+      },
+      "currentSrc": {
+       "kind": "data",
+       "mime": "image/jpeg",
+       "length": 3055
+      }
+     }
+    },
+    {
+     "element": "img",
+     "visible": true,
+     "attributes": [
+      "_ngcontent-ng-c649809404",
+      "alt",
+      "aria-hidden",
+      "class",
+      "src"
+     ],
+     "urls": {
+      "src": {
+       "kind": "data",
+       "mime": "image/jpeg",
+       "length": 3039
+      },
+      "currentSrc": {
+       "kind": "data",
+       "mime": "image/jpeg",
+       "length": 3039
+      }
+     }
+    },
+    {
+     "element": "img",
+     "visible": true,
+     "attributes": [
+      "_ngcontent-ng-c649809404",
+      "alt",
+      "aria-hidden",
+      "class",
+      "src"
+     ],
+     "urls": {
+      "src": {
+       "kind": "data",
+       "mime": "image/jpeg",
+       "length": 3071
+      },
+      "currentSrc": {
+       "kind": "data",
+       "mime": "image/jpeg",
+       "length": 3071
+      }
+     }
+    }
+   ],
+   "route_id_found_in": [],
+   "other_uuids": [
+    {
+     "where": "img[alt=Whisk_u2yivwz5ejzyqtzl1iy0udotcdnirtl2mgnz0sz.png].src",
+     "uuid": "a1166f7e-9203-4c27-b977-17cbd8fdca2c"
+    },
+    {
+     "where": "img[alt=Whisk_u2yivwz5ejzyqtzl1iy0udotcdnirtl2mgnz0sz.png].currentSrc",
+     "uuid": "a1166f7e-9203-4c27-b977-17cbd8fdca2c"
+    },
+    {
+     "where": "img[alt=Cat waving to camera].src",
+     "uuid": "24b5daf0-0332-41af-9443-ed152f26f756"
+    },
+    {
+     "where": "img[alt=Cat waving to camera].currentSrc",
+     "uuid": "24b5daf0-0332-41af-9443-ed152f26f756"
+    },
+    {
+     "where": "img[alt=Blumaro].src",
+     "uuid": "1ffdc2af-bd49-4422-b4bb-5e2b956e2772"
+    },
+    {
+     "where": "img[alt=Blumaro].currentSrc",
+     "uuid": "1ffdc2af-bd49-4422-b4bb-5e2b956e2772"
+    },
+    {
+     "where": "img[alt=blahiro].src",
+     "uuid": "04609515-3501-4200-8b04-a62e577ba6da"
+    },
+    {
+     "where": "img[alt=blahiro].currentSrc",
+     "uuid": "04609515-3501-4200-8b04-a62e577ba6da"
+    },
+    {
+     "where": "img[alt=Cat character wearing cute clothes].src",
+     "uuid": "ad48115d-c4c6-4cef-b460-61d660bb58a1"
+    },
+    {
+     "where": "img[alt=Cat character wearing cute clothes].currentSrc",
+     "uuid": "ad48115d-c4c6-4cef-b460-61d660bb58a1"
+    },
+    {
+     "where": "img[alt=Blatifa].src",
+     "uuid": "991d411b-7c18-4105-a40e-ed8999546606"
+    },
+    {
+     "where": "img[alt=Blatifa].currentSrc",
+     "uuid": "991d411b-7c18-4105-a40e-ed8999546606"
+    },
+    {
+     "where": "img[alt=Ingredient image].src",
+     "uuid": "991d411b-7c18-4105-a40e-ed8999546606"
+    },
+    {
+     "where": "img[alt=Ingredient image].currentSrc",
+     "uuid": "991d411b-7c18-4105-a40e-ed8999546606"
+    }
+   ],
+   "stop_reasons": []
+  }
+ ],
+ "navigation": [
+  {
+   "at": "2026-11-03T14:11:18+00:00",
+   "to": "/project/562eec3d-9c48-4802-b152-3ed1d8c91ebd/edit/6e7ded7f-6bee-45a6-9202-e15e565abe52",
+   "why": "read-only detail observation (user-approved URL navigation)",
+   "landed": "/project/562eec3d-9c48-4802-b152-3ed1d8c91ebd/edit/6e7ded7f-6bee-45a6-9202-e15e565abe52"
+  },
+  {
+   "at": "2026-11-03T14:11:56+00:00",
+   "to": "/project/562eec3d-9c48-4802-b152-3ed1d8c91ebd",
+   "why": "return to the project grid",
+   "landed": "/project/562eec3d-9c48-4802-b152-3ed1d8c91ebd"
+  }
+ ],
+ "stop_reasons": [
+  "CREDIT_BALANCE_UNREADABLE_WITHOUT_CLICK"
+ ]
+}

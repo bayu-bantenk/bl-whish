@@ -1,0 +1,792 @@
+{
+ "url_shape": {
+  "kind": "https",
+  "host": "flow.google.com",
+  "path": "/project/562eec3d-9c48-4802-b152-3ed1d8c91ebd/edit/a25e3913-9eec-40e9-aafa-cf6c76961965",
+  "query": {},
+  "uuids": [
+   "562eec3d-9c48-4802-b152-3ed1d8c91ebd",
+   "a25e3913-9eec-40e9-aafa-cf6c76961965"
+  ],
+  "fingerprint": "455e860c87d1",
+  "path_fingerprint": "8cd5b2ffe53f"
+ },
+ "route_id": "a25e3913-9eec-40e9-aafa-cf6c76961965",
+ "identity": {
+  "status": "UNKNOWN",
+  "fingerprint": null,
+  "read_at": "2026-11-06T02:42:28+00:00",
+  "detail": "identity button BROKEN: not found"
+ },
+ "credits": {
+  "status": "UNAVAILABLE_WITHOUT_CLICK",
+  "balance": null,
+  "detail": "the balance is only shown inside the account panel, which would need a click"
+ },
+ "dialogs": [],
+ "media": [
+  {
+   "element": "img[alt=Pink octopus waving tentacle]",
+   "visible": true,
+   "attributes": [
+    "_ngcontent-ng-c3161767800",
+    "alt",
+    "class",
+    "draggable",
+    "src"
+   ],
+   "urls": {
+    "src": {
+     "kind": "https",
+     "host": "storage.googleapis.com",
+     "path": "/<tok:18>/image/76f20f8d-45fe-4ba1-9709-5e59e3511900",
+     "query": {
+      "GoogleAccessId": "<redacted>",
+      "Expires": "<redacted>",
+      "Signature": "<redacted>"
+     },
+     "uuids": [
+      "76f20f8d-45fe-4ba1-9709-5e59e3511900"
+     ],
+     "fingerprint": "cd8c533edc76",
+     "path_fingerprint": "450f04a70034"
+    },
+    "currentSrc": {
+     "kind": "https",
+     "host": "storage.googleapis.com",
+     "path": "/<tok:18>/image/76f20f8d-45fe-4ba1-9709-5e59e3511900",
+     "query": {
+      "GoogleAccessId": "<redacted>",
+      "Expires": "<redacted>",
+      "Signature": "<redacted>"
+     },
+     "uuids": [
+      "76f20f8d-45fe-4ba1-9709-5e59e3511900"
+     ],
+     "fingerprint": "cd8c533edc76",
+     "path_fingerprint": "450f04a70034"
+    }
+   }
+  },
+  {
+   "element": "img[alt=Pink octopus waving tentacle]",
+   "visible": true,
+   "attributes": [
+    "_ngcontent-ng-c3161767800",
+    "alt",
+    "class",
+    "draggable",
+    "src"
+   ],
+   "urls": {
+    "src": {
+     "kind": "https",
+     "host": "storage.googleapis.com",
+     "path": "/<tok:18>/image/c28313ef-fab9-4c19-8fe4-2ffd8912ecad",
+     "query": {
+      "GoogleAccessId": "<redacted>",
+      "Expires": "<redacted>",
+      "Signature": "<redacted>"
+     },
+     "uuids": [
+      "c28313ef-fab9-4c19-8fe4-2ffd8912ecad"
+     ],
+     "fingerprint": "0f4ea94b632e",
+     "path_fingerprint": "890801fde645"
+    },
+    "currentSrc": {
+     "kind": "https",
+     "host": "storage.googleapis.com",
+     "path": "/<tok:18>/image/c28313ef-fab9-4c19-8fe4-2ffd8912ecad",
+     "query": {
+      "GoogleAccessId": "<redacted>",
+      "Expires": "<redacted>",
+      "Signature": "<redacted>"
+     },
+     "uuids": [
+      "c28313ef-fab9-4c19-8fe4-2ffd8912ecad"
+     ],
+     "fingerprint": "0f4ea94b632e",
+     "path_fingerprint": "890801fde645"
+    }
+   }
+  },
+  {
+   "element": "img[alt=Pink octopus waving in water]",
+   "visible": true,
+   "attributes": [
+    "_ngcontent-ng-c3161767800",
+    "alt",
+    "class",
+    "draggable",
+    "src"
+   ],
+   "urls": {
+    "src": {
+     "kind": "https",
+     "host": "storage.googleapis.com",
+     "path": "/<tok:18>/image/8a1f5e9f-3cfd-47e8-b928-760a9fd405a4",
+     "query": {
+      "GoogleAccessId": "<redacted>",
+      "Expires": "<redacted>",
+      "Signature": "<redacted>"
+     },
+     "uuids": [
+      "8a1f5e9f-3cfd-47e8-b928-760a9fd405a4"
+     ],
+     "fingerprint": "15b478e67014",
+     "path_fingerprint": "239795709c44"
+    },
+    "currentSrc": {
+     "kind": "https",
+     "host": "storage.googleapis.com",
+     "path": "/<tok:18>/image/8a1f5e9f-3cfd-47e8-b928-760a9fd405a4",
+     "query": {
+      "GoogleAccessId": "<redacted>",
+      "Expires": "<redacted>",
+      "Signature": "<redacted>"
+     },
+     "uuids": [
+      "8a1f5e9f-3cfd-47e8-b928-760a9fd405a4"
+     ],
+     "fingerprint": "15b478e67014",
+     "path_fingerprint": "239795709c44"
+    }
+   }
+  },
+  {
+   "element": "img[alt=Whisk_u2yivwz5ejzyqtzl1iy0udotcdnirtl2mgnz0sz.png]",
+   "visible": true,
+   "attributes": [
+    "_ngcontent-ng-c3161767800",
+    "alt",
+    "class",
+    "draggable",
+    "src"
+   ],
+   "urls": {
+    "src": {
+     "kind": "https",
+     "host": "flow-content.google",
+     "path": "/image/a1166f7e-9203-4c27-b977-17cbd8fdca2c",
+     "query": {
+      "Expires": "<redacted>",
+      "KeyName": "<redacted>",
+      "Signature": "<redacted>"
+     },
+     "uuids": [
+      "a1166f7e-9203-4c27-b977-17cbd8fdca2c"
+     ],
+     "fingerprint": "5d5689b18c80",
+     "path_fingerprint": "8cf5eb89d483"
+    },
+    "currentSrc": {
+     "kind": "https",
+     "host": "flow-content.google",
+     "path": "/image/a1166f7e-9203-4c27-b977-17cbd8fdca2c",
+     "query": {
+      "Expires": "<redacted>",
+      "KeyName": "<redacted>",
+      "Signature": "<redacted>"
+     },
+     "uuids": [
+      "a1166f7e-9203-4c27-b977-17cbd8fdca2c"
+     ],
+     "fingerprint": "5d5689b18c80",
+     "path_fingerprint": "8cf5eb89d483"
+    }
+   }
+  },
+  {
+   "element": "img[alt=Cat waving to camera]",
+   "visible": true,
+   "attributes": [
+    "_ngcontent-ng-c3161767800",
+    "alt",
+    "class",
+    "draggable",
+    "src"
+   ],
+   "urls": {
+    "src": {
+     "kind": "https",
+     "host": "storage.googleapis.com",
+     "path": "/<tok:18>/image/24b5daf0-0332-41af-9443-ed152f26f756",
+     "query": {
+      "GoogleAccessId": "<redacted>",
+      "Expires": "<redacted>",
+      "Signature": "<redacted>"
+     },
+     "uuids": [
+      "24b5daf0-0332-41af-9443-ed152f26f756"
+     ],
+     "fingerprint": "9783f22ac055",
+     "path_fingerprint": "743c81535ff6"
+    },
+    "currentSrc": {
+     "kind": "https",
+     "host": "storage.googleapis.com",
+     "path": "/<tok:18>/image/24b5daf0-0332-41af-9443-ed152f26f756",
+     "query": {
+      "GoogleAccessId": "<redacted>",
+      "Expires": "<redacted>",
+      "Signature": "<redacted>"
+     },
+     "uuids": [
+      "24b5daf0-0332-41af-9443-ed152f26f756"
+     ],
+     "fingerprint": "9783f22ac055",
+     "path_fingerprint": "743c81535ff6"
+    }
+   }
+  },
+  {
+   "element": "img[alt=Blumaro]",
+   "visible": true,
+   "attributes": [
+    "_ngcontent-ng-c3161767800",
+    "alt",
+    "class",
+    "draggable",
+    "src"
+   ],
+   "urls": {
+    "src": {
+     "kind": "https",
+     "host": "flow-content.google",
+     "path": "/image/1ffdc2af-bd49-4422-b4bb-5e2b956e2772",
+     "query": {
+      "Expires": "<redacted>",
+      "KeyName": "<redacted>",
+      "Signature": "<redacted>"
+     },
+     "uuids": [
+      "1ffdc2af-bd49-4422-b4bb-5e2b956e2772"
+     ],
+     "fingerprint": "7eef99730559",
+     "path_fingerprint": "218fff4ebf94"
+    },
+    "currentSrc": {
+     "kind": "https",
+     "host": "flow-content.google",
+     "path": "/image/1ffdc2af-bd49-4422-b4bb-5e2b956e2772",
+     "query": {
+      "Expires": "<redacted>",
+      "KeyName": "<redacted>",
+      "Signature": "<redacted>"
+     },
+     "uuids": [
+      "1ffdc2af-bd49-4422-b4bb-5e2b956e2772"
+     ],
+     "fingerprint": "7eef99730559",
+     "path_fingerprint": "218fff4ebf94"
+    }
+   }
+  },
+  {
+   "element": "img[alt=blahiro]",
+   "visible": true,
+   "attributes": [
+    "_ngcontent-ng-c3161767800",
+    "alt",
+    "class",
+    "draggable",
+    "src"
+   ],
+   "urls": {
+    "src": {
+     "kind": "https",
+     "host": "flow-content.google",
+     "path": "/image/04609515-3501-4200-8b04-a62e577ba6da",
+     "query": {
+      "Expires": "<redacted>",
+      "KeyName": "<redacted>",
+      "Signature": "<redacted>"
+     },
+     "uuids": [
+      "04609515-3501-4200-8b04-a62e577ba6da"
+     ],
+     "fingerprint": "4a5882004d75",
+     "path_fingerprint": "449cbdb603dc"
+    },
+    "currentSrc": {
+     "kind": "https",
+     "host": "flow-content.google",
+     "path": "/image/04609515-3501-4200-8b04-a62e577ba6da",
+     "query": {
+      "Expires": "<redacted>",
+      "KeyName": "<redacted>",
+      "Signature": "<redacted>"
+     },
+     "uuids": [
+      "04609515-3501-4200-8b04-a62e577ba6da"
+     ],
+     "fingerprint": "4a5882004d75",
+     "path_fingerprint": "449cbdb603dc"
+    }
+   }
+  },
+  {
+   "element": "img[alt=Cat character wearing cute clothes]",
+   "visible": true,
+   "attributes": [
+    "_ngcontent-ng-c3161767800",
+    "alt",
+    "class",
+    "draggable",
+    "src"
+   ],
+   "urls": {
+    "src": {
+     "kind": "https",
+     "host": "flow-content.google",
+     "path": "/image/ad48115d-c4c6-4cef-b460-61d660bb58a1",
+     "query": {
+      "Expires": "<redacted>",
+      "KeyName": "<redacted>",
+      "Signature": "<redacted>"
+     },
+     "uuids": [
+      "ad48115d-c4c6-4cef-b460-61d660bb58a1"
+     ],
+     "fingerprint": "fc07b7bfbef7",
+     "path_fingerprint": "061826ab5811"
+    },
+    "currentSrc": {
+     "kind": "https",
+     "host": "flow-content.google",
+     "path": "/image/ad48115d-c4c6-4cef-b460-61d660bb58a1",
+     "query": {
+      "Expires": "<redacted>",
+      "KeyName": "<redacted>",
+      "Signature": "<redacted>"
+     },
+     "uuids": [
+      "ad48115d-c4c6-4cef-b460-61d660bb58a1"
+     ],
+     "fingerprint": "fc07b7bfbef7",
+     "path_fingerprint": "061826ab5811"
+    }
+   }
+  },
+  {
+   "element": "img[alt=Blatifa]",
+   "visible": true,
+   "attributes": [
+    "_ngcontent-ng-c3161767800",
+    "alt",
+    "class",
+    "draggable",
+    "src"
+   ],
+   "urls": {
+    "src": {
+     "kind": "https",
+     "host": "flow-content.google",
+     "path": "/image/991d411b-7c18-4105-a40e-ed8999546606",
+     "query": {
+      "Expires": "<redacted>",
+      "KeyName": "<redacted>",
+      "Signature": "<redacted>"
+     },
+     "uuids": [
+      "991d411b-7c18-4105-a40e-ed8999546606"
+     ],
+     "fingerprint": "b90d060c5b3c",
+     "path_fingerprint": "7ee9ed73662f"
+    },
+    "currentSrc": {
+     "kind": "https",
+     "host": "flow-content.google",
+     "path": "/image/991d411b-7c18-4105-a40e-ed8999546606",
+     "query": {
+      "Expires": "<redacted>",
+      "KeyName": "<redacted>",
+      "Signature": "<redacted>"
+     },
+     "uuids": [
+      "991d411b-7c18-4105-a40e-ed8999546606"
+     ],
+     "fingerprint": "b90d060c5b3c",
+     "path_fingerprint": "7ee9ed73662f"
+    }
+   }
+  },
+  {
+   "element": "img[alt=Generated video thumbnail]",
+   "visible": true,
+   "attributes": [
+    "_ngcontent-ng-c1435208913",
+    "alt",
+    "class",
+    "draggable",
+    "src"
+   ],
+   "urls": {
+    "src": {
+     "kind": "https",
+     "host": "flow.google.com",
+     "path": "/asb/<tok:172>",
+     "query": {},
+     "uuids": [],
+     "fingerprint": "7638623a888c",
+     "path_fingerprint": "af65f07c0a6e"
+    },
+    "currentSrc": {
+     "kind": "https",
+     "host": "flow.google.com",
+     "path": "/asb/<tok:172>",
+     "query": {},
+     "uuids": [],
+     "fingerprint": "7638623a888c",
+     "path_fingerprint": "af65f07c0a6e"
+    }
+   }
+  },
+  {
+   "element": "img[alt=Character ingredient image]",
+   "visible": true,
+   "attributes": [
+    "_ngcontent-ng-c4154025832",
+    "alt",
+    "class",
+    "src"
+   ],
+   "urls": {
+    "src": {
+     "kind": "https",
+     "host": "flow.google.com",
+     "path": "/asb/<tok:182>",
+     "query": {},
+     "uuids": [],
+     "fingerprint": "ee8fbb40b1db",
+     "path_fingerprint": "393ad0343c02"
+    },
+    "currentSrc": {
+     "kind": "https",
+     "host": "flow.google.com",
+     "path": "/asb/<tok:182>",
+     "query": {},
+     "uuids": [],
+     "fingerprint": "ee8fbb40b1db",
+     "path_fingerprint": "393ad0343c02"
+    }
+   }
+  },
+  {
+   "element": "img",
+   "visible": true,
+   "attributes": [
+    "_ngcontent-ng-c3351535281",
+    "alt",
+    "aria-hidden",
+    "class",
+    "src"
+   ],
+   "urls": {
+    "src": {
+     "kind": "data",
+     "mime": "image/jpeg",
+     "length": 2031
+    },
+    "currentSrc": {
+     "kind": "data",
+     "mime": "image/jpeg",
+     "length": 2031
+    }
+   }
+  },
+  {
+   "element": "img",
+   "visible": true,
+   "attributes": [
+    "_ngcontent-ng-c3351535281",
+    "alt",
+    "aria-hidden",
+    "class",
+    "src"
+   ],
+   "urls": {
+    "src": {
+     "kind": "data",
+     "mime": "image/jpeg",
+     "length": 2063
+    },
+    "currentSrc": {
+     "kind": "data",
+     "mime": "image/jpeg",
+     "length": 2063
+    }
+   }
+  },
+  {
+   "element": "img",
+   "visible": true,
+   "attributes": [
+    "_ngcontent-ng-c3351535281",
+    "alt",
+    "aria-hidden",
+    "class",
+    "src"
+   ],
+   "urls": {
+    "src": {
+     "kind": "data",
+     "mime": "image/jpeg",
+     "length": 2055
+    },
+    "currentSrc": {
+     "kind": "data",
+     "mime": "image/jpeg",
+     "length": 2055
+    }
+   }
+  },
+  {
+   "element": "img",
+   "visible": true,
+   "attributes": [
+    "_ngcontent-ng-c3351535281",
+    "alt",
+    "aria-hidden",
+    "class",
+    "src"
+   ],
+   "urls": {
+    "src": {
+     "kind": "data",
+     "mime": "image/jpeg",
+     "length": 2147
+    },
+    "currentSrc": {
+     "kind": "data",
+     "mime": "image/jpeg",
+     "length": 2147
+    }
+   }
+  },
+  {
+   "element": "img",
+   "visible": true,
+   "attributes": [
+    "_ngcontent-ng-c3351535281",
+    "alt",
+    "aria-hidden",
+    "class",
+    "src"
+   ],
+   "urls": {
+    "src": {
+     "kind": "data",
+     "mime": "image/jpeg",
+     "length": 2123
+    },
+    "currentSrc": {
+     "kind": "data",
+     "mime": "image/jpeg",
+     "length": 2123
+    }
+   }
+  },
+  {
+   "element": "img",
+   "visible": true,
+   "attributes": [
+    "_ngcontent-ng-c3351535281",
+    "alt",
+    "aria-hidden",
+    "class",
+    "src"
+   ],
+   "urls": {
+    "src": {
+     "kind": "data",
+     "mime": "image/jpeg",
+     "length": 2095
+    },
+    "currentSrc": {
+     "kind": "data",
+     "mime": "image/jpeg",
+     "length": 2095
+    }
+   }
+  },
+  {
+   "element": "img",
+   "visible": true,
+   "attributes": [
+    "_ngcontent-ng-c3351535281",
+    "alt",
+    "aria-hidden",
+    "class",
+    "src"
+   ],
+   "urls": {
+    "src": {
+     "kind": "data",
+     "mime": "image/jpeg",
+     "length": 2083
+    },
+    "currentSrc": {
+     "kind": "data",
+     "mime": "image/jpeg",
+     "length": 2083
+    }
+   }
+  },
+  {
+   "element": "img",
+   "visible": true,
+   "attributes": [
+    "_ngcontent-ng-c3351535281",
+    "alt",
+    "aria-hidden",
+    "class",
+    "src"
+   ],
+   "urls": {
+    "src": {
+     "kind": "data",
+     "mime": "image/jpeg",
+     "length": 2087
+    },
+    "currentSrc": {
+     "kind": "data",
+     "mime": "image/jpeg",
+     "length": 2087
+    }
+   }
+  },
+  {
+   "element": "img",
+   "visible": true,
+   "attributes": [
+    "alt",
+    "aria-hidden",
+    "class",
+    "data-noaft",
+    "src",
+    "srcset"
+   ],
+   "urls": {
+    "src": {
+     "kind": "https",
+     "host": "lh3.google.com",
+     "path": "/u/0/ogw/<tok:59>",
+     "query": {},
+     "uuids": [],
+     "fingerprint": "e7ec91f06a19",
+     "path_fingerprint": "3f0b999fb3b4"
+    },
+    "srcset": {
+     "kind": "https",
+     "host": "lh3.google.com",
+     "path": "/u/0/ogw/<tok:70>/lh3.google.com/u/0/ogw/<tok:63>",
+     "query": {},
+     "uuids": [],
+     "fingerprint": "f2a19421e4f2",
+     "path_fingerprint": "39362b5391e2"
+    },
+    "currentSrc": {
+     "kind": "https",
+     "host": "lh3.google.com",
+     "path": "/u/0/ogw/<tok:59>",
+     "query": {},
+     "uuids": [],
+     "fingerprint": "35a1e9db7b6d",
+     "path_fingerprint": "c979532a2466"
+    }
+   }
+  }
+ ],
+ "route_id_found_in": [],
+ "other_uuids": [
+  {
+   "where": "img[alt=Pink octopus waving tentacle].src",
+   "uuid": "76f20f8d-45fe-4ba1-9709-5e59e3511900"
+  },
+  {
+   "where": "img[alt=Pink octopus waving tentacle].currentSrc",
+   "uuid": "76f20f8d-45fe-4ba1-9709-5e59e3511900"
+  },
+  {
+   "where": "img[alt=Pink octopus waving tentacle].src",
+   "uuid": "c28313ef-fab9-4c19-8fe4-2ffd8912ecad"
+  },
+  {
+   "where": "img[alt=Pink octopus waving tentacle].currentSrc",
+   "uuid": "c28313ef-fab9-4c19-8fe4-2ffd8912ecad"
+  },
+  {
+   "where": "img[alt=Pink octopus waving in water].src",
+   "uuid": "8a1f5e9f-3cfd-47e8-b928-760a9fd405a4"
+  },
+  {
+   "where": "img[alt=Pink octopus waving in water].currentSrc",
+   "uuid": "8a1f5e9f-3cfd-47e8-b928-760a9fd405a4"
+  },
+  {
+   "where": "img[alt=Whisk_u2yivwz5ejzyqtzl1iy0udotcdnirtl2mgnz0sz.png].src",
+   "uuid": "a1166f7e-9203-4c27-b977-17cbd8fdca2c"
+  },
+  {
+   "where": "img[alt=Whisk_u2yivwz5ejzyqtzl1iy0udotcdnirtl2mgnz0sz.png].currentSrc",
+   "uuid": "a1166f7e-9203-4c27-b977-17cbd8fdca2c"
+  },
+  {
+   "where": "img[alt=Cat waving to camera].src",
+   "uuid": "24b5daf0-0332-41af-9443-ed152f26f756"
+  },
+  {
+   "where": "img[alt=Cat waving to camera].currentSrc",
+   "uuid": "24b5daf0-0332-41af-9443-ed152f26f756"
+  },
+  {
+   "where": "img[alt=Blumaro].src",
+   "uuid": "1ffdc2af-bd49-4422-b4bb-5e2b956e2772"
+  },
+  {
+   "where": "img[alt=Blumaro].currentSrc",
+   "uuid": "1ffdc2af-bd49-4422-b4bb-5e2b956e2772"
+  },
+  {
+   "where": "img[alt=blahiro].src",
+   "uuid": "04609515-3501-4200-8b04-a62e577ba6da"
+  },
+  {
+   "where": "img[alt=blahiro].currentSrc",
+   "uuid": "04609515-3501-4200-8b04-a62e577ba6da"
+  },
+  {
+   "where": "img[alt=Cat character wearing cute clothes].src",
+   "uuid": "ad48115d-c4c6-4cef-b460-61d660bb58a1"
+  },
+  {
+   "where": "img[alt=Cat character wearing cute clothes].currentSrc",
+   "uuid": "ad48115d-c4c6-4cef-b460-61d660bb58a1"
+  },
+  {
+   "where": "img[alt=Blatifa].src",
+   "uuid": "991d411b-7c18-4105-a40e-ed8999546606"
+  },
+  {
+   "where": "img[alt=Blatifa].currentSrc",
+   "uuid": "991d411b-7c18-4105-a40e-ed8999546606"
+  }
+ ],
+ "stop_reasons": [
+  "IDENTITY_UNREADABLE_OR_AMBIGUOUS"
+ ],
+ "markers": {
+  "[blatifa-exp-12ef8b99]": [
+   "text"
+  ],
+  "[blatifa-exp-164d4283]": [],
+  "ABSOLUTELY PRESERVE THIS OCTOPUS MOUTH": [
+   "text"
+  ],
+  "Character ingredient image": [
+   "img"
+  ]
+ }
+}

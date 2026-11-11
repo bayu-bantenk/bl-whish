@@ -1,0 +1,13 @@
+== resource gate 2026-11-09T07:06:06Z
+disk free: 12.33 GiB
+vm.swapusage: total = 0.00M  used = 0.00M  free = 0.00M  (encrypted)
+System-wide memory free percentage: 42%
+other pytest/python test processes:
+1320 /Applications/Google Chrome.app/Contents/Frameworks/Google Chrome Framework.framework/Versions/156.0.8078.80/Helpers/chrome_crashpad_handler --monitor-self-annotation=ptype=crashpad-handler --database=/Users/bayu.rieswanto_mdp/Library/Application Support/Google/Chrome/Crashpad --metrics-dir=/Users/bayu.rieswanto_mdp/Library/Application Support/Google/Chrome --url=https://clients2.google.com/cr/report --annotation=channel= --annotation=plat=OS X --annotation=prod=Chrome_Mac --annotation=ver=156.0.8078.80 --handshake-fd=5
+1452 /Users/bayu.rieswanto_mdp/.local/bin/claude --chrome-native-host
+1636 /Applications/Google Chrome.app/Contents/Frameworks/Google Chrome Framework.framework/Versions/156.0.8078.80/Helpers/Google Chrome Helper (Aperitif Renderer).app/Contents/MacOS/Google Chrome Helper (Aperitif Renderer) --type=renderer --top-chrome-webui --metrics-client-id=90bb5634-0a35-457d-aa5a-e68313e45d24 --origin-trial-disabled-features=CanvasTextNg|WebAssemblyCustomDescriptors --lang=en-US --num-raster-threads=4 --enable-zero-copy --enable-gpu-memory-buffer-compositor-resources --enable-main-frame-before-activation --renderer-client-id=18 --launch-time-ticks=104569171 --shared-files --metrics-shmem-handle=1752395122,r,12187307285134946110,13580005931050276796,1572864 --field-trial-handle=1718379636,r,6505274087210213286,934940202838656226,262144 --variations-seed-version=20261108-030038.655000-production --pseudonymization-salt-handle=1935764596,r,15007011058535885597,9326913519675168377,4 --trace-process-track-uuid=3190709003178624776 --seatbelt-client=230
+== after full regression 2026-11-09
+disk free: 11.77 GiB
+vm.swapusage: total = 1024.00M  used = 309.19M  free = 714.81M
+System-wide memory free percentage: 42%
+result: 556 passed, 7 skipped in 404.12s (exit 0)

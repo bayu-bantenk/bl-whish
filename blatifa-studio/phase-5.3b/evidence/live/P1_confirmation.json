@@ -1,0 +1,33 @@
+{
+ "rows": [
+  "paragraph | Would you like me to kick off this 1 video generation, costing 10 credits?",
+  "radiogroup | Permission options",
+  "radio | Approve",
+  "radio | Always approve",
+  "radio | Reject",
+  "button | Good response",
+  "button | Bad response",
+  "button | Copy",
+  "button | Flag output",
+  "textbox | What do you want to create?",
+  "button | Add ingredients to the prompt box",
+  "button | Agent instructions",
+  "button | Settings",
+  "button | Start generation ['disabled']",
+  "paragraph | Google Flow can make mistakes, so double check it"
+ ],
+ "confirmation": {
+  "problem": "OK",
+  "state": "OPEN",
+  "cost": 10,
+  "cost_status": "READABLE",
+  "blocking": true
+ },
+ "dialogs": [],
+ "hovered": [],
+ "markers": {
+  "[blatifa-exp-164d4283]": [
+   "text"
+  ]
+ }
+}

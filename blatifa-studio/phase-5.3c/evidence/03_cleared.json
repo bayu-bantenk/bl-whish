@@ -1,0 +1,469 @@
+{
+ "label": "03_cleared",
+ "at": "2026-11-05T14:57:56+00:00",
+ "url": "/project/562eec3d-9c48-4802-b152-3ed1d8c91ebd",
+ "identity": {
+  "status": "VERIFIED",
+  "fingerprint": "d6c9f4583fa6",
+  "read_at": "2026-11-05T14:57:56+00:00",
+  "detail": ""
+ },
+ "dialogs": [],
+ "nodes": [
+  {
+   "role": "button",
+   "name": "Home",
+   "attrs": []
+  },
+  {
+   "role": "heading",
+   "name": "Blatifa",
+   "attrs": [
+    "level=1"
+   ]
+  },
+  {
+   "role": "textbox",
+   "name": "Editable text",
+   "attrs": []
+  },
+  {
+   "role": "button",
+   "name": "More options for the project",
+   "attrs": []
+  },
+  {
+   "role": "button",
+   "name": "Search",
+   "attrs": []
+  },
+  {
+   "role": "textbox",
+   "name": "Search",
+   "attrs": []
+  },
+  {
+   "role": "button",
+   "name": "Filtering and sorting options",
+   "attrs": []
+  },
+  {
+   "role": "button",
+   "name": "Add media menu",
+   "attrs": []
+  },
+  {
+   "role": "button",
+   "name": "Product help",
+   "attrs": []
+  },
+  {
+   "role": "button",
+   "name": "Settings",
+   "attrs": []
+  },
+  {
+   "role": "button",
+   "name": "More options",
+   "attrs": []
+  },
+  {
+   "role": "button",
+   "name": "Account details",
+   "attrs": []
+  },
+  {
+   "role": "button",
+   "name": "<redacted>",
+   "attrs": []
+  },
+  {
+   "role": "button",
+   "name": "All media",
+   "attrs": []
+  },
+  {
+   "role": "button",
+   "name": "Images",
+   "attrs": []
+  },
+  {
+   "role": "button",
+   "name": "Videos",
+   "attrs": []
+  },
+  {
+   "role": "button",
+   "name": "Characters",
+   "attrs": []
+  },
+  {
+   "role": "button",
+   "name": "Scenes",
+   "attrs": []
+  },
+  {
+   "role": "button",
+   "name": "Uploads",
+   "attrs": []
+  },
+  {
+   "role": "button",
+   "name": "Create collection",
+   "attrs": []
+  },
+  {
+   "role": "button",
+   "name": "Collapse",
+   "attrs": []
+  },
+  {
+   "role": "group",
+   "name": "Pink octopus waving tentacle",
+   "attrs": []
+  },
+  {
+   "role": "img",
+   "name": "Generated video thumbnail",
+   "attrs": []
+  },
+  {
+   "role": "group",
+   "name": "Pink octopus waving in water",
+   "attrs": []
+  },
+  {
+   "role": "group",
+   "name": "Sea Lion",
+   "attrs": []
+  },
+  {
+   "role": "img",
+   "name": "Character thumbnail",
+   "attrs": []
+  },
+  {
+   "role": "group",
+   "name": "Octopus",
+   "attrs": []
+  },
+  {
+   "role": "img",
+   "name": "Character thumbnail",
+   "attrs": []
+  },
+  {
+   "role": "group",
+   "name": "Dolphin",
+   "attrs": []
+  },
+  {
+   "role": "img",
+   "name": "Character thumbnail",
+   "attrs": []
+  },
+  {
+   "role": "group",
+   "name": "Whisk_u2yivwz5ejzyqtzl1iy0udotcdnirtl2mgnz0sz.png",
+   "attrs": []
+  },
+  {
+   "role": "img",
+   "name": "Tile displaying a user's image",
+   "attrs": []
+  },
+  {
+   "role": "group",
+   "name": "Cat waving to camera",
+   "attrs": []
+  },
+  {
+   "role": "img",
+   "name": "Generated video thumbnail",
+   "attrs": []
+  },
+  {
+   "role": "group",
+   "name": "Blumaro",
+   "attrs": []
+  },
+  {
+   "role": "img",
+   "name": "Tile displaying a user's image",
+   "attrs": []
+  },
+  {
+   "role": "group",
+   "name": "blahiro",
+   "attrs": []
+  },
+  {
+   "role": "img",
+   "name": "Tile displaying a user's image",
+   "attrs": []
+  },
+  {
+   "role": "group",
+   "name": "Cat character wearing cute clothes",
+   "attrs": []
+  },
+  {
+   "role": "img",
+   "name": "Tile displaying a user's image",
+   "attrs": []
+  },
+  {
+   "role": "group",
+   "name": "Blatifa",
+   "attrs": []
+  },
+  {
+   "role": "img",
+   "name": "Tile displaying a user's image",
+   "attrs": []
+  },
+  {
+   "role": "button",
+   "name": "Open session history",
+   "attrs": []
+  },
+  {
+   "role": "heading",
+   "name": "Video Generation Token Costs",
+   "attrs": [
+    "level=2"
+   ]
+  },
+  {
+   "role": "button",
+   "name": "Start new session",
+   "attrs": []
+  },
+  {
+   "role": "button",
+   "name": "Close",
+   "attrs": []
+  },
+  {
+   "role": "heading",
+   "name": "1. Model Omni 1.1 Flash",
+   "attrs": [
+    "level=3"
+   ]
+  },
+  {
+   "role": "heading",
+   "name": "2. Model Seri Veo 3.1 (Hanya Resolusi 720p)",
+   "attrs": [
+    "level=3"
+   ]
+  },
+  {
+   "role": "button",
+   "name": "Good response",
+   "attrs": []
+  },
+  {
+   "role": "button",
+   "name": "Bad response",
+   "attrs": []
+  },
+  {
+   "role": "button",
+   "name": "Copy",
+   "attrs": []
+  },
+  {
+   "role": "button",
+   "name": "Flag output",
+   "attrs": []
+  },
+  {
+   "role": "radio",
+   "name": "Approve",
+   "attrs": [
+    "checked",
+    "disabled"
+   ]
+  },
+  {
+   "role": "radio",
+   "name": "Always approve",
+   "attrs": [
+    "disabled"
+   ]
+  },
+  {
+   "role": "radio",
+   "name": "Reject",
+   "attrs": [
+    "disabled"
+   ]
+  },
+  {
+   "role": "button",
+   "name": "Good response",
+   "attrs": []
+  },
+  {
+   "role": "button",
+   "name": "Bad response",
+   "attrs": []
+  },
+  {
+   "role": "button",
+   "name": "Copy",
+   "attrs": []
+  },
+  {
+   "role": "button",
+   "name": "Flag output",
+   "attrs": []
+  },
+  {
+   "role": "group",
+   "name": "Media options gallery",
+   "attrs": []
+  },
+  {
+   "role": "button",
+   "name": "Open video in editor",
+   "attrs": []
+  },
+  {
+   "role": "img",
+   "name": "One small pink octopus floats gently in calm, clear blue water against a plain, simple background and slowly waves one t",
+   "attrs": []
+  },
+  {
+   "role": "button",
+   "name": "Good response",
+   "attrs": []
+  },
+  {
+   "role": "button",
+   "name": "Bad response",
+   "attrs": []
+  },
+  {
+   "role": "button",
+   "name": "Copy",
+   "attrs": []
+  },
+  {
+   "role": "button",
+   "name": "Flag output",
+   "attrs": []
+  },
+  {
+   "role": "radio",
+   "name": "Approve",
+   "attrs": [
+    "checked",
+    "disabled"
+   ]
+  },
+  {
+   "role": "radio",
+   "name": "Always approve",
+   "attrs": [
+    "disabled"
+   ]
+  },
+  {
+   "role": "radio",
+   "name": "Reject",
+   "attrs": [
+    "disabled"
+   ]
+  },
+  {
+   "role": "button",
+   "name": "Good response",
+   "attrs": []
+  },
+  {
+   "role": "button",
+   "name": "Bad response",
+   "attrs": []
+  },
+  {
+   "role": "button",
+   "name": "Copy",
+   "attrs": []
+  },
+  {
+   "role": "button",
+   "name": "Flag output",
+   "attrs": []
+  },
+  {
+   "role": "group",
+   "name": "Media options gallery",
+   "attrs": []
+  },
+  {
+   "role": "button",
+   "name": "Open video in editor",
+   "attrs": []
+  },
+  {
+   "role": "img",
+   "name": "Soft 3D animated family-friendly style, warm cozy lighting, consistent character design across all scenes, no text, no s",
+   "attrs": []
+  },
+  {
+   "role": "button",
+   "name": "Good response",
+   "attrs": []
+  },
+  {
+   "role": "button",
+   "name": "Bad response",
+   "attrs": []
+  },
+  {
+   "role": "button",
+   "name": "Copy",
+   "attrs": []
+  },
+  {
+   "role": "button",
+   "name": "Flag output",
+   "attrs": []
+  },
+  {
+   "role": "textbox",
+   "name": "What do you want to create?",
+   "attrs": []
+  },
+  {
+   "role": "button",
+   "name": "Add ingredients to the prompt box",
+   "attrs": []
+  },
+  {
+   "role": "button",
+   "name": "Agent instructions",
+   "attrs": []
+  },
+  {
+   "role": "button",
+   "name": "Settings",
+   "attrs": []
+  },
+  {
+   "role": "button",
+   "name": "Start generation",
+   "attrs": [
+    "disabled"
+   ]
+  }
+ ],
+ "paragraph_texts": [
+  "Would you like me to kick off this 1 video generation, costing 10 credits?",
+  "Menggunakan model default Anda Veo 3.1 - Lite, saya telah menjadwalkan pembuatan video gurita merah muda kecil. Karena a",
+  "Would you like me to kick off this 1 video generation, costing 10 credits?",
+  "<redacted>"
+ ]
+}

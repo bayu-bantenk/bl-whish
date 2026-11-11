@@ -1,0 +1,2 @@
+15ede5f138502594c4e9f1a45f3909c22aeddf94d021eba48ed98894185be0e8  src/blatifa/production/handoff.py
+289a3f384c6b06dc1563302f055c448900b09767980eb39d608db4ffe1b424e7  src/blatifa/cli.py

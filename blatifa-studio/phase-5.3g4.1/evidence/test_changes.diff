@@ -1,0 +1,248 @@
+--- a/tests/unit/simflow.py
++++ b/tests/unit/simflow.py
+@@ -13,6 +13,8 @@
+ from collections import Counter
+ from pathlib import Path
+ 
++from blatifa.account.balance import BalanceReading, read_from_tree
++from blatifa.flow.aria import parse
+ from blatifa.media.files import clone_or_copy
+ from blatifa.persistence.store import Store
+ from blatifa.production.gates import GateResult, SpendingPolicy
+@@ -183,11 +185,22 @@
+         self.t += s
+ 
+ 
++def fresh_balance(value: int = 40) -> BalanceReading:
++    """A fresh VERIFIED_WITHOUT_INTERACTION reading, parsed by `account.balance.read_from_tree` from an idle-page ARIA
++    fixture (no browser).
++
++    Phase 5.3g.4.1: FakeFlow is not the built-in SimulatedFlow, so the runner treats it as an untrusted production
++    adapter and refuses a bare-number balance from it. It supplies real evidence instead, which goes through
++    `gates.approval_balance` → `gates.credit_evidence` like any production balance (fresh for 300 s).
++    """
++    return read_from_tree(parse(f'- link "{value} Google Flow credits"\n- text: Credits refresh daily at 3:37 PM'))
++
++
+ def make(tmp_path: Path, flow: FakeFlow, confirm=lambda q: True, preflight=None, store=None):
+     store = store or Store(tmp_path / "blatifa.db")
+     clock = Clock()
+     runner = SceneRunner(store, flow, tmp_path / "ws", SpendingPolicy(),
+-                         preflight=preflight or (lambda: GateResult()), confirm=confirm, balance=lambda: 40,
++                         preflight=preflight or (lambda: GateResult()), confirm=confirm, balance=fresh_balance,
+                          timing=Timing(poll_interval_s=10, render_timeout_s=600, grace_s=180, now=clock.now, sleep=clock.sleep))
+     return store, runner
+ 
+--- a/tests/unit/test_phase5_3f_nonce_binding.py
++++ b/tests/unit/test_phase5_3f_nonce_binding.py
+@@ -13,6 +13,7 @@
+ from datetime import UTC, datetime, timedelta
+ from pathlib import Path
+ 
++import protected_hashes as ph
+ import pytest
+ from simflow import HAVE_FFMPEG, Crash, FakeFlow, make
+ 
+@@ -512,10 +513,12 @@
+ def test_protected_files_and_existing_tests_are_unchanged():
+     # Phase 5.3f.1 changed the 5.3e test helper (explicit legacy opt-in, evidence/test_helper_changes.diff); its new
+     # hash lives in the 5.3f.1 test baseline. The 31 other test files keep their 5.3f hashes.
++    # Phase 5.3g.4.1 (user-approved): a file passes on its exact baseline digest or on an exact approved chain in the
++    # pinned manifests (protected_hashes.matches: fail-closed; it can never approve a baseline, a manifest or itself).
+     for base in ("docs/phase-5.3f/evidence/baseline_hashes.txt", "docs/phase-5.3f1/evidence/tests_baseline_hashes.txt"):
+         for line in (ROOT / base).read_text().splitlines():
+             digest, path = line.split()
+-            assert hashlib.sha256((ROOT / path).read_bytes()).hexdigest() == digest, path
++            assert ph.matches(path, digest), path
+     from blatifa.production import authorization
+     assert authorization.LIVE_ACTIONS_ACTIVE is False
+     assert (ROOT / "src/blatifa/inspector/data/flow_locators.yaml").read_text().count("deny: true") == 18
+--- a/tests/unit/test_phase5_3f1_strict_default.py
++++ b/tests/unit/test_phase5_3f1_strict_default.py
+@@ -216,20 +216,29 @@
+ 
+ def test_simulated_cli_uses_strict_handoff_and_nonce_binding(tmp_path, monkeypatch, capsys):
+     from blatifa import cli
++    from blatifa.production import gates
+     from blatifa.simulation import SimulatedFlow
+ 
+-    class NamelessFlow(SimulatedFlow):                     # finished results without a media id
+-        def observe(self, pre_submit):
+-            obs = super().observe(pre_submit)
+-            return replace(obs, new_tiles=[replace(t, media_id=None) for t in obs.new_tiles])
++    # Phase 5.3g.4.1 (user-approved): no subclass any more. Only the exact built-in SimulatedFlow may use the CLI's
++    # bare simulated balance, so its observe is patched for this test only (monkeypatch restores it afterwards):
++    # finished results without a media id; everything else the real observe returns is kept.
++    real_observe, adapters = SimulatedFlow.observe, []
+ 
++    def nameless_observe(self, pre_submit):
++        adapters.append(type(self))
++        obs = real_observe(self, pre_submit)
++        return replace(obs, new_tiles=[replace(t, media_id=None) for t in obs.new_tiles])
++
+     src = inspect.getsource(cli.cmd_episode)
+     assert "nonce_binding=SIMULATED_BINDING" in src and "on_media_unresolved=HandoffService(store).request" in src
+-    monkeypatch.setattr(cli, "SimulatedFlow", NamelessFlow)
++    monkeypatch.setattr(SimulatedFlow, "observe", nameless_observe)
+     ws = tmp_path / "home"
+     path = write(tmp_path, build(1), ws / "simulation")
+     rc = cli.main(["--workspace", str(ws), "episode", "simulate", str(path), "--clip", str(CLIP), "--yes-simulated"])
+     assert rc == cli.EXIT_UNHEALTHY and "MEDIA_ID_UNRESOLVED" in capsys.readouterr().out
++    assert adapters and set(adapters) == {SimulatedFlow} and cli.SimulatedFlow is SimulatedFlow  # exact type, no subclass
++    for raw in (10_000, "10000"):                         # the same bare balance from an untrusted adapter is refused
++        assert gates.approval_balance(raw, adapter=FakeFlow()) is None
+     store = Store(ws / "simulation" / "simulation.db")
+     (att,) = store.attempts()
+     (h,) = store.handoffs()
+--- a/tests/unit/test_phase5_3g4_credit_paths.py
++++ b/tests/unit/test_phase5_3g4_credit_paths.py
+@@ -33,10 +33,11 @@
+     approval_balance,
+     approval_gate,
+     credit_evidence,
++    is_simulated_adapter,
+     parse_cost_quote,
+     preflight_gate,
+ )
+-from blatifa.production.runner import SceneJob, is_simulated_adapter
++from blatifa.production.runner import SceneJob
+ from blatifa.production.states import SceneState
+ from blatifa.simulation import SimulatedFlow
+ 
+@@ -47,6 +48,9 @@
+ OPEN_PANEL = '- dialog "Account settings":\n  - link "50 Google Flow credits"'
+ QUOTE = parse_cost_quote("I'll generate 1 video using Veo 3.1 - Lite, costing 10 credits?", ("Veo 3.1 - Lite",))
+ NOW = datetime(2026, 11, 10, 7, 0, tzinfo=UTC)
++# 5.3g.4.1: approval_balance takes the adapter itself (no caller-supplied simulated_adapter flag any more)
++LIVE = object.__new__(GoogleFlowAgentAdapter)
++SIM = object.__new__(SimulatedFlow)
+ 
+ 
+ def fresh(value: int = 40, age_s: float = 0) -> bal.BalanceReading:
+@@ -83,8 +87,8 @@
+     status, balance, why = credit_evidence(snap)
+     assert (status, balance) == (ReadStatus.UNKNOWN, None) and "diagnostic only" in why
+     assert preflight_gate(_pre(status, balance), SpendingPolicy()).blocks == [Block.CREDIT_UNKNOWN]
+-    assert approval_balance(snap, simulated_adapter=False) is None
+-    assert approval_balance(snap, simulated_adapter=True) is None       # not even in simulation
++    assert approval_balance(snap, adapter=LIVE) is None
++    assert approval_balance(snap, adapter=SIM) is None       # not even in simulation
+ 
+ 
+ class _Engine:
+@@ -157,31 +161,31 @@
+     v = _value(value)
+     status, balance, why = credit_evidence(v)
+     assert (status, balance) == (ReadStatus.UNKNOWN, None) and why
+-    assert approval_balance(v, simulated_adapter=False) is None
+-    assert Block.COST_OVER_BALANCE in approval_gate(QUOTE, SpendingPolicy(), approval_balance(v, simulated_adapter=False),
++    assert approval_balance(v, adapter=LIVE) is None
++    assert Block.COST_OVER_BALANCE in approval_gate(QUOTE, SpendingPolicy(), approval_balance(v, adapter=LIVE),
+                                                     True).blocks
+     assert preflight_gate(_pre(status, balance), SpendingPolicy()).blocks == [Block.CREDIT_UNKNOWN]
+ 
+ 
+ def test_user_reported_and_observed_panel_stay_unverified_even_for_simulation():
+     for reading in (bal.user_reported("10000"), bal.read_from_tree(parse(OPEN_PANEL))):
+-        assert approval_balance(reading, simulated_adapter=True) is None
++        assert approval_balance(reading, adapter=SIM) is None
+         assert credit_evidence(reading)[0] is ReadStatus.UNKNOWN
+ 
+ 
+ def test_a_fresh_verified_reading_follows_the_existing_rules():
+     assert credit_evidence(fresh(40))[:2] == (ReadStatus.VERIFIED, 40)
+-    assert approval_balance(fresh(40), simulated_adapter=False) == 40
+-    assert approval_gate(QUOTE, SpendingPolicy(), approval_balance(fresh(40), simulated_adapter=False), True).allowed
+-    assert Block.COST_OVER_BALANCE in approval_gate(QUOTE, SpendingPolicy(), approval_balance(fresh(5), simulated_adapter=False),
++    assert approval_balance(fresh(40), adapter=LIVE) == 40
++    assert approval_gate(QUOTE, SpendingPolicy(), approval_balance(fresh(40), adapter=LIVE), True).allowed
++    assert Block.COST_OVER_BALANCE in approval_gate(QUOTE, SpendingPolicy(), approval_balance(fresh(5), adapter=LIVE),
+                                                     True).blocks
+     assert preflight_gate(_pre(*credit_evidence(fresh(5))[:2]), SpendingPolicy()).blocks == [Block.INSUFFICIENT_CREDIT]
+ 
+ 
+ # ---- simulation isolation ----------------------------------------------------------------------------------
+-def test_only_simulated_flow_and_out_of_package_doubles_count_as_simulation():
++def test_only_the_exact_simulated_flow_counts_as_simulation():
+     assert is_simulated_adapter(object.__new__(SimulatedFlow))
+-    assert is_simulated_adapter(FakeFlow())                           # test double, outside the package
++    assert not is_simulated_adapter(FakeFlow())       # 5.3g.4.1: an out-of-package test double is no longer trusted
+     assert not is_simulated_adapter(object.__new__(GoogleFlowAgentAdapter))
+     for module in ("blatifa", "blatifa.flow.future_adapter", "blatifa.simulation"):
+         cls = type("SimulatedFlow" if module != "blatifa.simulation" else "OtherFlow", (), {"__module__": module})
+@@ -192,9 +196,9 @@
+ 
+ @pytest.mark.parametrize("value", [10_000, 40, 0])
+ def test_bare_numbers_never_reach_approval_for_a_live_adapter(value):
+-    assert approval_balance(value, simulated_adapter=False) is None
+-    assert approval_balance(value, simulated_adapter=True) == value
+-    assert approval_balance(-1, simulated_adapter=True) is None and approval_balance(True, simulated_adapter=True) is None
++    assert approval_balance(value, adapter=LIVE) is None
++    assert approval_balance(value, adapter=SIM) == value
++    assert approval_balance(-1, adapter=SIM) is None and approval_balance(True, adapter=SIM) is None
+ 
+ 
+ class _LiveClassifiedFlow(FakeFlow):
+@@ -208,7 +212,8 @@
+ def test_runner_refuses_a_bare_number_for_a_live_adapter_and_accepts_fresh_evidence(tmp_path):
+     job = SceneJob("ep-1", "S01", 1, "prompt text", start_image=CLIP)
+     flow = _LiveClassifiedFlow()
+-    store, run = make(tmp_path / "a", flow)                            # make() passes balance=lambda: 40
++    store, run = make(tmp_path / "a", flow)
++    run.balance = lambda: 40                          # 5.3g.4.1: make() now passes fresh evidence; keep the bare number
+     a = run.run(store.create_attempt("ep-1", "S01", 1, "main").id, job)
+     assert a.state is SceneState.NEEDS_MANUAL_INTERVENTION and a.error_code == Block.COST_OVER_BALANCE
+     assert flow.calls.get("approve:before_click", 0) == 0 and flow.calls["reject"] == 1
+@@ -271,7 +276,7 @@
+     assert "credit_status=credit_status, balance=balance" in pre and "credits.balance" not in pre and "credits.status" not in pre
+     dec = inspect.getsource(runner.SceneRunner._decide_on_quote)
+     assert dec.count("self._gate_balance()") == 2 and "self.balance()" not in dec
+-    assert "approval_balance(self.balance(), simulated_adapter=is_simulated_adapter(self.adapter))" in inspect.getsource(
++    assert "approval_balance(self.balance(), adapter=self.adapter)" in inspect.getsource(
+         runner.SceneRunner._gate_balance)
+ 
+ 
+@@ -287,11 +292,13 @@
+ # ---- protected evidence and the approved-change mechanism --------------------------------------------------
+ INTEGRITY_ROOTS = {
+     "tests/unit/protected_hashes.py":
+-        "2dfb696e0a721e5a9c0a1db64d00f40689c85b64e05d4f9cd4082667458207d4",
++        "9683cfc2b66c52cc461c156e49ae77df41882a857703007946d5a7425436c751",  # 5.3g.4.1 (was 2dfb696e…)
+     "docs/phase-5.3g3/evidence/approved_changes.txt":
+         "decd8d3b246bb23131169221e3413751cd3942f91b4ab9677cc07647b9e51dcc",
+     "docs/phase-5.3g4/evidence/approved_changes.txt":
+         "2be3994045fc56b6eb0c0f38179310ce3516e4de119bf8ba854697303d9c4b67",
++    "docs/phase-5.3g4.1/evidence/approved_changes.txt":  # added in 5.3g.4.1
++        "c7d0ba0c3e3290d324e32184c733692a2ce9c998abef3e220b6e98a4160f361c",
+ }
+ 
+ 
+--- a/tests/unit/protected_hashes.py
++++ b/tests/unit/protected_hashes.py
+@@ -1,4 +1,4 @@
+-"""Protected-hash check shared by the 5.3g … 5.3g.4 invariant tests (introduced in 5.3g.3, hardened in 5.3g.4).
++"""Protected-hash check shared by the 5.3f … 5.3g.4.1 invariant tests (introduced in 5.3g.3, hardened in 5.3g.4).
+ 
+ A protected file passes when its SHA-256 equals its historical baseline digest, or when the approved-change manifests
+ contain an exact chain `baseline digest → … → current digest` for that path. Each manifest row names the only files
+@@ -8,8 +8,9 @@
+ - every manifest is pinned here by its own SHA-256 (`MANIFESTS`); a manifest whose content differs is refused;
+ - a manifest may never approve a change to a manifest, to this helper, or to any baseline-hash file;
+ - two rows that move the same (path, old digest) to different new digests are refused;
+-- `tests/unit/test_phase5_3g4_credit_paths.py` independently pins this helper's and each manifest's SHA-256, so
+-  approving a new change needs edits in two separate places that are both reviewed.
++- `tests/unit/test_phase5_3g4_credit_paths.py` and `tests/unit/test_phase5_3g4_1_adapter_trust.py` independently
++  pin this helper's and each manifest's SHA-256, so approving a new change needs edits in separate places that are
++  all reviewed. These are repository-local pins, not a cryptographic trust anchor.
+ The historical baseline files themselves are never edited.
+ """
+ 
+@@ -22,6 +23,7 @@
+ MANIFESTS = {
+     "docs/phase-5.3g3/evidence/approved_changes.txt": "decd8d3b246bb23131169221e3413751cd3942f91b4ab9677cc07647b9e51dcc",
+     "docs/phase-5.3g4/evidence/approved_changes.txt": "2be3994045fc56b6eb0c0f38179310ce3516e4de119bf8ba854697303d9c4b67",
++    "docs/phase-5.3g4.1/evidence/approved_changes.txt": "c7d0ba0c3e3290d324e32184c733692a2ce9c998abef3e220b6e98a4160f361c",
+ }
+ SELF = "tests/unit/protected_hashes.py"
+ 
+# new file: tests/unit/test_phase5_3g4_1_adapter_trust.py (sha256 86730705d8d46b724dbbb6a7f6092ce078b1250b22e2696cb80a2babd61d24d2, 407 lines)

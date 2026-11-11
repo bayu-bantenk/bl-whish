@@ -1,0 +1,34 @@
+{
+ "rows": [
+  "text | One small pink octopus floats gently in calm, clear blue water against a plain, simple background and slowly waves one tentacle at the camera. Static camera, medium shot. No other characters, no other objects. The Octopus has a very important facial characteristic: its mouth is a small rounded protr",
+  "paragraph | Would you like me to kick off this 1 video generation, costing 10 credits?",
+  "radiogroup | Permission options",
+  "radio | Approve",
+  "radio | Always approve",
+  "radio | Reject",
+  "button | Good response",
+  "button | Bad response",
+  "button | Copy",
+  "button | Flag output",
+  "textbox | What do you want to create?",
+  "button | Add ingredients to the prompt box",
+  "button | Agent instructions",
+  "button | Settings",
+  "button | Start generation ['disabled']",
+  "paragraph | Google Flow can make mistakes, so double check it"
+ ],
+ "confirmation": {
+  "problem": "OK",
+  "state": "OPEN",
+  "cost": 10,
+  "cost_status": "READABLE",
+  "blocking": true
+ },
+ "dialogs": [],
+ "hovered": [],
+ "markers": {
+  "[blatifa-exp-6d7b904b]": [
+   "text"
+  ]
+ }
+}

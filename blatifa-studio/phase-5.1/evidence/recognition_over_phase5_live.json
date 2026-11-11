@@ -1,0 +1,460 @@
+{
+ "source": "docs/phase-5/evidence/live/*-live-probe (rebuilt from recorded signatures; offline)",
+ "policy": {
+  "video_element_with_src": "OBSERVED",
+  "media_metadata_loaded": "NONE",
+  "media_dimensions": "NONE",
+  "duration_text": "NONE",
+  "progress_text": "RECORDED_OLD_UI"
+ },
+ "signals": [
+  {
+   "name": "video_element_with_src",
+   "group": "dom_structure",
+   "indicates": "VIDEO_COMPLETED",
+   "evidence": "OBSERVED",
+   "source": "Phase 5 live: seen on the one finished video; never seen on an unfinished one"
+  },
+  {
+   "name": "media_metadata_loaded",
+   "group": "media_metadata",
+   "indicates": "VIDEO_COMPLETED",
+   "evidence": "NONE",
+   "source": "readyState >= 1 and a finite duration > 0: not recorded live yet"
+  },
+  {
+   "name": "media_dimensions",
+   "group": "media_metadata",
+   "indicates": "VIDEO_COMPLETED",
+   "evidence": "NONE",
+   "source": "videoWidth and videoHeight > 0: not recorded live yet"
+  },
+  {
+   "name": "duration_text",
+   "group": "tile_text",
+   "indicates": "VIDEO_COMPLETED",
+   "evidence": "NONE",
+   "source": "a '0:08'-style text: absent on the live finished tile (Phase 5)"
+  },
+  {
+   "name": "progress_text",
+   "group": "tile_text",
+   "indicates": "VIDEO_GENERATING",
+   "evidence": "RECORDED_OLD_UI",
+   "source": "'<n>% <prompt>' text: observation log E-FLOW-13 (old UI); not observed in the new UI"
+  }
+ ],
+ "observations": [
+  {
+   "run": "20261103T074352Z-live-probe",
+   "probe": 0,
+   "tiles": [
+    {
+     "title": "Sea Lion",
+     "type": "CHARACTER",
+     "state": null,
+     "present": [],
+     "counted": [],
+     "reasons": [],
+     "legacy_thumbnail": false,
+     "progress_pct": null
+    },
+    {
+     "title": "Octopus",
+     "type": "CHARACTER",
+     "state": null,
+     "present": [],
+     "counted": [],
+     "reasons": [],
+     "legacy_thumbnail": false,
+     "progress_pct": null
+    },
+    {
+     "title": "Dolphin",
+     "type": "CHARACTER",
+     "state": null,
+     "present": [],
+     "counted": [],
+     "reasons": [],
+     "legacy_thumbnail": false,
+     "progress_pct": null
+    },
+    {
+     "title": "Whisk_u2yivwz5ejzyqtzl1iy0udotcdnirtl2mgnz0sz.png",
+     "type": "IMAGE",
+     "state": null,
+     "present": [],
+     "counted": [],
+     "reasons": [],
+     "legacy_thumbnail": false,
+     "progress_pct": null
+    },
+    {
+     "title": "Cat waving to camera",
+     "type": "VIDEO",
+     "state": "VIDEO_UNKNOWN",
+     "present": [
+      "video_element_with_src"
+     ],
+     "counted": [],
+     "reasons": [
+      "0 VERIFIED completion signal(s) in 0 independent group(s); 2 groups are required (present but not counted: ['video_element_with_src'])"
+     ],
+     "legacy_thumbnail": false,
+     "progress_pct": null
+    },
+    {
+     "title": "Blumaro",
+     "type": "IMAGE",
+     "state": null,
+     "present": [],
+     "counted": [],
+     "reasons": [],
+     "legacy_thumbnail": false,
+     "progress_pct": null
+    },
+    {
+     "title": "blahiro",
+     "type": "IMAGE",
+     "state": null,
+     "present": [],
+     "counted": [],
+     "reasons": [],
+     "legacy_thumbnail": false,
+     "progress_pct": null
+    },
+    {
+     "title": "Cat character wearing cute clothes",
+     "type": "IMAGE",
+     "state": null,
+     "present": [],
+     "counted": [],
+     "reasons": [],
+     "legacy_thumbnail": false,
+     "progress_pct": null
+    },
+    {
+     "title": "Blatifa",
+     "type": "IMAGE",
+     "state": null,
+     "present": [],
+     "counted": [],
+     "reasons": [],
+     "legacy_thumbnail": false,
+     "progress_pct": null
+    }
+   ]
+  },
+  {
+   "run": "20261103T074352Z-live-probe",
+   "probe": 1,
+   "tiles": [
+    {
+     "title": "Sea Lion",
+     "type": "CHARACTER",
+     "state": null,
+     "present": [],
+     "counted": [],
+     "reasons": [],
+     "legacy_thumbnail": false,
+     "progress_pct": null
+    },
+    {
+     "title": "Octopus",
+     "type": "CHARACTER",
+     "state": null,
+     "present": [],
+     "counted": [],
+     "reasons": [],
+     "legacy_thumbnail": false,
+     "progress_pct": null
+    },
+    {
+     "title": "Dolphin",
+     "type": "CHARACTER",
+     "state": null,
+     "present": [],
+     "counted": [],
+     "reasons": [],
+     "legacy_thumbnail": false,
+     "progress_pct": null
+    },
+    {
+     "title": "Whisk_u2yivwz5ejzyqtzl1iy0udotcdnirtl2mgnz0sz.png",
+     "type": "IMAGE",
+     "state": null,
+     "present": [],
+     "counted": [],
+     "reasons": [],
+     "legacy_thumbnail": false,
+     "progress_pct": null
+    },
+    {
+     "title": "Cat waving to camera",
+     "type": "VIDEO",
+     "state": "VIDEO_UNKNOWN",
+     "present": [
+      "video_element_with_src"
+     ],
+     "counted": [],
+     "reasons": [
+      "0 VERIFIED completion signal(s) in 0 independent group(s); 2 groups are required (present but not counted: ['video_element_with_src'])"
+     ],
+     "legacy_thumbnail": false,
+     "progress_pct": null
+    },
+    {
+     "title": "Blumaro",
+     "type": "IMAGE",
+     "state": null,
+     "present": [],
+     "counted": [],
+     "reasons": [],
+     "legacy_thumbnail": false,
+     "progress_pct": null
+    },
+    {
+     "title": "blahiro",
+     "type": "IMAGE",
+     "state": null,
+     "present": [],
+     "counted": [],
+     "reasons": [],
+     "legacy_thumbnail": false,
+     "progress_pct": null
+    },
+    {
+     "title": "Cat character wearing cute clothes",
+     "type": "IMAGE",
+     "state": null,
+     "present": [],
+     "counted": [],
+     "reasons": [],
+     "legacy_thumbnail": false,
+     "progress_pct": null
+    },
+    {
+     "title": "Blatifa",
+     "type": "IMAGE",
+     "state": null,
+     "present": [],
+     "counted": [],
+     "reasons": [],
+     "legacy_thumbnail": false,
+     "progress_pct": null
+    }
+   ]
+  },
+  {
+   "run": "20261103T074618Z-live-probe",
+   "probe": 0,
+   "tiles": [
+    {
+     "title": "Sea Lion",
+     "type": "CHARACTER",
+     "state": null,
+     "present": [],
+     "counted": [],
+     "reasons": [],
+     "legacy_thumbnail": false,
+     "progress_pct": null
+    },
+    {
+     "title": "Octopus",
+     "type": "CHARACTER",
+     "state": null,
+     "present": [],
+     "counted": [],
+     "reasons": [],
+     "legacy_thumbnail": false,
+     "progress_pct": null
+    },
+    {
+     "title": "Dolphin",
+     "type": "CHARACTER",
+     "state": null,
+     "present": [],
+     "counted": [],
+     "reasons": [],
+     "legacy_thumbnail": false,
+     "progress_pct": null
+    },
+    {
+     "title": "Whisk_u2yivwz5ejzyqtzl1iy0udotcdnirtl2mgnz0sz.png",
+     "type": "IMAGE",
+     "state": null,
+     "present": [],
+     "counted": [],
+     "reasons": [],
+     "legacy_thumbnail": false,
+     "progress_pct": null
+    },
+    {
+     "title": "Cat waving to camera",
+     "type": "VIDEO",
+     "state": "VIDEO_UNKNOWN",
+     "present": [
+      "video_element_with_src"
+     ],
+     "counted": [],
+     "reasons": [
+      "0 VERIFIED completion signal(s) in 0 independent group(s); 2 groups are required (present but not counted: ['video_element_with_src'])"
+     ],
+     "legacy_thumbnail": false,
+     "progress_pct": null
+    },
+    {
+     "title": "Blumaro",
+     "type": "IMAGE",
+     "state": null,
+     "present": [],
+     "counted": [],
+     "reasons": [],
+     "legacy_thumbnail": false,
+     "progress_pct": null
+    },
+    {
+     "title": "blahiro",
+     "type": "IMAGE",
+     "state": null,
+     "present": [],
+     "counted": [],
+     "reasons": [],
+     "legacy_thumbnail": false,
+     "progress_pct": null
+    },
+    {
+     "title": "Cat character wearing cute clothes",
+     "type": "IMAGE",
+     "state": null,
+     "present": [],
+     "counted": [],
+     "reasons": [],
+     "legacy_thumbnail": false,
+     "progress_pct": null
+    },
+    {
+     "title": "Blatifa",
+     "type": "IMAGE",
+     "state": null,
+     "present": [],
+     "counted": [],
+     "reasons": [],
+     "legacy_thumbnail": false,
+     "progress_pct": null
+    }
+   ]
+  },
+  {
+   "run": "20261103T074618Z-live-probe",
+   "probe": 1,
+   "tiles": [
+    {
+     "title": "Sea Lion",
+     "type": "CHARACTER",
+     "state": null,
+     "present": [],
+     "counted": [],
+     "reasons": [],
+     "legacy_thumbnail": false,
+     "progress_pct": null
+    },
+    {
+     "title": "Octopus",
+     "type": "CHARACTER",
+     "state": null,
+     "present": [],
+     "counted": [],
+     "reasons": [],
+     "legacy_thumbnail": false,
+     "progress_pct": null
+    },
+    {
+     "title": "Dolphin",
+     "type": "CHARACTER",
+     "state": null,
+     "present": [],
+     "counted": [],
+     "reasons": [],
+     "legacy_thumbnail": false,
+     "progress_pct": null
+    },
+    {
+     "title": "Whisk_u2yivwz5ejzyqtzl1iy0udotcdnirtl2mgnz0sz.png",
+     "type": "IMAGE",
+     "state": null,
+     "present": [],
+     "counted": [],
+     "reasons": [],
+     "legacy_thumbnail": false,
+     "progress_pct": null
+    },
+    {
+     "title": "Cat waving to camera",
+     "type": "VIDEO",
+     "state": "VIDEO_UNKNOWN",
+     "present": [
+      "video_element_with_src"
+     ],
+     "counted": [],
+     "reasons": [
+      "0 VERIFIED completion signal(s) in 0 independent group(s); 2 groups are required (present but not counted: ['video_element_with_src'])"
+     ],
+     "legacy_thumbnail": false,
+     "progress_pct": null
+    },
+    {
+     "title": "Blumaro",
+     "type": "IMAGE",
+     "state": null,
+     "present": [],
+     "counted": [],
+     "reasons": [],
+     "legacy_thumbnail": false,
+     "progress_pct": null
+    },
+    {
+     "title": "blahiro",
+     "type": "IMAGE",
+     "state": null,
+     "present": [],
+     "counted": [],
+     "reasons": [],
+     "legacy_thumbnail": false,
+     "progress_pct": null
+    },
+    {
+     "title": "Cat character wearing cute clothes",
+     "type": "IMAGE",
+     "state": null,
+     "present": [],
+     "counted": [],
+     "reasons": [],
+     "legacy_thumbnail": false,
+     "progress_pct": null
+    },
+    {
+     "title": "Blatifa",
+     "type": "IMAGE",
+     "state": null,
+     "present": [],
+     "counted": [],
+     "reasons": [],
+     "legacy_thumbnail": false,
+     "progress_pct": null
+    }
+   ]
+  }
+ ],
+ "stable_state_after_4": {
+  "Sea Lion": "VIDEO_UNKNOWN \u2014 tile missing from a recent observation",
+  "Octopus": "VIDEO_UNKNOWN \u2014 tile missing from a recent observation",
+  "Dolphin": "VIDEO_UNKNOWN \u2014 tile missing from a recent observation",
+  "Whisk_u2yivwz5ejzyqtzl1iy0udotcdnirtl2mgnz0sz.png": "VIDEO_UNKNOWN \u2014 tile missing from a recent observation",
+  "Cat waving to camera": "VIDEO_UNKNOWN \u2014 identical in the last 2 observations",
+  "Blumaro": "VIDEO_UNKNOWN \u2014 tile missing from a recent observation",
+  "blahiro": "VIDEO_UNKNOWN \u2014 tile missing from a recent observation",
+  "Cat character wearing cute clothes": "VIDEO_UNKNOWN \u2014 tile missing from a recent observation",
+  "Blatifa": "VIDEO_UNKNOWN \u2014 tile missing from a recent observation"
+ }
+}

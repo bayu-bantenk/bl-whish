@@ -1,0 +1,29 @@
+--- a/tests/unit/test_phase5_3e_handoff.py
++++ b/tests/unit/test_phase5_3e_handoff.py
+@@ -26,6 +26,8 @@
+ NEW_ROUTE = "a25e3913-9eec-40e9-aafa-cf6c76961965"
+ EXP = "EXP-P53D-20261106-12EF"
+ H, S = ho.HandoffState, SceneState
++# Phase 5.3f.1: these historical tests bind bare 5.3e nonces (no stored final prompt), so they opt in explicitly.
++LEGACY = {"require_preparation": False, "legacy_opt_in": ho.LEGACY_UNPREPARED_BINDINGS_TEST_ONLY}
+ T0 = datetime(2026, 11, 6, 3, 0, tzinfo=UTC)
+ 
+ 
+@@ -62,7 +64,7 @@
+ @pytest.fixture
+ def env(tmp_path):
+     store, clock = Store(tmp_path / "b.db"), Clock()
+-    return store, ho.HandoffService(store, now=clock), clock
++    return store, ho.HandoffService(store, now=clock, **LEGACY), clock
+ 
+ 
+ def to_waiting(svc: ho.HandoffService, clock: Clock, hid: str, *, confirm: bool = True) -> None:
+@@ -112,7 +114,7 @@
+ def _runner_case(tmp_path, nameless: bool, bind: bool = True):
+     flow = FakeFlow(nameless_generations={1} if nameless else set(), stored_prompt="prompt text")
+     store, runner = make(tmp_path, flow)
+-    svc = ho.HandoffService(store)
++    svc = ho.HandoffService(store, **LEGACY)
+     runner.on_media_unresolved = svc.request
+     a = store.create_attempt("ep-1", "S01", 1, "main").id
+     if bind:
