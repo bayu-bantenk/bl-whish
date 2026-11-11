@@ -71,7 +71,8 @@ The exact `SimulatedFlow` gets no exemption for these: an unverified reading is 
 - There is no registry, set or hook to add classes to. The rule is one line, and
   `test_trust_rule_is_one_exact_type_check` pins it through the AST.
 - Four mutants of the rule were tried (`isinstance`, a qualname comparison, the old package-boundary rule, and
-  honouring `is_simulated`). The new tests fail on each of them: 22, 12, 89 and 22 failures (TEST_REPORT §3).
+  honouring `is_simulated`). The new tests failed on each of them: 22, 12, 89 and 22 failures (TEST_REPORT §3).
+  **Evidence status: NOT INDEPENDENTLY VERIFIED.** No log of these runs is stored in `evidence/`.
 
 ## 5. Test doubles
 
@@ -94,3 +95,8 @@ The exact `SimulatedFlow` gets no exemption for these: an unverified reading is 
 - `SimulatedFlow`'s own methods are trusted to stay offline. That is a property of `simulation.py`, which is
   protected by hash.
 - Repository-local hashes are not a cryptographic trust anchor (SAFETY_AUDIT §4).
+- Freshness can be overridden by the caller. `approval_balance(now=)` and `credit_evidence(now=, max_age_s=)` can
+  widen or narrow the 300 s window, and `now` can make an old verified reading look fresh. No production caller
+  passes them today (CALL_GRAPH_AUDIT §4). This is an OPEN API risk; an override cannot upgrade an unverified status.
+- The other open items are outside this contract and are listed in SAFETY_AUDIT §7: F-4, the `read_credits` clicks,
+  `ESTIMATED`, and R-2.
