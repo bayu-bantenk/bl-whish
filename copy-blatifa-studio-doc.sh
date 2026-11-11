@@ -33,6 +33,8 @@ echo "========================================"
 
 git status
 
+git pull
+
 echo ""
 echo "========================================"
 echo "FILE LIST WITH GITHUB URL"
