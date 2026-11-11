@@ -1,58 +1,105 @@
-# Phase 5.3g.4 — Test report
+# Phase 5.3g.4.1: test report
 
 > **Ringkasan (ID):**
-> - 47 tes baru, semuanya lulus.
-> - Regresi penuh: **796 passed, 7 skipped, 0 failed**. 796 = 749 (5.3g.3) + 47.
-> - Hanya satu assertion lama yang diubah, dan perubahannya justru lebih ketat. Alasannya ada di
->   `IMPLEMENTATION_REPORT.md` §4.
+> - 138 tes baru, semuanya lulus.
+> - Regresi penuh: **934 passed, 7 skipped, 0 failed** (exit 0). 934 = 796 (5.3g.4) + 138.
+> - Tujuh tes yang di-skip adalah tes live opt-in.
+> - Empat mutan aturan trust semuanya tertangkap.
 
-## Preflight
+## 1. Resources (`evidence/resource_gate.txt`)
 
-| Item | Value |
+| | Value |
 |---|---|
-| Git | not a git repository → hashes (`evidence/baseline_hashes.txt`, 289 files: all `src`/`tests` Python files, fixtures, the locator registry and all `docs/phase-5.3*` files) |
-| Resources (`evidence/resource_gate.txt`) | before: disk 12 GiB, swap 4412/5120 MB, memory free 40 %. After: 12 GiB, 5034/6144 MB, 42 %. Disk ≥ 10 GiB → full suite allowed, run **once** |
+| Disk before the full run | 10.35 GiB free (≥ 10 GiB, so the full suite was allowed; a monitor stopped it below 5 GiB, and it was never triggered) |
+| Disk after | 9.57 GiB |
+| Memory | 45 % free (system memory pressure) |
+| Swap | 6454 / 7168 MB used (high; the run was not affected) |
 
-## Results
+## 2. Runs (in order)
 
 | Run | Result |
 |---|---|
-| `tests/unit/test_phase5_3g4_credit_paths.py` (new) | 47 passed |
-| Targeted: 5.3g.4, 5.3g.3, 5.3g.2, 5.3g.1, 5.3g, 5.3f, 5.3f.1, 5.3e, `test_production`, `test_core`, `test_phase5_probe`, `tests/browser/test_account_and_capture.py` | 502 passed |
-| **Full regression** `pytest tests` (`evidence/pytest_full.log`) | **796 passed, 7 skipped, 0 failed**, 419 s, exit 0 |
-| Skipped | 7 × `tests/live/test_flow_live.py` (opt-in `BLATIFA_LIVE=1`, not set) |
-| `ruff check src` + new or changed tests | all checks passed |
+| Exact trust only, `simflow` reverted (`evidence/conflict_run_exact_trust_before_test_fixes.txt`) | 66 failed, 730 passed. 5 failures are expected hash checks; 61 are functional (60 via `simflow.make`, 1 via `NamelessFlow`). This is the evidence for the user decision |
+| `tests/unit` + `tests/browser` after the approved test changes, before the manifest | 6 failed (hash checks only), 790 passed |
+| Integrity and historical tests after the manifest (5.3e, 5.3f, 5.3f.1, 5.3g … 5.3g.4) | 404 passed |
+| `tests/unit/test_phase5_3g4_1_adapter_trust.py` | **138 passed**, 0 skipped (ffmpeg present, so the runner tests ran) |
+| **Full regression** `pytest tests` (`evidence/pytest_full.log`) | **934 passed, 7 skipped, 0 failed**, 455.9 s, exit 0 |
+| An accidental second full run (meant only to list skips) | same skip list. Its summary was not saved and it is not counted |
+| `ruff check` (changed and new files, `src/blatifa`) | all checks passed |
 
-## Coverage (brief Stage D)
+Logs: only the full regression (`evidence/pytest_full.log`) and the conflict run
+(`evidence/conflict_run_exact_trust_before_test_fixes.txt`) are stored. The targeted runs (790/6, 404, 138, 261)
+and the mutation runs have **no stored log**; their numbers are reported, not independently verifiable. The count
+of 138 for the new module is independently confirmed by `pytest_full.log`.
 
-| Requirement | Test |
+Skipped: 7 × `tests/live/test_flow_live.py` ("live Flow checks are opt-in (BLATIFA_LIVE=1)"), the same as in
+5.3g.4.
+
+## 3. Mutation check of the trust rule
+
+`gates.is_simulated_adapter` was temporarily replaced by a weaker rule, the new module was run, and the file was
+then restored. The restored sha `0a2fa5d0…` equals the manifest row.
+
+**Evidence status (2026-11-11): NOT INDEPENDENTLY VERIFIED.**
+- No log of the four runs is stored in `evidence/`.
+- The command printed only the last summary line of each run (`tail -1`). No per-test output was ever captured.
+- That summary output still exists only in the local session transcript of the assistant, outside the repository.
+  It is not repository evidence, it holds no test names, and it was not copied or reconstructed into `evidence/`.
+- The numbers below are therefore a report, not verified evidence.
+- What *is* verified independently: the final `gates.py` sha equals the manifest row, and `pytest_full.log` shows
+  all 138 tests of the new module passing against it.
+
+| Mutant | New tests failing |
 |---|---|
-| legacy `read_credits()` output cannot bypass `credit_evidence()` | `test_legacy_read_credits_output_cannot_pass_credit_evidence` (5 snapshots, including VERIFIED 10 000; even a simulated adapter refuses them) |
-| `blatifa preflight` cannot authorize on click-derived evidence | `test_run_preflight_cannot_authorize_from_a_click_derived_balance`, `test_blatifa_preflight_command_blocks_on_click_derived_evidence` (fake engine, page and readers); browser fixture test → `[CREDIT_UNKNOWN]` |
-| `blatifa account` diagnostics do not imply authorization | `test_blatifa_account_diagnostics_never_imply_authorization` (output and report JSON `granted: false`, no e-mail in the report) |
-| USER_REPORTED / OBSERVED_IN_ALREADY_OPEN_PANEL stay unverified | `test_user_reported_and_observed_panel_stay_unverified_even_for_simulation`; runner case with `user_reported("10000")` |
-| missing, stale, future, malformed, ambiguous, wrong types fail closed | `test_everything_but_a_fresh_verified_reading_fails_closed` (21 inputs × `credit_evidence`, `approval_balance`, `approval_gate`, `preflight_gate`) |
-| verified evidence follows the existing rules | `test_a_fresh_verified_reading_follows_the_existing_rules`; runner approves with a fresh reading |
-| every production path reaches the boundary | `test_call_graph_of_every_credit_decision`, `test_gate_inputs_come_only_from_the_boundary` |
-| simulation values cannot enter production | `test_only_simulated_flow_and_out_of_package_doubles_count_as_simulation`, `test_bare_numbers_never_reach_approval_for_a_live_adapter`, `test_runner_refuses_a_bare_number_for_a_live_adapter_and_accepts_fresh_evidence`, `test_simulation_defaults_stay_inside_the_simulate_branch` |
-| gate rules unchanged | `test_preflight_and_approval_rules_are_unchanged` (source sha256 = pre-5.3g.3 text) |
-| approved-change integrity | `test_integrity_roots_are_pinned_independently`, `test_manifest_cannot_approve_itself_the_helper_or_a_baseline`, `test_tampered_or_conflicting_manifest_is_refused` |
-| G.1 / G.2 / G.3 protections | `test_historical_baseline_files_and_experiment_inputs_are_unchanged`, `test_every_protected_file_matches_its_5_3g4_baseline_or_an_approved_change`, `test_flags_and_protections`; all G.1–G.3 suites pass |
+| `isinstance(adapter, SimulatedFlow)` | 22 |
+| `type(adapter).__qualname__ == "SimulatedFlow"` | 12 |
+| the 5.3g.4 package-boundary rule | 89 |
+| `… or getattr(adapter, "is_simulated", False) is True` | 22 |
 
-## Existing tests
+**Recommendation (needs user approval; not done).** Re-run the four mutation checks offline and keep the full
+pytest output of each run in `evidence/`. Each run would:
+1. change `gates.py` in a scratch copy or with a restore step;
+2. run only `tests/unit/test_phase5_3g4_1_adapter_trust.py` with `-rf`;
+3. restore the file and verify `gates.py` sha `0a2fa5d0…`.
 
-- Changed assertion: one. In `tests/browser/test_account_and_capture.py`, `assert rep.gate.allowed` became
-  `assert rep.gate.blocks == [Block.CREDIT_UNKNOWN]`, plus a check that the diagnostic is still visible.
-- Changed helper: `tests/unit/protected_hashes.py` (hardened; diff in `evidence/test_changes.diff`). Every caller keeps
-  the same `matches(path, digest)` call.
-- Everything else is unchanged, including all hash-locked 5.3f / 5.3f.1 tests and all 5.3g … 5.3g.3 test files.
+No browser, no Flow, no full regression suite. Writing the logs would change the evidence folder, so it needs that
+approval as well.
 
-## Protected hashes (after)
+## 4. Brief §5 required tests
 
-| Set | Result |
-|---|---|
-| 5.3g.4 baseline (289 files) | 283 equal; 5 differ, each exactly as in `evidence/approved_changes.txt` (`cli.py`, `gates.py`, `preflight.py`, `runner.py`, `test_account_and_capture.py`); 1 integrity root (`protected_hashes.py`, pinned in the 5.3g.4 test) |
-| 10 historical baseline files + 5.3g.3 manifest | equal (`evidence/historical_baseline_files.txt`; its only other line is the helper's 5.3g.3 hash `bdfb8808…`, superseded as documented) |
-| `docs/phase-5.3g1/**`, `5.3g2/**`, `5.3g3/**` | byte-identical |
-| `p53g.db`, FINAL_PROMPT, BASE_PROMPT | identical before and after |
-| `LIVE_ACTIONS_ACTIVE`, `deny: true` | False, 18 (before = after) |
+| # | Requirement | Test |
+|---|---|---|
+| 1 | exact `SimulatedFlow` keeps simulation behaviour | `test_exact_simulated_flow_keeps_its_simulation_behavior`, `test_runner_with_the_exact_simulated_flow_accepts_a_bare_number` |
+| 2 | external-module adapter, raw int: rejected | `test_untrusted_adapter_cannot_pass_a_raw_balance[external module-40 / 0 / 10000]` |
+| 3 | external-module adapter, raw string: rejected | same, `'40'`, `'10000'`, `'40 Google Flow credits'` |
+| 4 | `is_simulated = True`: rejected | `[is_simulated = True-*]`, `[FakeFlow subclass claiming simulation-*]` |
+| 5 | class name containing `Simulated`: rejected | `[class name contains Simulated-*]`, `[name and module of SimulatedFlow-*]` |
+| 6 | subclass of `SimulatedFlow`: rejected | `[subclass of SimulatedFlow-*]`, `test_runner_with_a_simulated_flow_subclass_refuses_a_bare_number` |
+| 7 | unknown adapter with `BalanceReading` follows `credit_evidence()` | `test_untrusted_adapter_with_evidence_follows_credit_evidence` (spy), `test_runner_with_an_untrusted_adapter_accepts_fresh_evidence` |
+| 8 | stale / future-dated rejected | same (301 s, −60 s) |
+| 9 | `USER_REPORTED` rejected | same |
+| 10 | `OBSERVED_IN_ALREADY_OPEN_PANEL` rejected | same |
+| 11 | `None` stays `CREDIT_UNKNOWN` | `test_none_stays_credit_unknown` |
+| 12 | no raw number from an unknown adapter reaches `approval_gate` | `test_runner_never_passes_a_raw_balance_from_an_untrusted_adapter` (spy on `approval_gate`: every balance is None; Approve never clicked; Reject once) |
+
+Also covered:
+- the trust rule is pinned by AST;
+- the call graph;
+- the gate rules hash;
+- the documentation wording;
+- the integrity roots, manifest scope, fail-closed chains and history;
+- the flags;
+- the absence of browser calls.
+
+## 5. Assertions changed in existing tests
+
+| Test | Before | After | Reason |
+|---|---|---|---|
+| 5.3g.4 `test_only_simulated_flow_and_out_of_package_doubles_count_as_simulation` (renamed `test_only_the_exact_simulated_flow_counts_as_simulation`) | `assert is_simulated_adapter(FakeFlow())` | `assert not is_simulated_adapter(FakeFlow())` | this is exactly the weakness the phase removes; the new assertion is stricter |
+| 5.3g.4 `test_gate_inputs_come_only_from_the_boundary` | expected `…simulated_adapter=is_simulated_adapter(self.adapter))` | expected `…adapter=self.adapter)` | API change; the other assertions are unchanged |
+| 5.3g.4, 12 calls | `simulated_adapter=False/True` | `adapter=LIVE/SIM` (real `GoogleFlowAgentAdapter` / `SimulatedFlow` instances) | API change; same expected values |
+| 5.3g.4 `INTEGRITY_ROOTS` | helper `2dfb696e…`, 2 manifests | helper `9683cfc2…`, 3 manifests | new manifest |
+| 5.3f `test_protected_files_and_existing_tests_are_unchanged` | exact digest | `ph.matches` (exact digest or pinned approved chain) | user-approved; proven fail-closed |
+| 5.3f.1 `test_simulated_cli_uses_strict_handoff_and_nonce_binding` | `NamelessFlow` subclass | exact `SimulatedFlow` with `observe` patched locally; **two assertions added** | user-approved; original assertions unchanged |
+
+No test was removed, skipped or marked xfail. Full diffs: `evidence/test_changes.diff`.
