@@ -1,0 +1,16 @@
+# Flags and process state after preparation, 2026-11-12 11:02 +0700
+30:LIVE_ACTIONS_ACTIVE: Final = False
+deny: true count: 18
+BLATIFA_* env: 0 set
+test Chrome/Playwright/pytest/n_isolation_check processes: 0
+Wi-Fi: Wi-Fi Power (en0): On
+nwi interfaces: Network interfaces: en0
+Blatifa Chrome CDP 50568 listening: 0
+script sha256: d6ec5c215d0d101ab5bde857e049e075def0bdd4f33e3e2fab17924e31245eff
+script executed in this phase: NO (compile() only); /Users/Shared/blatifa-offline exists: no
+/dev/disk3s1s1   460Gi    12Gi    14Gi    47%    459k  142M    0%   /
+--- UNEXPECTED CHANGE (recorded, not restored)
+Blatifa Chrome CDP 127.0.0.1:50568: NOT listening at 11:02 +0700 (it was listening in 5.3g.4.3.1).
+Re-check (read-only): lsof LISTEN shows no Chrome socket; ps shows no process with --remote-debugging-port.
+This phase ran no kill/signal, no CDP connection, no blatifa browser command. Time and cause of the stop: UNKNOWN.
+Not restarted (brief: do not start/stop/recover browser sessions; do not restore automatically).

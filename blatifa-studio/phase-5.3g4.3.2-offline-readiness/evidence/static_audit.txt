@@ -1,0 +1,67 @@
+# Static audit of script/n_isolation_check.py, 2026-11-12 11:00 +0700
+sha256: d6ec5c215d0d101ab5bde857e049e075def0bdd4f33e3e2fab17924e31245eff  lines:     1280
+compile(): OK (not executed, no bytecode written)
+imports: ['argparse', 'datetime', 'errno', 'hashlib', 'ipaddress', 'json', 'os', 'platform', 'pwd', 're', 'socket', 'subprocess', 'sys', 'time', 'traceback']
+functions: 52
+--- forbidden-pattern greps (line:match; empty = absent)
+http             
+sudo             10:- Never uses sudo, never changes interfaces, routes, DNS, firewall |
+pip              
+brew             
+curl             
+wget             
+urllib           
+requests         
+[Cc]hrom         11:- Never looks for, selects, connects to or signals any Chrome / bro|1046:         "note": "orig-N11 (test Chrome lsof) is not part of this|
+playwright       
+pytest           
+[Cc][Dd][Pp]     11:- Never looks for, selects, connects to or signals any Chrome / bro|
+9222             
+50568            
+kill             
+pgrep            
+lsof             1046:         "note": "orig-N11 (test Chrome lsof) is not part of this|
+shell=True       
+os.system        
+os.popen         
+eval(            
+exec(            
+pfctl            
+socketfilterfw   
+setairportpower  
+setdns           
+route add        
+route delete     
+route change     
+ down            8:- Python standard library only; no install, no download, no URL, no |
+Crashpad         
+anthropic        
+claude           
+Library/         
+0\.0\.0\.0       115:_KEEP_ADDRS = {"127.0.0.1", "0.0.0.0", "255.255.255.255", "192.0.2|
+bind(            584:        srv.bind(("127.0.0.1", 0))|
+--- subprocess call sites
+240:        p = subprocess.run(argv, stdin=subprocess.DEVNULL, stdout=subprocess.PIPE, stderr=subprocess.PIPE,
+630:        p = subprocess.run(argv, stdin=subprocess.DEVNULL, stdout=subprocess.PIPE, stderr=subprocess.PIPE,
+1197:    subprocess.run = _forbidden              # hard guard: no command can be run during the selftest
+1198:    subprocess.Popen = _forbidden
+--- socket creation sites
+556:        s = socket.socket(family, sock_type)
+581:    srv = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+591:        cli = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+--- argv of every external command
+61:SAFE_ENV = {"PATH": "/usr/bin:/bin:/usr/sbin:/sbin", "LC_ALL": "C", "LANG": "C"}
+65:    "sw_vers": ["/usr/bin/sw_vers"],
+66:    "uname": ["/usr/bin/uname", "-a"],
+67:    "id_groups": ["/usr/bin/id", "-Gn"],
+68:    "ifconfig_a": ["/sbin/ifconfig", "-a"],
+69:    "ifconfig_l": ["/sbin/ifconfig", "-l"],
+70:    "scutil_nwi": ["/usr/sbin/scutil", "--nwi"],
+71:    "scutil_dns": ["/usr/sbin/scutil", "--dns"],
+72:    "scutil_nc_list": ["/usr/sbin/scutil", "--nc", "list"],
+73:    "netstat_inet": ["/usr/sbin/netstat", "-rn", "-f", "inet"],
+74:    "netstat_inet6": ["/usr/sbin/netstat", "-rn", "-f", "inet6"],
+75:    "route_get_v4": ["/sbin/route", "-n", "get", ROUTE_GET_V4],
+76:    "route_get_v6": ["/sbin/route", "-n", "get", "-inet6", ROUTE_GET_V6],
+77:    "hardware_ports": ["/usr/sbin/networksetup", "-listallhardwareports"],
+80:AIRPORT_POWER_PREFIX = ["/usr/sbin/networksetup", "-getairportpower"]

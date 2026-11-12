@@ -1,0 +1,22 @@
+# Local tool availability (read-only), 2026-11-12 11:00 +0700
+-r-xr-xr-x   1 root  wheel  269568 May  1  2026 /sbin/ifconfig
+-r-xr-xr-x   1 root  wheel  169920 May  1  2026 /sbin/route
+-rwxr-xr-x   1 root  wheel  102160 May  1  2026 /usr/bin/id
+-rwxr-xr-x  78 root  wheel  118928 May  1  2026 /usr/bin/python3
+-rwxr-xr-x   2 root  wheel    9979 May  1  2026 /usr/bin/shasum
+-rwxr-xr-x   1 root  wheel  135536 May  1  2026 /usr/bin/sw_vers
+-rwxr-xr-x   1 root  wheel  101456 May  1  2026 /usr/bin/uname
+-r-xr-xr-x   1 root  wheel  401104 May  1  2026 /usr/sbin/netstat
+-rwxr-xr-x   1 root  wheel  454816 May  1  2026 /usr/sbin/networksetup
+-rwxr-xr-x   1 root  wheel  579696 May  1  2026 /usr/sbin/scutil
+xcode-select -p: /Applications/Xcode.app/Contents/Developer
+python: 3.9.6 /Applications/Xcode.app/Contents/Developer/usr/bin/python3 macOS 26.5
+ProductName:		macOS
+ProductVersion:		26.5
+BuildVersion:		25F71
+pip/brew/network NOT used; no package installed
+--- output-format samples captured for parser design (addresses masked)
+route -n get -inet6 2001:db8::1 -> 'route: writing to routing socket: not in table' (exit 0) despite scoped utun defaults
+netstat -rn -f inet6 default rows: fe80::%utunN UGcIg utunN (N=0..3; interface-scoped)
+netstat -rn -f inet default row: <v4> UGScg en0 (online, expected)
+scutil --dns: resolver #1 nameserver on en0 'Reachable' (online, expected); mdns resolvers 'Not Reachable'
