@@ -10,6 +10,11 @@
 >   memberi jaminan lintas proses.
 > - Empat keputusan terbuka (OPEN-1 s.d. OPEN-4) sudah **RESOLVED** atas persetujuan user (2026-11-18). Hal yang
 >   belum terbukti tetap dicatat di §11, bukan disembunyikan.
+> - Latch FAULTED dan AMB-1 s.d. AMB-4 sudah **RESOLVED** (2026-11-18): setelah `ProvenanceRegistryError`,
+>   registry menjadi FAULTED secara permanen sampai proses berakhir (§5.4). Setelah itu tidak ada otorisasi maupun
+>   registrasi yang bisa berhasil. Rollback tidak dijamin, jadi entri parsial mungkin tetap ada, tetapi tidak pernah
+>   dipakai. Latch ini hanya berlaku di proses itu dan tidak berkoordinasi dengan proses lain. Tes FAULTED nanti
+>   diisolasi dengan proses terpisah, tanpa API reset.
 
 ## 0. Status
 
@@ -20,6 +25,8 @@
 | Design reconciliation | AC-1 to AC-8 and U-1 to U-9 approved by the user |
 | Open decisions OPEN-1 to OPEN-4 | **RESOLVED** by user approval, 2026-11-18 (§6.4, §6.5, §8, §6.6) |
 | Decisions 1 to 3 (internal findings and callback result, `ProvenanceRegistryError` translation, failure while marking CONSUMED) | **APPROVED** by the user, 2026-11-18 (§6.6, §6.7, §6.8) |
+| FAULTED latch | **APPROVED** by the user, 2026-11-18 (§5.4, §6.8) |
+| AMB-1 to AMB-4 (acquisition while FAULTED, partial registration, FAULTED check and locking, FAULTED test isolation) | **RESOLVED** by user approval, 2026-11-18 (§4, §5.4, §9.4, §11) |
 | Documentation | this document and `SAFETY_AUDIT.md` (updated 2026-11-18) |
 | Design freeze | **NOT YET DECLARED** |
 | Implementation | **NOT AUTHORIZED** |
@@ -77,19 +84,42 @@ blocked until both are handled in their own phases with their own approval (`SAF
 
 ## 4. Acquisition: `acquire_balance(page)`
 
+0. **FAULTED pre-check (AMB-1 Case A).** If the registry is FAULTED (§5.4), raise `ProvenanceRegistryError` at
+   once. `aria_snapshot()` is **not** called, nothing is parsed and nothing is registered. This check **may** read
+   the latch without the registry lock (AMB-3). It is an early exit only, not the deciding check: the deciding
+   check is the one in step 5, inside the lock.
 1. Record `t_mono = time.monotonic()` **before** calling `page.locator("body").aria_snapshot()`, so the recorded age
    also includes the snapshot itself. A reader wall-clock time, if recorded, is diagnostic only. It is never compared
    with `read_at` and never used in a decision (AC-4).
-2. Call `page.locator("body").aria_snapshot()`. **Any exception is propagated** and nothing is registered (AC-2).
-3. `flow.aria.parse(text)`. **`AriaParseError` is propagated**; it is not turned into UNAVAILABLE (U-6). This
-   differs on purpose from `live_probe.body_tree`, which maps `AriaParseError` to `None`
-   (`src/blatifa/flow/live_probe.py:310-314`); `body_tree` is not changed.
+2. Call `page.locator("body").aria_snapshot()`. **Any exception is propagated unchanged** and nothing is registered
+   (AC-2). It does **not** set FAULTED.
+3. `flow.aria.parse(text)`. **`AriaParseError` is propagated unchanged**; it is not turned into UNAVAILABLE (U-6) and
+   it does **not** set FAULTED. This differs on purpose from `live_probe.body_tree`, which maps `AriaParseError` to
+   `None` (`src/blatifa/flow/live_probe.py:310-314`); `body_tree` is not changed.
 4. `account.balance.read_from_tree(tree)` classifies the tree. It stays a pure classifier: no clock argument, no
    registry, no provenance (`src/blatifa/account/balance.py:209-249`; its source must keep passing the
    forbidden-word check in `tests/unit/test_phase5_3g3_credit_contract.py:244-253`).
-5. Register the result **only if** `type(reading) is BalanceReading` and
-   `reading.status is BalanceStatus.VERIFIED_WITHOUT_INTERACTION`. Every other result is returned unregistered.
-6. Return the reading object.
+5. **Registration, inside the registry lock.** The lock is taken for **every** result, including results that will
+   not be registered, so that the deciding FAULTED check always runs.
+   - **FAULTED re-check (AMB-1 Case B, AMB-3).** This in-lock check is the **deciding** one. If the registry became
+     FAULTED while steps 1 to 4 ran (for example through a concurrent `authorize`), raise
+     `ProvenanceRegistryError`. The reading is not registered and is **not** returned. This applies to **every**
+     reading status, including `OBSERVED` and `UNAVAILABLE`, which would not have been registered anyway.
+   - Otherwise register the result **only if** `type(reading) is BalanceReading` and
+     `reading.status is BalanceStatus.VERIFIED_WITHOUT_INTERACTION`. Every other result is returned unregistered,
+     as before.
+   - **Registration failure (AMB-1 Case C, AMB-2).** If a registry operation in this step (lazy cleanup, overwriting
+     a dead entry, or storing the new entry) raises `ProvenanceRegistryError`, the FAULTED latch is set **first**,
+     then the same exception propagates to the caller. The reading is not returned. **No rollback is guaranteed:**
+     an entry may have been partly written, and it does not have to be removed. It is never used, because every
+     later `authorize` stops at §6.3 step 2 before any entry is examined, and every later registration stops at the
+     deciding check above.
+6. Return the reading object (only reached in state NORMAL).
+
+Only a recognized registry-internal `ProvenanceRegistryError` sets the latch. Page and parsing failures (steps 2
+and 3), and any other exception, never do, and they are never converted into `ProvenanceRegistryError`.
+`acquire_balance` does not catch and translate `ProvenanceRegistryError`; it only latches and propagates it. It
+has no finding codes, because acquisition is not authorization.
 
 **Registry entry** (AC-1). The entry is keyed by `id(reading)` and holds:
 
@@ -117,7 +147,7 @@ blocked until both are handled in their own phases with their own approval (`SAF
 
 | From | To | Only when |
 |---|---|---|
-| UNREGISTERED | AVAILABLE | `acquire_balance` registers a VERIFIED_WITHOUT_INTERACTION reading of exact type |
+| UNREGISTERED | AVAILABLE | `acquire_balance` registers a VERIFIED_WITHOUT_INTERACTION reading of exact type, with the registry NORMAL at the deciding in-lock check (§4 step 5) |
 | AVAILABLE | CONSUMED | a final `authorize_approval` returns allowed, inside the lock, before the result is returned |
 | AVAILABLE / CONSUMED | GONE | the object is collected (weakref dead), or the process ends (registry is memory only) |
 | CONSUMED | anything else | never |
@@ -126,8 +156,8 @@ blocked until both are handled in their own phases with their own approval (`SAF
 A reading is assessed STALE whenever a freshness check fails; nothing is stored for it.
 
 Separately from the per-reading states, the registry as a whole can become **FAULTED** after an internal
-`ProvenanceRegistryError` (§6.8). This is a process-wide latch, not a reading state. While it is set, no reading
-can be authorized and nothing is registered.
+`ProvenanceRegistryError` (§5.4, §6.8). This is a process-wide latch, not a reading state. While it is set, no
+reading can be authorized and nothing is registered.
 
 ### 5.3 Identity rules
 
@@ -143,6 +173,51 @@ can be authorized and nothing is registered.
 - **Lazy cleanup.** Dead entries are removed only by registry operations that already hold the lock (acquire or
   authorize). **No weakref callback takes the registry lock.** A callback can run during garbage collection on the
   thread that already holds a non-reentrant lock, which would deadlock.
+
+### 5.4 Registry state: NORMAL and FAULTED (latch approved; AMB-1 to AMB-4: RESOLVED)
+
+The registry as a whole has two states. They are separate from the per-reading states in §5.1.
+
+**Safety guarantee: no authorization or registration can succeed after the registry enters FAULTED.** This is
+the guarantee R-2 gives. It is **not** a claim that no partial entry can remain in the registry (AMB-2).
+
+| Registry state | Acquisition (`acquire_balance`) | Authorization (`provenance.authorize`) |
+|---|---|---|
+| **NORMAL** | permitted (§4) | permitted, subject to every R-2 check (§6.3) |
+| **FAULTED** | raises `ProvenanceRegistryError` for every reading status; nothing is registered or returned. If FAULTED at the start, `aria_snapshot()` is not called | returns the internal `REGISTRY_ERROR` at once (§6.3 step 2), before any entry is examined; the callback is never invoked |
+
+| Transition | Trigger |
+|---|---|
+| NORMAL → FAULTED | a recognized registry-internal `ProvenanceRegistryError` in any registry operation, during authorization (§6.3, §6.8) or acquisition (§4 step 5, Case C). The latch is set **before** the error is converted (authorize) or propagated (acquire) |
+| FAULTED → NORMAL | **never** inside the process. There is no automatic recovery, no retry, no reset and no latch-clearing API, public or private |
+| FAULTED → new process | the old Python process terminates. A new process starts with a new, empty registry in state NORMAL |
+
+Rules:
+
+- **Trigger.** Only a recognized `ProvenanceRegistryError` raised by a registry operation sets the latch.
+  `aria_snapshot()` exceptions, `AriaParseError`, `credit_evidence` exceptions, callback exceptions, a malformed
+  callback result (§6.7), a non-bool `wall_clock_verified`, `KeyboardInterrupt`, `SystemExit` and every other
+  exception do **not** set it.
+- **Permanent.** The latch is a single assignment and is never cleared while the process runs. Production code has
+  no reset, clear or recovery API for it, and none is added to make testing easier (AMB-4).
+- **Checks and locking (AMB-3).** A FAULTED check at the start of an operation may be made without the lock, as an
+  early exit only (§4 step 0). A re-check inside the registry lock is **mandatory** before any registry operation
+  continues, and that in-lock check is the deciding one (§4 step 5, §6.3 step 2). Authorization and consumption stay
+  atomic under the lock as in §6.3 steps 2 to 11. The lock is never exposed to `gates.py` or any other module.
+- **No rollback and no consumption claim (AMB-2).** Entering FAULTED does not mean that a failed registry mutation
+  was undone, and does not mean that a reading was successfully consumed. A partly written entry may remain and does
+  not have to be removed. The state of any affected entry is undefined and is never examined or used again.
+- **Test isolation (AMB-4).** FAULTED tests in the future implementation phase are isolated by running each FAULTED
+  case in a **separate Python process**, which starts with an empty registry. A test must not clear the latch inside
+  a process.
+- **Old readings after a restart.** `BalanceReading` objects from the old process cannot reach the new process
+  through the registry. Any equal-looking object in the new process has no entry, so it is UNREGISTERED (§5.1); it is
+  not trusted or reusable.
+- **Process-local only.** The latch lives in the memory of one Python process. It does **not** coordinate with
+  other processes: a FAULTED registry in one process does not stop another process from acquiring or authorizing.
+- **A restart proves nothing more.** Starting a new process, in production or in a test, does **not** establish
+  source authenticity and does **not** provide cross-process budget safety. Both remain live blockers (§2,
+  `SAFETY_AUDIT.md` §4).
 
 ## 6. Final authorization: `gates.authorize_approval`
 
@@ -176,7 +251,7 @@ alone holds the registry lock.
 |---|---|---|---|
 | 0 | gates | **SimulatedFlow path (U-1).** If `is_simulated_adapter(adapter)` and `type(reading) is int` and `reading >= 0`: return `approval_gate(quote, policy, reading, user_confirmed)`. No registry, no consumption | mirrors `approval_balance` (`gates.py:199-200`); simulation behaviour unchanged |
 | 1 | gates | `ce = credit_evidence(reading)`, **before the registry lock**. Its exceptions propagate (AC-7); `TypeError`/`ValueError` from the time are already turned into `(UNKNOWN, None, why)` inside it (`gates.py:168-171`). Then call `provenance.authorize(reading, wall_clock_verified=(ce[0] is ReadStatus.VERIFIED), evaluate_gate=…)` | — |
-| 2 | provenance | Acquire the private registry lock. If the registry is FAULTED (§6.8), stop with finding REGISTRY_ERROR; the callback is not invoked | otherwise continue |
+| 2 | provenance | Acquire the private registry lock. If the registry is FAULTED (§5.4, §6.8), stop with finding REGISTRY_ERROR before any entry is examined; the callback is not invoked. This in-lock check is the deciding one (AMB-3) | otherwise continue |
 | 3 | provenance | `type(reading) is BalanceReading` and an entry exists with `entry.ref() is reading` (lazy cleanup of a dead entry here) | otherwise finding UNREGISTERED |
 | 4 | provenance | `entry.state is AVAILABLE` | otherwise finding CONSUMED |
 | 5 | provenance | The object's `status`, `verified_balance`, `read_at` equal the snapshot | otherwise finding MUTATED |
@@ -247,6 +322,10 @@ then decides. The mapping below is derived from the source (`gates.py:160-175`):
   - `gates` maps the internal `REGISTRY_ERROR` to `BALANCE_READING_REGISTRY_ERROR` (step 12);
 - a `ProvenanceRegistryError` raised while marking CONSUMED (step 10) also becomes the internal `REGISTRY_ERROR`. The
   callback's allowed result is then **not** returned (§6.8);
+- in both cases the FAULTED latch is set before the conversion (§5.4);
+- `acquire_balance` does **not** translate it. A `ProvenanceRegistryError` raised during registration sets the
+  latch and then propagates to the caller; in a FAULTED registry `acquire_balance` raises it itself (§4 steps 0 and
+  5). Page (`aria_snapshot`) and `AriaParseError` exceptions propagate unchanged and are never converted into it;
 - the handler never encloses `credit_evidence` (step 1, which is outside `provenance`) or the callback
   (`approval_gate`, step 9). Their exceptions propagate unchanged;
 - `KeyboardInterrupt`, `SystemExit` and every unrelated exception propagate and are never turned into a registry
@@ -365,19 +444,19 @@ If the operation that marks the entry CONSUMED (step 10) raises `ProvenanceRegis
 - **no atomic rollback is claimed.** After a failed consumption, the entry's stored state is **undefined** and is
   never trusted again;
 - **a later attempt cannot bypass the failure.** Before `ProvenanceRegistryError` is converted, the registry latches
-  a process-wide **FAULTED** flag. While FAULTED:
+  the process-wide **FAULTED** state (§5.4, FAULTED latch decision). While FAULTED:
   - every later `provenance.authorize` returns `REGISTRY_ERROR` at once (priority 1) and never invokes a callback;
-  - `acquire_balance` registers nothing.
+  - `acquire_balance` raises `ProvenanceRegistryError` and registers nothing (§4 steps 0 and 5, AMB-1: RESOLVED).
 
-  The latch is a single assignment, set before the internal result is returned. It is never cleared inside the
-  process. Only a process restart clears it, and a restart also empties the registry, so every earlier reading is
-  then UNREGISTERED anyway;
-- the same latch applies to a `ProvenanceRegistryError` raised by any other registry operation inside
-  `authorize`. This keeps the rule simple: once the registry has reported an internal failure, it authorizes nothing
-  more in that process.
+  The latch is a single assignment, set before the internal result is returned. There is no automatic recovery,
+  retry, reset or clearing API. It persists until the Python process terminates; a new process starts with a new,
+  empty registry, in which every earlier reading is UNREGISTERED;
+- the same latch applies to a `ProvenanceRegistryError` raised by any other registry operation, in `authorize` or in
+  `acquire_balance`. Once the registry has reported an internal failure, it authorizes and registers nothing more in
+  that process.
 
 This latch is how the approved requirement "a later attempt must not be able to bypass the failed consumption" is
-met without claiming rollback. Its effect on `acquire_balance` is recorded as **AMB-1** in §11.
+met without claiming rollback. It is process-local and does not coordinate with other processes (§5.4).
 
 ## 7. Snapshot protection (AC-1, U-5)
 
@@ -499,7 +578,18 @@ Each test is described here only; none has been written or run.
   only; no production parameter.
 - **Priority:** combinations resolve per AC-5.
 - **Gate not run:** `approval_gate` is not called when provenance fails.
-- **Acquisition errors:** `aria_snapshot` raising and `AriaParseError` both propagate, and nothing is registered.
+- **Acquisition errors:** `aria_snapshot` raising and `AriaParseError` both propagate unchanged, nothing is
+  registered, and the registry stays NORMAL (a following valid acquisition and authorization still succeed).
+- **Acquisition while FAULTED:** Case A, `acquire_balance` on a FAULTED registry raises `ProvenanceRegistryError` and
+  the fake Page's `aria_snapshot` is never called. Case B, FAULTED set during acquisition → `ProvenanceRegistryError`,
+  nothing registered, no reading returned, for VERIFIED, `OBSERVED` and `UNAVAILABLE` results alike. Case C, a
+  `ProvenanceRegistryError` during registration → FAULTED is set, the same exception propagates, and a following
+  `authorize_approval` → `BALANCE_READING_REGISTRY_ERROR` without invoking the callback or examining any entry
+  (a partial entry, if any, is never used).
+- **FAULTED isolation (AMB-4):** every FAULTED test runs in its own separate Python process, so each starts with an
+  empty registry. No test clears the latch in-process.
+- **No clearing API:** an AST/attribute check that `provenance` exposes no reset, clear or recover function for the
+  latch.
 - **Registration filter:** only VERIFIED_WITHOUT_INTERACTION is registered; OBSERVED, UNAVAILABLE and
   USER_REPORTED are not.
 - **SimulatedFlow:** a raw int is allowed through step 0; a raw int with `FakeFlow` → blocked.
@@ -515,8 +605,9 @@ Each test is described here only; none has been written or run.
   raising `.allowed` property: an exception propagates, nothing is consumed, the lock is released, and the result is
   not REGISTRY_ERROR. `.allowed` is read exactly once.
 - **Consumption failure:** a `ProvenanceRegistryError` while marking CONSUMED → `BALANCE_READING_REGISTRY_ERROR`.
-  The callback's allowed result is not returned, `approve()` is not called, and a second `authorize_approval` on the
-  same or a new reading → `BALANCE_READING_REGISTRY_ERROR` (FAULTED latch).
+  The callback's allowed result is not returned, and `approve()` is not called. Afterwards, a second
+  `authorize_approval` on the same reading or on any other `BalanceReading` → `BALANCE_READING_REGISTRY_ERROR`, and
+  a new `acquire_balance` → `ProvenanceRegistryError` (FAULTED latch).
 - **Internal codes:** `provenance` has no import of `gates`, and the internal-to-public mapping is total and
   one-to-one.
 - **Lock ownership:** an AST check that `gates.py` does not reference the registry lock or registry internals.
@@ -553,6 +644,9 @@ Each test is described here only; none has been written or run.
 | OPEN-8 | cross-process budget coordination | not addressed by R-2; live prerequisite |
 | OPEN-9 | hashes and manifest | not computed, not updated |
 | OPEN-10 | implementation and tests | not done, not authorized |
-| OPEN-11 | design freeze | **not declared.** OPEN-1 to OPEN-4 are resolved and Decisions 1 to 3 are approved; a freeze still needs an explicit user decision |
-| AMB-1 | `acquire_balance` and the FAULTED latch (§6.8). Specified: it registers nothing while FAULTED. **Not specified:** whether it then still returns the (unregistered) reading or raises, and what happens when registration itself raises `ProvenanceRegistryError` (setting FAULTED is required either way). Either choice fails closed, because a later `authorize` returns REGISTRY_ERROR | open; needs a decision before freeze |
-| AMB-2 | the FAULTED latch itself is a derived mechanism (§6.8), written to meet Decision 3 without claiming rollback. It was not named in the approved decision text | needs user confirmation |
+| OPEN-11 | design freeze | **not declared.** OPEN-1 to OPEN-4 are resolved, Decisions 1 to 3 and the FAULTED latch are approved, and AMB-1 to AMB-4 are resolved; a freeze still needs an explicit user decision |
+| FAULTED latch | process-wide latch after `ProvenanceRegistryError` (§5.4, §6.8) | **APPROVED** (user, 2026-11-18): permanent until the process terminates; no recovery, retry, reset or clearing API; process-local only, with no cross-process coordination. (In the first update of 2026-11-18 this was labelled "AMB-2"; that label now means partial registration, below) |
+| AMB-1 | acquisition while FAULTED (§4 steps 0 and 5, §5.4) | **RESOLVED** (user, 2026-11-18): `ProvenanceRegistryError` when FAULTED before the start (Case A, `aria_snapshot()` not called) or during acquisition or registration (Cases B and C). Applies to every reading status, including `OBSERVED` and `UNAVAILABLE`. No reading is returned as acquired. `aria_snapshot()` exceptions and `AriaParseError` propagate unchanged and do not set FAULTED |
+| AMB-2 | partial registration (§4 step 5, §5.4) | **RESOLVED** (user, 2026-11-18): no rollback guarantee; a partial entry need not be removed and may remain; it is never used. Guarantee: no authorization or registration can succeed after the registry enters FAULTED |
+| AMB-3 | FAULTED check and locking (§4 steps 0 and 5, §5.4, §6.3 step 2) | **RESOLVED** (user, 2026-11-18): an early check may be lock-free; an in-lock re-check is mandatory and deciding; authorization and consumption stay atomic; the lock is not exposed |
+| AMB-4 | FAULTED test isolation (§5.4, §9.4) | **RESOLVED** (user, 2026-11-18): separate Python process per FAULTED case; no production reset API; a restart proves neither source authenticity nor cross-process budget safety |

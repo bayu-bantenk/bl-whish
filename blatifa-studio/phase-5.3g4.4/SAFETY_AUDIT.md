@@ -16,7 +16,9 @@
 | Authorization | write two documents only: `R2_DESIGN_SPEC.md` and this file |
 | Open decisions OPEN-1 to OPEN-4 | **RESOLVED** by user approval, 2026-11-18 (`R2_DESIGN_SPEC.md` §6.4, §6.5, §8, §6.6) |
 | Decisions 1 to 3 | **APPROVED** by the user, 2026-11-18 (`R2_DESIGN_SPEC.md` §6.6, §6.7, §6.8) |
-| Design freeze | **NOT YET DECLARED** (remaining items: `R2_DESIGN_SPEC.md` §11, including AMB-1 and AMB-2) |
+| FAULTED latch | **APPROVED** by the user, 2026-11-18 (`R2_DESIGN_SPEC.md` §5.4, §6.8) |
+| AMB-1 to AMB-4 | **RESOLVED** by user approval, 2026-11-18 (`R2_DESIGN_SPEC.md` §4, §5.4, §9.4, §11) |
+| Design freeze | **NOT YET DECLARED** (remaining items: `R2_DESIGN_SPEC.md` §11) |
 | Implementation | **NOT AUTHORIZED, NOT STARTED.** `src/blatifa/account/provenance.py` does not exist |
 | Testing | **NOT AUTHORIZED, NOT RUN** |
 | Live Google Flow interaction | **NOT AUTHORIZED** |
@@ -52,6 +54,11 @@ These statements are binding for every later R-2 document and report:
 4. **There is no cross-process guarantee.** The registry is process-local memory.
 5. **Source authenticity is not proven.**
 6. **Live approval stays blocked** until the prerequisites in §4 are met.
+7. **The FAULTED latch is process-local** (`R2_DESIGN_SPEC.md` §5.4). It does not coordinate with other processes.
+   Terminating a FAULTED process and starting a new one, in production or in a test, gives an empty registry, but it
+   does **not** establish source authenticity and does **not** provide cross-process budget safety.
+8. **The FAULTED guarantee is limited.** No authorization or registration can succeed after the registry enters
+   FAULTED. Rollback is **not** guaranteed, and a partly written registry entry may remain; it is never used.
 
 ## 4. Live prerequisites (U-9), all OPEN
 
@@ -69,6 +76,8 @@ interaction.
 
 - Start of work: 2026-11-18T07:18:25Z (UTC).
 - Open-decision update started 2026-11-18 14:29:47 +0700. Decisions 1 to 3 update started 2026-11-18 14:51:05 +0700.
+- FAULTED latch / first AMB update started 2026-11-18 22:05:45 +0700. AMB-1 to AMB-4 final update started
+  2026-11-18 22:13:24 +0700.
 - Files allowed to be created: `docs/phase-5.3g4.4/R2_DESIGN_SPEC.md` and `docs/phase-5.3g4.4/SAFETY_AUDIT.md`. The
   directory `docs/phase-5.3g4.4/` was created for them.
 - Check method: list every file in the repository modified after the start time. Expected result: only the two
@@ -89,5 +98,9 @@ interaction.
 | S-7 | `test_phase5_3g4_2_freshness.py` is pinned by no test (D-9) | pre-existing gap; plan in `R2_DESIGN_SPEC.md` §9.2 |
 | S-8 | The R-2 specification lived only in conversation until this stage | closed by `R2_DESIGN_SPEC.md`; freeze still not declared |
 | S-9 | Malformed callback result (`.allowed` missing, raising or non-bool) | **SPECIFIED** (Decision 1): exception propagates, nothing consumed, never REGISTRY_ERROR, never authorization |
-| S-10 | `ProvenanceRegistryError` while marking CONSUMED | **SPECIFIED** (Decision 3): REGISTRY_ERROR; allowed result discarded; no rollback claimed; FAULTED latch blocks later attempts in the process (AMB-2: latch needs confirmation) |
-| S-11 | `acquire_balance` behaviour while FAULTED | AMB-1, open |
+| S-10 | `ProvenanceRegistryError` while marking CONSUMED | **SPECIFIED** (Decision 3): REGISTRY_ERROR; allowed result discarded; no rollback claimed; FAULTED latch blocks later attempts in the process (latch **APPROVED**: permanent until process termination, no clearing API) |
+| S-11 | `acquire_balance` behaviour while FAULTED | **RESOLVED** (AMB-1): raises `ProvenanceRegistryError` in Cases A, B and C, for every reading status including `OBSERVED` and `UNAVAILABLE`; nothing registered or returned; Case A never calls `aria_snapshot()`. Page and `AriaParseError` failures propagate unchanged and do not set FAULTED |
+| S-12 | FAULTED latch scope | process-local only; no cross-process coordination; a restart does not prove source authenticity or budget safety (§3 item 7) |
+| S-13 | Partial registration entry after `ProvenanceRegistryError` | **RESOLVED** (AMB-2): no rollback guaranteed; the entry may remain and is never used, because authorization stops before examining entries and registration stops at the in-lock check (§3 item 8) |
+| S-14 | Lock-free FAULTED pre-check | **RESOLVED** (AMB-3): early exit only; the in-lock re-check is mandatory and deciding; authorization and consumption stay atomic; the lock is not exposed |
+| S-15 | FAULTED test isolation | **RESOLVED** (AMB-4): separate Python process per FAULTED case in the future test phase; no production reset API. Testing remains NOT AUTHORIZED |
