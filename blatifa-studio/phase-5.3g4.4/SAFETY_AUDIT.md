@@ -14,9 +14,12 @@
 |---|---|
 | Phase | `5.3g.4.4`, R-2: Balance Reading Provenance and Single-Use Authorization |
 | Authorization | write two documents only: `R2_DESIGN_SPEC.md` and this file |
-| Design freeze | **NOT YET DECLARED** (open issues: `R2_DESIGN_SPEC.md` §11) |
+| Open decisions OPEN-1 to OPEN-4 | **RESOLVED** by user approval, 2026-11-18 (`R2_DESIGN_SPEC.md` §6.4, §6.5, §8, §6.6) |
+| Decisions 1 to 3 | **APPROVED** by the user, 2026-11-18 (`R2_DESIGN_SPEC.md` §6.6, §6.7, §6.8) |
+| Design freeze | **NOT YET DECLARED** (remaining items: `R2_DESIGN_SPEC.md` §11, including AMB-1 and AMB-2) |
 | Implementation | **NOT AUTHORIZED, NOT STARTED.** `src/blatifa/account/provenance.py` does not exist |
 | Testing | **NOT AUTHORIZED, NOT RUN** |
+| Live Google Flow interaction | **NOT AUTHORIZED** |
 
 ## 2. Safety state (checked read-only on 2026-11-18)
 
@@ -65,6 +68,7 @@ interaction.
 ## 5. Change control for this stage
 
 - Start of work: 2026-11-18T07:18:25Z (UTC).
+- Open-decision update started 2026-11-18 14:29:47 +0700. Decisions 1 to 3 update started 2026-11-18 14:51:05 +0700.
 - Files allowed to be created: `docs/phase-5.3g4.4/R2_DESIGN_SPEC.md` and `docs/phase-5.3g4.4/SAFETY_AUDIT.md`. The
   directory `docs/phase-5.3g4.4/` was created for them.
 - Check method: list every file in the repository modified after the start time. Expected result: only the two
@@ -78,9 +82,12 @@ interaction.
 |---|---|---|
 | S-1 | macOS monotonic clock behaviour across sleep/wake | UNVERIFIED (`R2_DESIGN_SPEC.md` OPEN-5) |
 | S-2 | Same-process races and manipulation | outside guarantee (OPEN-6) |
-| S-3 | `credit_evidence` UNKNOWN mapping for a non-stale reason | OPEN-1 |
-| S-4 | Exact internal registry exception list | OPEN-2 |
-| S-5 | `PAUSE_BLOCKS` membership of the new codes | OPEN-3 |
-| S-6 | Lock interface between `gates` and `provenance` | OPEN-4 |
+| S-3 | `credit_evidence` UNKNOWN mapping for a non-stale reason | **RESOLVED** (OPEN-1): `BALANCE_READING_STALE`, internal reason UNKNOWN, no new public code |
+| S-4 | Internal registry exception | **RESOLVED** (OPEN-2): only `ProvenanceRegistryError` becomes `BALANCE_READING_REGISTRY_ERROR`. `credit_evidence` and `approval_gate` exceptions, `KeyboardInterrupt` and `SystemExit` propagate |
+| S-5 | `PAUSE_BLOCKS` membership of the new codes | **RESOLVED** (OPEN-3): unchanged. R-2 blocks go to manual intervention and never retry automatically |
+| S-6 | Lock interface between `gates` and `provenance` | **RESOLVED** (OPEN-4): `provenance` owns the lock; `gates` passes an `evaluate_gate` callback; no lock exposed; no import cycle |
 | S-7 | `test_phase5_3g4_2_freshness.py` is pinned by no test (D-9) | pre-existing gap; plan in `R2_DESIGN_SPEC.md` §9.2 |
 | S-8 | The R-2 specification lived only in conversation until this stage | closed by `R2_DESIGN_SPEC.md`; freeze still not declared |
+| S-9 | Malformed callback result (`.allowed` missing, raising or non-bool) | **SPECIFIED** (Decision 1): exception propagates, nothing consumed, never REGISTRY_ERROR, never authorization |
+| S-10 | `ProvenanceRegistryError` while marking CONSUMED | **SPECIFIED** (Decision 3): REGISTRY_ERROR; allowed result discarded; no rollback claimed; FAULTED latch blocks later attempts in the process (AMB-2: latch needs confirmation) |
+| S-11 | `acquire_balance` behaviour while FAULTED | AMB-1, open |

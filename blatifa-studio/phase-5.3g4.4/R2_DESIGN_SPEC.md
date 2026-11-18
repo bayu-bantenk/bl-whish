@@ -8,7 +8,8 @@
 >   proses Python yang sama, dan hanya dipakai sekali untuk satu otorisasi approval.
 > - R-2 **tidak** membuktikan bahwa Page berasal dari Google Flow, tidak membuktikan saldo yang sebenarnya, dan tidak
 >   memberi jaminan lintas proses.
-> - Hal yang belum pasti ditulis sebagai **OPEN SPECIFICATION ISSUE** (§11), bukan disembunyikan.
+> - Empat keputusan terbuka (OPEN-1 s.d. OPEN-4) sudah **RESOLVED** atas persetujuan user (2026-11-18). Hal yang
+>   belum terbukti tetap dicatat di §11, bukan disembunyikan.
 
 ## 0. Status
 
@@ -17,10 +18,13 @@
 | Phase ID | `5.3g.4.4` |
 | Name | R-2: Balance Reading Provenance and Single-Use Authorization |
 | Design reconciliation | AC-1 to AC-8 and U-1 to U-9 approved by the user |
-| Documentation | this document and `SAFETY_AUDIT.md` (in progress, 2026-11-18) |
+| Open decisions OPEN-1 to OPEN-4 | **RESOLVED** by user approval, 2026-11-18 (§6.4, §6.5, §8, §6.6) |
+| Decisions 1 to 3 (internal findings and callback result, `ProvenanceRegistryError` translation, failure while marking CONSUMED) | **APPROVED** by the user, 2026-11-18 (§6.6, §6.7, §6.8) |
+| Documentation | this document and `SAFETY_AUDIT.md` (updated 2026-11-18) |
 | Design freeze | **NOT YET DECLARED** |
 | Implementation | **NOT AUTHORIZED** |
 | Testing | **NOT AUTHORIZED** |
+| Live Google Flow interaction | **NOT AUTHORIZED** |
 | Hash / manifest | **NOT UPDATED** (plan only, §9) |
 
 Every source reference below is to the code as read (read-only) on 2026-11-18. Nothing described as "new" or
@@ -63,8 +67,8 @@ blocked until both are handled in their own phases with their own approval (`SAF
 
 | Component | Status | Role |
 |---|---|---|
-| `src/blatifa/account/provenance.py` | new | acquisition (`acquire_balance`), the process-local registry, its lock, the single-use check and consumption |
-| `src/blatifa/production/gates.py` | changed | new `Block` members (§6.2) and `authorize_approval` (§6) |
+| `src/blatifa/account/provenance.py` | new | acquisition (`acquire_balance`) and the **sole owner** of the registry state, the registry lock, identity, snapshot and monotonic validation, internal finding codes, the internal authorization result, atomic consumption (`authorize`, §6.6) and `ProvenanceRegistryError` |
+| `src/blatifa/production/gates.py` | changed | new `Block` members (§6.2) and `authorize_approval` (§6): `credit_evidence` before the registry, the `approval_gate` callback, and the mapping of internal findings to public blocks. It never accesses or holds the registry lock |
 | `src/blatifa/production/runner.py` | changed | `_decide_on_quote` uses one local reading and `authorize_approval` (§8) |
 | `src/blatifa/account/balance.py` | **unchanged** | `BalanceReading` and `read_from_tree` stay as they are |
 | `credit_evidence`, `approval_balance`, `approval_gate`, `preflight_gate` | **unchanged** | `credit_evidence` never touches the registry |
@@ -121,6 +125,10 @@ blocked until both are handled in their own phases with their own approval (`SAF
 
 A reading is assessed STALE whenever a freshness check fails; nothing is stored for it.
 
+Separately from the per-reading states, the registry as a whole can become **FAULTED** after an internal
+`ProvenanceRegistryError` (§6.8). This is a process-wide latch, not a reading state. While it is set, no reading
+can be authorized and nothing is registered.
+
 ### 5.3 Identity rules
 
 - **Exact object identity.** An entry matches only if `entry.ref() is reading`. Equality is never used.
@@ -161,20 +169,24 @@ UNREGISTERED.
 
 ### 6.3 Order of evaluation
 
-| Step | Action | Outcome |
-|---|---|---|
-| 0 | **SimulatedFlow path (U-1).** If `is_simulated_adapter(adapter)` and `type(reading) is int` and `reading >= 0`: return `approval_gate(quote, policy, reading, user_confirmed)`. No registry, no consumption | mirrors `approval_balance` (`gates.py:199-200`); simulation behaviour unchanged |
-| 1 | `ce = credit_evidence(reading)`, **outside the lock**. Unrelated exceptions propagate (AC-7); `TypeError`/`ValueError` from the time are already turned into `(UNKNOWN, None, why)` inside it (`gates.py:168-171`) | wall-clock finding: `ce[0] is ReadStatus.VERIFIED` or not |
-| 2 | Acquire the registry lock | — |
-| 3 | `type(reading) is BalanceReading` and an entry exists with `entry.ref() is reading` (lazy cleanup of a dead entry here) | otherwise finding UNREGISTERED |
-| 4 | `entry.state is AVAILABLE` | otherwise finding CONSUMED |
-| 5 | The object's `status`, `verified_balance`, `read_at` equal the snapshot | otherwise finding MUTATED |
-| 6 | Monotonic age `a = time.monotonic() - entry.t_mono`: accepted only if `0 <= a <= 300` | otherwise finding STALE |
-| 7 | Combine with step 1: if `ce` is not VERIFIED, add the finding from §6.4 | — |
-| 8 | **If there is any finding:** release the lock and return `GateResult([highest-priority block], [details])`. `approval_gate` is **not** run (U-3). Nothing is consumed | — |
-| 9 | Otherwise `g = approval_gate(quote, policy, snapshot.verified_balance, user_confirmed)`, still inside the lock, **outside** any registry `try/except` (U-4). Exceptions propagate unchanged | — |
-| 10 | If `g.allowed`: set `entry.state = CONSUMED` **before** returning | consumed exactly once |
-| 11 | Release the lock and return `g`. A blocked `g` consumes nothing | — |
+Steps 0, 1 and 12 run in `gates.authorize_approval`. Steps 2 to 11 run inside `provenance.authorize` (§6.6), which
+alone holds the registry lock.
+
+| Step | Where | Action | Outcome |
+|---|---|---|---|
+| 0 | gates | **SimulatedFlow path (U-1).** If `is_simulated_adapter(adapter)` and `type(reading) is int` and `reading >= 0`: return `approval_gate(quote, policy, reading, user_confirmed)`. No registry, no consumption | mirrors `approval_balance` (`gates.py:199-200`); simulation behaviour unchanged |
+| 1 | gates | `ce = credit_evidence(reading)`, **before the registry lock**. Its exceptions propagate (AC-7); `TypeError`/`ValueError` from the time are already turned into `(UNKNOWN, None, why)` inside it (`gates.py:168-171`). Then call `provenance.authorize(reading, wall_clock_verified=(ce[0] is ReadStatus.VERIFIED), evaluate_gate=…)` | — |
+| 2 | provenance | Acquire the private registry lock. If the registry is FAULTED (§6.8), stop with finding REGISTRY_ERROR; the callback is not invoked | otherwise continue |
+| 3 | provenance | `type(reading) is BalanceReading` and an entry exists with `entry.ref() is reading` (lazy cleanup of a dead entry here) | otherwise finding UNREGISTERED |
+| 4 | provenance | `entry.state is AVAILABLE` | otherwise finding CONSUMED |
+| 5 | provenance | The object's `status`, `verified_balance`, `read_at` equal the snapshot | otherwise finding MUTATED |
+| 6 | provenance | Monotonic age `a = time.monotonic() - entry.t_mono`: accepted only if `0 <= a <= 300` | otherwise finding STALE |
+| 7 | provenance | If `wall_clock_verified` is false, add finding STALE (§6.4) | — |
+| 8 | provenance | **If there is any finding:** release the lock and return the highest-priority finding (AC-5). The callback is **not** invoked, so `approval_gate` is **not** run (U-3). Nothing is consumed | — |
+| 9 | provenance | Otherwise invoke `evaluate_gate(snapshot.verified_balance)`, still inside the lock and **outside** any `ProvenanceRegistryError` handler (U-4). The callback runs `approval_gate`. If it raises, the original exception propagates and the lock is released (§6.6). Then read the result's `.allowed` **once** and validate it (§6.7) | — |
+| 10 | provenance | If `.allowed is True`: set `entry.state = CONSUMED` **before** returning. If this raises `ProvenanceRegistryError`, the result is the internal `REGISTRY_ERROR` and the callback's result is discarded (§6.8) | consumed exactly once |
+| 11 | provenance | Release the lock and return the internal authorization result: the callback's result (consumed if allowed), or a finding. If `.allowed is False`, nothing is consumed | — |
+| 12 | gates | Map the internal result to a `GateResult`: an internal finding becomes `GateResult([Block.BALANCE_READING_<finding>], [details])` (details keep the `credit_evidence` reason, §6.4). A callback result is returned as it is | — |
 
 Notes:
 
@@ -184,6 +196,10 @@ Notes:
   so the result is `BALANCE_READING_UNREGISTERED`. In the runner they normally never get this far, because the
   preliminary gate already blocks with `COST_OVER_BALANCE` (§8; existing test
   `tests/unit/test_phase5_3g4_1_adapter_trust.py:183-192`).
+- `provenance` cannot import `gates` (§10), so it cannot name `Block` or `GateResult`. It reports its findings
+  with its own internal codes (§6.6), which `gates` maps one-to-one to the five public codes (step 12). It
+  recognizes an allowed callback result only through a validated boolean `.allowed` (§6.7). This is approved
+  (Decision 1) and adds no public code.
 - The wall-clock check (step 1) is evaluated before the lock is taken. Time spent waiting for the lock is covered by
   the monotonic check (step 6), which runs inside the lock.
 - The monotonic bound is read as inclusive (`<= 300`), mirroring `_freshness_verdict` (`gates.py:139`). No new
@@ -200,25 +216,168 @@ then decides. The mapping below is derived from the source (`gates.py:160-175`):
 | legacy `CreditSnapshot` (162-163) | no | UNREGISTERED |
 | other type (164-165) | no | UNREGISTERED |
 | status not VERIFIED / no value (166-167) | no: only VERIFIED is registered, and a changed status is MUTATED | UNREGISTERED or MUTATED |
-| time cannot be evaluated (168-171) | not expected: `__post_init__` already parsed `read_at` (`balance.py:168`), and a changed `read_at` is MUTATED | MUTATED if changed. Otherwise **OPEN-1** |
+| time cannot be evaluated (168-171) | not expected: `__post_init__` already parsed `read_at` (`balance.py:168`), and a changed `read_at` is MUTATED | MUTATED if changed. Otherwise STALE (OPEN-1, below) |
 | stale or future-dated (172-174) | yes | **STALE** |
 
-**OPEN-1:** a registered, unmutated reading whose `credit_evidence` result is UNKNOWN for a reason other than
-staleness has no derived code. Proposed handling is `BALANCE_READING_STALE` (fail closed, no new public code), but
-it is not confirmed.
+**OPEN-1: RESOLVED.** When `credit_evidence` returns UNKNOWN and no more specific finding applies, the result is
+`BALANCE_READING_STALE`:
+
+- the internal reason is kept as UNKNOWN, and the `credit_evidence` reason text goes into the `GateResult` details;
+- the code does **not** claim that the reading has literally expired. It means "the wall-clock evidence did not
+  verify";
+- no new public block code is introduced;
+- AC-5 priority is unchanged: a higher-priority finding (REGISTRY_ERROR, UNREGISTERED, MUTATED, CONSUMED) still
+  wins.
 
 ### 6.5 Exception semantics (AC-7, U-4)
 
 - `credit_evidence` is not changed. It keeps `except (TypeError, ValueError)` and has no `except Exception`
   (`tests/unit/test_phase5_3g4_2_freshness.py:212-220`). Because step 1 runs before any registry access, a
   `RuntimeError` from the object's `read_at` still propagates. The existing test needs no change.
-- `BALANCE_READING_REGISTRY_ERROR` covers only explicitly listed internal registry failures. The `try` block contains
-  registry operations only, never `credit_evidence`, never reads of object attributes beyond the snapshot
-  comparison, and never `approval_gate`.
-- **OPEN-2:** the exact list of caught exceptions is not fixed yet. Proposed: `provenance` defines its own
-  `ProvenanceRegistryError`, raised only when a registry invariant is violated (for example, an unknown state), and
-  only that class is caught. `MemoryError`, `KeyboardInterrupt` and everything else propagate.
-- No catch-all handler that swallows unrelated errors is allowed anywhere on this path.
+
+**OPEN-2: RESOLVED.** There is one dedicated exception, `ProvenanceRegistryError`:
+
+- it is defined and owned by `provenance.py`;
+- it represents recognized internal registry invariant or operation failures only, for example an entry in an
+  unknown state. No list of generic Python exceptions is treated as a registry failure;
+- **only** this exception is translated, in two stages (Decision 2):
+  - `provenance.authorize` catches it, and only within its narrowly scoped registry operations. It converts it to
+    the internal finding `REGISTRY_ERROR`, the highest priority (step 8). `provenance` does not know or import the
+    public block codes;
+  - `gates` maps the internal `REGISTRY_ERROR` to `BALANCE_READING_REGISTRY_ERROR` (step 12);
+- a `ProvenanceRegistryError` raised while marking CONSUMED (step 10) also becomes the internal `REGISTRY_ERROR`. The
+  callback's allowed result is then **not** returned (§6.8);
+- the handler never encloses `credit_evidence` (step 1, which is outside `provenance`) or the callback
+  (`approval_gate`, step 9). Their exceptions propagate unchanged;
+- `KeyboardInterrupt`, `SystemExit` and every unrelated exception propagate and are never turned into a registry
+  error;
+- there is no broad `except Exception` around the authorization flow, and no catch-all handler anywhere on this
+  path.
+
+### 6.6 Lock ownership and callback boundary (OPEN-4: RESOLVED)
+
+**Responsibility boundary**
+
+| `provenance.py` owns | `gates.py` owns |
+|---|---|
+| the registry and its private lock | `credit_evidence()` evaluation, before registry authorization |
+| exact object identity validation | the public block codes and the mapping from internal findings to them |
+| snapshot validation | construction of the `approval_gate()` callback |
+| monotonic freshness validation | translation of the internal authorization result into a public `GateResult` |
+| the internal finding codes | |
+| atomic consumption | |
+| `ProvenanceRegistryError` | |
+| the internal authorization result | |
+
+**Forbidden dependencies**
+
+- `provenance.py` must not import `gates.py` or `live_probe.py`.
+- `gates.py` must not access the registry lock.
+- The lock is never exposed to any caller.
+- No circular import.
+- `account/__init__.py` is not changed.
+
+**Internal finding codes** (owned by `provenance`, Decision 1)
+
+| Internal finding | Public block (mapped by `gates`) |
+|---|---|
+| `REGISTRY_ERROR` | `BALANCE_READING_REGISTRY_ERROR` |
+| `UNREGISTERED` | `BALANCE_READING_UNREGISTERED` |
+| `MUTATED` | `BALANCE_READING_MUTATED` |
+| `CONSUMED` | `BALANCE_READING_CONSUMED` |
+| `STALE` | `BALANCE_READING_STALE` |
+
+The internal codes do not depend on, import or name the public `Block` codes. The mapping is one-to-one and total.
+No other public block code is introduced. The AC-5 priority is applied to the internal codes in the same order.
+
+**Internal authorization result.** It is one of:
+
+- a finding: one internal code plus details;
+- the callback's result, with `.allowed is True`, and the entry has been CONSUMED;
+- the callback's result, with `.allowed is False`, and nothing has been consumed.
+
+Conceptual interface. This is a contract only; it is not implemented and does not authorize implementation:
+
+```python
+provenance.authorize(
+    reading,
+    wall_clock_verified=...,                       # result of credit_evidence(reading), computed before the lock
+    evaluate_gate=lambda verified_balance: approval_gate(
+        quote, policy, verified_balance, user_confirmed,
+    ),
+)
+```
+
+Callback contract:
+
+1. `credit_evidence()` runs in `gates` **before** `provenance.authorize` is called, so before the registry lock is
+   taken.
+2. `provenance.authorize()` acquires its private lock.
+3. It validates exact identity, state, snapshot and monotonic freshness, and combines them with
+   `wall_clock_verified` (§6.3 steps 3 to 7).
+4. If provenance fails, the callback is **not** invoked.
+5. If provenance passes, the callback runs inside the critical section with `verified_balance` taken from the
+   validated registry snapshot (AC-1, U-5).
+6. The callback's result must expose a valid boolean `.allowed` (§6.7).
+7. If `.allowed is True`, the entry is marked CONSUMED **before** authorization is returned.
+8. If consumption fails with `ProvenanceRegistryError`, the internal `REGISTRY_ERROR` is returned. The callback's
+   earlier allowed result is **never** returned (§6.8).
+9. If the callback raises, its **original** exception propagates, and the lock is released safely (a `with` block
+   or `try/finally`). It is never converted into `ProvenanceRegistryError` or `REGISTRY_ERROR`, and nothing is
+   consumed.
+10. `gates.py` maps the internal result to the public block codes (§6.3 step 12).
+
+Two further rules apply. No lock object is exposed to `gates.py`. No circular import is introduced: `provenance`
+does not import `gates`, and the callback is a plain callable supplied by `gates` (§10).
+
+Parameter names `reading`, `wall_clock_verified` and `evaluate_gate` are not in `FRESHNESS_WORDS`. The new R-2
+test applies the D-6 rule to `provenance` as well.
+
+### 6.7 Callback result validation (Decision 1)
+
+- The result's `.allowed` attribute is read **exactly once**. The value read is the one used, so a property that
+  returns different values on different reads cannot matter.
+- It is accepted only if `type(value) is bool`. A truthy or falsy non-bool (`1`, `"yes"`, `None`, a list) is not
+  accepted.
+- **Malformed result:** `.allowed` is missing, reading it raises, or it is not a `bool`. This is a contract violation
+  by the caller-supplied callback, not a registry failure:
+  - nothing is consumed and the entry stays as it was (AVAILABLE);
+  - no result is returned as authorization;
+  - an exception propagates to the caller, and the lock is released safely. A missing attribute or a raising
+    property propagates its **original** exception. A non-bool value raises `TypeError`;
+  - it is **never** converted to `ProvenanceRegistryError` or `REGISTRY_ERROR`. It is never caught by the registry
+    handler, so AC-7 is not weakened.
+- In the production flow the callback returns a `GateResult`, whose `allowed` is a property computing
+  `not self.blocks` (`gates.py:59-61`), so it is always a `bool`. Validation exists for the contract, not because
+  `GateResult` is known to misbehave.
+- `wall_clock_verified` is likewise accepted only as an exact `bool`. A non-bool raises `TypeError` before the lock
+  is taken. This is a contract check on the `gates` side of the boundary, not a registry error.
+
+### 6.8 Failure while marking CONSUMED (Decision 3)
+
+If the operation that marks the entry CONSUMED (step 10) raises `ProvenanceRegistryError`:
+
+- authorization fails closed. The internal result is `REGISTRY_ERROR`, which `gates` maps to
+  `BALANCE_READING_REGISTRY_ERROR`;
+- the callback's earlier `.allowed is True` result is discarded. It is never returned and never escapes in any other
+  form, so no approval action can proceed from this call. In the runner, the result is the existing blocked path:
+  `adapter.reject()`, ledger `REJECTED`, `_manual` (`runner.py:197-201`);
+- **no atomic rollback is claimed.** After a failed consumption, the entry's stored state is **undefined** and is
+  never trusted again;
+- **a later attempt cannot bypass the failure.** Before `ProvenanceRegistryError` is converted, the registry latches
+  a process-wide **FAULTED** flag. While FAULTED:
+  - every later `provenance.authorize` returns `REGISTRY_ERROR` at once (priority 1) and never invokes a callback;
+  - `acquire_balance` registers nothing.
+
+  The latch is a single assignment, set before the internal result is returned. It is never cleared inside the
+  process. Only a process restart clears it, and a restart also empties the registry, so every earlier reading is
+  then UNREGISTERED anyway;
+- the same latch applies to a `ProvenanceRegistryError` raised by any other registry operation inside
+  `authorize`. This keeps the rule simple: once the registry has reported an internal failure, it authorizes nothing
+  more in that process.
+
+This latch is how the approved requirement "a later attempt must not be able to bypass the failed consumption" is
+met without claiming rollback. Its effect on `acquire_balance` is recorded as **AMB-1** in §11.
 
 ## 7. Snapshot protection (AC-1, U-5)
 
@@ -230,8 +389,8 @@ difference is MUTATED. `object.__setattr__` can change a frozen dataclass; the e
 
 ### 7.2 What the gate uses
 
-`approval_gate` receives `snapshot.verified_balance` (step 9), never a value read again from the object. A change to
-the object after step 5 cannot change the balance the gate compares against.
+The callback, and so `approval_gate`, receives `snapshot.verified_balance` (step 9), never a value read again from
+the object. A change to the object after step 5 cannot change the balance the gate compares against.
 
 ### 7.3 Residual (out of guarantee, Option C)
 
@@ -264,9 +423,14 @@ Planned `SceneRunner._decide_on_quote` (current: `src/blatifa/production/runner.
 The time the user takes to confirm counts toward both freshness checks. A slow confirmation ends in
 `BALANCE_READING_STALE`, which is fail-closed.
 
-**OPEN-3:** the new block codes are not in `PAUSE_BLOCKS` (`gates.py:51`), so `_manual` sends them to manual
-intervention. Whether any of them (for example `STALE`) should pause instead has not been decided. Default if not
-decided: unchanged `PAUSE_BLOCKS`.
+**OPEN-3: RESOLVED. `PAUSE_BLOCKS` stays unchanged** (`gates.py:51`: `CREDIT_UNKNOWN`, `INSUFFICIENT_CREDIT`,
+`DISK_LOW`). No R-2 provenance block is added to it. The five R-2 blocks keep the existing fail-closed path:
+`adapter.reject()`, ledger `REJECTED`, and `_manual` to manual intervention (`runner.py:197-201`). Reasons:
+
+- provenance failures are not safe conditions for an automatic retry;
+- STALE needs a new acquisition, not a wait;
+- UNREGISTERED, MUTATED, CONSUMED and REGISTRY_ERROR must never trigger an automatic retry;
+- changing `PAUSE_BLOCKS` would change runner state transitions outside the scope of R-2.
 
 **Simulation** stays as it is: `cli.cmd_episode` simulate passes `SimulatedFlow` and `balance=lambda: 10_000`
 (`src/blatifa/cli.py:363-364`, pinned by `tests/unit/test_phase5_3g4_1_adapter_trust.py:276-280`), and step 0 of
@@ -278,7 +442,7 @@ decided: unchanged `PAUSE_BLOCKS`.
 
 | Path | Why |
 |---|---|
-| `src/blatifa/production/gates.py` | `Block` members, `authorize_approval` |
+| `src/blatifa/production/gates.py` | `Block` members, `authorize_approval`. `PAUSE_BLOCKS` unchanged |
 | `src/blatifa/production/runner.py` | `_decide_on_quote`, `_gate_balance` |
 | `tests/unit/simflow.py` | `fresh_balance` must return a **registered** reading, via `acquire_balance` on a fake Page. Without this, every `FakeFlow` approve path in the 13 test files that import `simflow` would get `BALANCE_READING_UNREGISTERED` (`simflow.py:188-204`) |
 | `tests/unit/test_phase5_3g3_credit_contract.py` | contract tests touched by the new blocks (exact edits defined at implementation) |
@@ -316,7 +480,7 @@ root pins the ones before it.
 | D-8 | callers of `credit_evidence`/`approval_balance` | add `gates.authorize_approval → credit_evidence` (no keywords). `_freshness_verdict` keeps its single call site in `credit_evidence` |
 | D-9 | `freshness.py` unpinned | exact pin in the new R-2 test |
 | D-10 | `account/__init__.py` baselined | not changed; import `blatifa.account.provenance` directly |
-| D-11 | import cycles | §10 |
+| D-11 | import cycles | §10. The callback boundary (§6.6) keeps `provenance` free of any `gates` import |
 
 ### 9.4 Acceptance tests to write (none run)
 
@@ -341,7 +505,22 @@ Each test is described here only; none has been written or run.
 - **SimulatedFlow:** a raw int is allowed through step 0; a raw int with `FakeFlow` → blocked.
 - **Runner:** one `self.balance()` per decision; the reading is consumed before `approve()`; it stays consumed when
   `approve()` raises.
-- **Exceptions:** `approval_gate` exceptions are not reported as `REGISTRY_ERROR`.
+- **Exceptions:** `approval_gate` exceptions are not reported as `REGISTRY_ERROR`. A raising callback propagates
+  its original exception, releases the lock (a following call does not block), and consumes nothing.
+  `KeyboardInterrupt` and `SystemExit` are not converted. Only `ProvenanceRegistryError` becomes
+  `BALANCE_READING_REGISTRY_ERROR`, including when it is raised during consumption.
+- **Wall-clock UNKNOWN:** `wall_clock_verified=False` on an otherwise valid reading → `BALANCE_READING_STALE`,
+  with the `credit_evidence` reason in the details (OPEN-1).
+- **Callback result:** `.allowed` of `1`, `"yes"` or `None` (truthy or falsy non-bool), a missing `.allowed`, or a
+  raising `.allowed` property: an exception propagates, nothing is consumed, the lock is released, and the result is
+  not REGISTRY_ERROR. `.allowed` is read exactly once.
+- **Consumption failure:** a `ProvenanceRegistryError` while marking CONSUMED → `BALANCE_READING_REGISTRY_ERROR`.
+  The callback's allowed result is not returned, `approve()` is not called, and a second `authorize_approval` on the
+  same or a new reading → `BALANCE_READING_REGISTRY_ERROR` (FAULTED latch).
+- **Internal codes:** `provenance` has no import of `gates`, and the internal-to-public mapping is total and
+  one-to-one.
+- **Lock ownership:** an AST check that `gates.py` does not reference the registry lock or registry internals.
+- **PAUSE_BLOCKS:** an assertion that it still equals `{CREDIT_UNKNOWN, INSUFFICIENT_CREDIT, DISK_LOW}`.
 - **Weakref:** no weakref callback; `id` reuse is rejected.
 - **Imports:** AST check of `provenance` imports.
 - **Integrity:** exact pin of `freshness.py`.
@@ -357,23 +536,23 @@ Each test is described here only; none has been written or run.
   - `balance.py:27` imports only `flow.aria`;
   - `aria.py` imports only `re`, `yaml` and the standard library.
 - `account/__init__.py` is not changed and exports nothing new.
-- **OPEN-4:** `approval_gate` must run inside the provenance lock (step 9), but `provenance` cannot import `gates`.
-  One option is for `provenance` to expose an internal check-and-consume function that takes the decision as a
-  callable, runs it under the lock outside the registry `try`, and consumes only when the result is allowed. The
-  exact interface is not fixed.
+- `approval_gate` runs inside the provenance lock through the `evaluate_gate` callback supplied by `gates`
+  (§6.6, OPEN-4 RESOLVED). `provenance` therefore never needs to import `gates`.
 
 ## 11. Open specification issues and unproven items
 
 | # | Item | State |
 |---|---|---|
-| OPEN-1 | `credit_evidence` UNKNOWN for a non-stale reason on a registered, unmutated reading (§6.4) | proposed STALE, not confirmed |
-| OPEN-2 | exact list of internal registry exceptions (§6.5) | proposed `ProvenanceRegistryError` only |
-| OPEN-3 | whether any new block belongs in `PAUSE_BLOCKS` (§8) | default: no change |
-| OPEN-4 | interface between `gates.authorize_approval` and the provenance lock (§10) | not fixed |
+| OPEN-1 | `credit_evidence` UNKNOWN with no more specific finding (§6.4) | **RESOLVED:** `BALANCE_READING_STALE`; internal reason UNKNOWN; no new code |
+| OPEN-2 | internal registry exception (§6.5) | **RESOLVED:** `ProvenanceRegistryError` only |
+| OPEN-3 | `PAUSE_BLOCKS` membership (§8) | **RESOLVED:** unchanged; no R-2 block added |
+| OPEN-4 | lock ownership and API (§6.6) | **RESOLVED:** `provenance` owns the lock; callback boundary `provenance.authorize(…)` |
 | OPEN-5 | macOS `time.monotonic()` behaviour across sleep/wake | **UNVERIFIED.** It is expected not to advance during sleep, in which case only the wall-clock check catches the time asleep. No evidence on this host |
 | OPEN-6 | residual same-process races (§7.3) | outside the guarantee, documented |
 | OPEN-7 | source authenticity (Page is Google Flow) | not addressed by R-2; live prerequisite |
 | OPEN-8 | cross-process budget coordination | not addressed by R-2; live prerequisite |
 | OPEN-9 | hashes and manifest | not computed, not updated |
 | OPEN-10 | implementation and tests | not done, not authorized |
-| OPEN-11 | design freeze | not declared; needs OPEN-1 to OPEN-4 decided |
+| OPEN-11 | design freeze | **not declared.** OPEN-1 to OPEN-4 are resolved and Decisions 1 to 3 are approved; a freeze still needs an explicit user decision |
+| AMB-1 | `acquire_balance` and the FAULTED latch (§6.8). Specified: it registers nothing while FAULTED. **Not specified:** whether it then still returns the (unregistered) reading or raises, and what happens when registration itself raises `ProvenanceRegistryError` (setting FAULTED is required either way). Either choice fails closed, because a later `authorize` returns REGISTRY_ERROR | open; needs a decision before freeze |
+| AMB-2 | the FAULTED latch itself is a derived mechanism (§6.8), written to meet Decision 3 without claiming rollback. It was not named in the approved decision text | needs user confirmation |
