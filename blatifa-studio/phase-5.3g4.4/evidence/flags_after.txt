@@ -1,0 +1,5 @@
+# Phase 5.3G.4.5D flags_after: read-only observation after implementation
+LIVE_ACTIONS_ACTIVE: src/blatifa/production/authorization.py:30: LIVE_ACTIONS_ACTIVE: Final = False
+deny_true_count: src/blatifa/inspector/data/flow_locators.yaml: 18
+BLATIFA_LIVE env: unset
+flags_modified: none (no flag, deny protection, environment variable or configuration was changed)

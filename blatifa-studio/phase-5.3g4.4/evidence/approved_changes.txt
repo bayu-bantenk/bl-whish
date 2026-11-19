@@ -1,0 +1,8 @@
+# Phase 5.3g.4.4 (R-2) approved changes: <path> <old sha256> <new sha256>. old = digest recorded in protected_hashes_before.txt (step 1).
+# Scope (user-approved 2026-11-19, PHASE 5.3G.4.5D): exactly the four rows of R2_DESIGN_SPEC.md 9.1. This manifest approves only these rows; it makes no claim about any other file.
+# New files are NOT rows (recorded in new_files_hashes.txt): src/blatifa/account/provenance.py, tests/unit/test_phase5_3g4_4_r2_provenance.py.
+# Integrity roots are NOT rows (exact pins): tests/unit/protected_hashes.py, tests/unit/test_phase5_3g4_credit_paths.py, tests/unit/test_phase5_3g4_1_adapter_trust.py, tests/unit/test_phase5_3g4_2_freshness.py.
+src/blatifa/production/gates.py 5b701a9e247138b2af1dc288f1148ba85807ed308a186c3da49cfdea980ffd4d c24b25b30fff722fb49e41ca73afb087c901b14042da72e9730a80ea981bec43
+src/blatifa/production/runner.py 6000fb18cb66f228b5405e1558c3e04aed2e92ff37cf3390cd97bb0940df9341 4b3c953c30524ca41baefecd51e323457ae7b2ffc4d070a5032bee2c42478b2a
+tests/unit/simflow.py 8e76d5ee84be8d423776a24b9d4f5afd12162d445aaf16519cb48c503ea9949f cac883f62496d7db6bd3d7a382a2f2561e3ba45d485b06796df7a91c67a28585
+tests/unit/test_phase5_3g3_credit_contract.py 67d8a44bf1d2c8a16fda03c4ba32e63f843f30d1b4faa7f9b7cadbb523f08d9c 07692b9b733edd188b5113ac0ebf6a00b882c15a275bea5d74ef0f75205be89a
