@@ -1,0 +1,144 @@
+--- a/backend/app/core/config.py
++++ b/backend/app/core/config.py
+@@ -5,11 +5,12 @@
+ from __future__ import annotations
+ 
+ import json
++import os
+ import secrets
+ from enum import Enum
+ from functools import lru_cache
+ from pathlib import Path
+-from typing import Any, List, Optional
++from typing import Any, List, Literal, Optional
+ 
+ from pydantic import field_validator
+ from pydantic_settings import BaseSettings, SettingsConfigDict
+@@ -24,6 +25,13 @@
+     SQLITE = "sqlite"
+ 
+ 
++# X2 — container marker baked into the backend image (Dockerfile ENV). Read
++# from the raw process environment by Settings.validate_runtime_environment(),
++# deliberately NOT through pydantic-settings (env_ignore_empty would turn ""
++# into "unset" and bool parsing would accept many spellings).
++CONTAINER_MARKER_ENV = "ERP_CONTAINER"
++
++
+ class Environment(str, Enum):
+     DEVELOPMENT = "development"
+     STAGING = "staging"
+@@ -73,6 +81,11 @@
+     APP_NAME: str = "ERP Platform"
+     APP_VERSION: str = "1.0.0"
+     APP_ENV: Environment = Environment.DEVELOPMENT
++    # X2 — deployment target pin, set by the deployment manifest. Only the
++    # production-like targets are valid values; when set, APP_ENV must equal
++    # it exactly (validate_runtime_environment). Empty value == unset
++    # (env_ignore_empty=True).
++    ERP_DEPLOYMENT_TARGET: Optional[Literal["staging", "production"]] = None
+     APP_DEBUG: bool = False
+     APP_HOST: str = "0.0.0.0"
+     APP_PORT: int = 8000
+@@ -362,7 +375,51 @@
+                 f"before starting in this environment."
+             )
+ 
++    def validate_runtime_environment(self) -> None:
++        """X2 — APP_ENV deployment contract.
+ 
++        Explicit check, never run at import time. Callers must invoke it
++        before validate_production_secrets() and before any database engine
++        is built: main.py lifespan, DatabaseFactory.initialize(cfg) and
++        alembic/env.py.
++
++        * ERP_CONTAINER (raw os.environ, exact values only, no whitespace
++          stripping or case folding): absent -> not a container; "1" ->
++          container; "0" -> explicit operator opt-out; anything else,
++          including "" -> refuse.
++        * R1: container marker active -> APP_ENV must be explicitly provided
++          (init kwarg, environment variable or .env file, i.e. present in
++          model_fields_set). The DEVELOPMENT default does not count.
++        * R2: ERP_DEPLOYMENT_TARGET set -> APP_ENV must equal it.
++
++        Error messages name variables and enum values only, never secrets.
++        """
++        marker = os.environ.get(CONTAINER_MARKER_ENV)
++        if marker is None or marker == "0":
++            in_container = False
++        elif marker == "1":
++            in_container = True
++        else:
++            raise RuntimeError(
++                f"Refusing to start: {CONTAINER_MARKER_ENV} must be exactly '1' (container) "
++                f"or '0' (explicit opt-out) when set; got an unsupported value."
++            )
++
++        if in_container and "APP_ENV" not in self.model_fields_set:
++            raise RuntimeError(
++                f"Refusing to start inside a container ({CONTAINER_MARKER_ENV}=1) without an "
++                f"explicit APP_ENV. Set APP_ENV to one of: "
++                f"{', '.join(e.value for e in Environment)}."
++            )
++
++        target = self.ERP_DEPLOYMENT_TARGET
++        if target is not None and self.APP_ENV.value != target:
++            raise RuntimeError(
++                f"Refusing to start: ERP_DEPLOYMENT_TARGET={target!r} does not match "
++                f"APP_ENV={self.APP_ENV.value!r}."
++            )
++
++
+ @lru_cache
+ def get_settings() -> Settings:
+     return Settings()
+--- a/backend/app/main.py
++++ b/backend/app/main.py
+@@ -26,6 +26,11 @@
+ async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
+     """Manage application startup and shutdown via FastAPI lifespan."""
+     # ── Startup ────────────────────────────────────────────────────
++    # X2: APP_ENV deployment contract first — validate_production_secrets()
++    # below depends on APP_ENV being trustworthy, and no engine may be built
++    # before it passes.
++    settings.validate_runtime_environment()
++
+     logger.info("Starting %s v%s [%s]", settings.APP_NAME, settings.APP_VERSION, settings.APP_ENV)
+ 
+     # Phase 3.0I: fail loudly before anything else if a known-weak
+--- a/backend/app/core/database/factory.py
++++ b/backend/app/core/database/factory.py
+@@ -116,6 +116,8 @@
+     async def initialize(cls, cfg: Optional[Settings] = None) -> None:
+         if cfg is None:
+             cfg = settings
++        # X2: refuse before any engine (and therefore any connection) exists.
++        cfg.validate_runtime_environment()
+         if cls._engine is not None:
+             return
+         kwargs = _build_engine_kwargs(cfg)
+--- a/backend/alembic/env.py
++++ b/backend/alembic/env.py
+@@ -27,6 +27,10 @@
+ from app.core.database.base import Base
+ from app.core.database.schema_manager import SEARCH_PATH, ALL_SCHEMAS
+ 
++# X2: APP_ENV deployment contract — before set_main_option() and before any
++# engine is created, so the migration path cannot bypass it.
++settings.validate_runtime_environment()
++
+ # SQLite has no notion of Postgres-style schemas — "public" is not a
+ # database/attachment that exists, so passing version_table_schema="public"
+ # or include_schemas=True makes Alembic try (and fail) to qualify table
+--- a/backend/Dockerfile
++++ b/backend/Dockerfile
+@@ -20,6 +20,9 @@
+     PYTHONPATH=/app \
+     PORT=8000
+ 
++# X2: non-secret container marker; makes an explicit APP_ENV mandatory
++ENV ERP_CONTAINER=1
++
+ WORKDIR /app
+ 
+ # Runtime libs only
